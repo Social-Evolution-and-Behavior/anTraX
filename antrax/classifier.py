@@ -505,6 +505,8 @@ def classes_from_examplesdir(examplesdir):
 
 def tmp_examplesdir(examplesdirs, n=None):
 
+    print('-I- making joined example dir')
+
     edir = mkdtemp()
 
     for ed in examplesdirs:
