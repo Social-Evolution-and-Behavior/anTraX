@@ -1,0 +1,22 @@
+site_name: anTraX
+site_author: Asaf Gal
+repo_url: https://github.com/Social-Evolution-and-Behavior/CATT/
+nav:
+- Home: index.md
+- Installation: Installation.md
+- User Guide: 
+    - The anTraX workflow: workflow.md
+    - Organize your data: data_organization.md
+    - Configure a tracking session: configuration.md
+    - Run tracking: running.md
+    - Classify tracklets: classify-tracklets.md
+    - Validate the results: validation.md
+    - Working with output data: data_export.md
+- Tips and best practices: tips.md
+- Examples: examples.md
+- Analysis: analysis.md
+- About: about.md
+theme: readthedocs
+markdown_extensions:
+    - smarty
+    - fenced_code

@@ -1,0 +1,302 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>Popen access from Matlab</title>
+      <meta name="generator" content="MATLAB 7.3">
+      <meta name="date" content="2007-02-04">
+      <meta name="m-file" content="popenr_demo"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>Popen access from Matlab</h1>
+         <introduction>
+            <p>popen() -- for "pipe open" -- is a very useful system call provided in many flavors of Unix. It runs a command passed in as
+               a string then returns a file handle so that the parent process can read or write to the process as if it was a file; data
+               passed this way is connected to the standard input or the standard output of the child process.
+            </p>
+            <p>I created this because I wanted to process very long MP3 files in Matlab. Originally I wrote mp3read to allow me to decode
+               just a small section of a long MP3 file without having to decode the whole thing, but every time I wanted to read another
+               segment, I had to open the file again, then seek through to the point I wanted to read.
+            </p>
+            <p>Instead, by using popen to open an MP3 decoding process that writes to standard output, I can "pull" as many frames as I want
+               from the file, then put the process to sleep while I deal with those frames, then, on my next read from popen, the process
+               is reawoken and the next block of data can be accessed. But this could be used for any application where there are long data
+               streams to read or write, and you want to handle them a bit at a time.
+            </p>
+            <p>For simplicity, there are two Matlab extensions provided:</p>
+            <p><b><tt>P = popenr(CMD)</tt></b> runs the string CMD in a unix shell returning a handle in P. Subsequent calls to <tt>X = popenr(P, N [, F])</tt> reads N values from the pipe P, converting each value according to the optional format string F (which defaults to 'char',
+               but can be 'int16' etc.). A final call of <tt>popen(P, -1)</tt> closes the pipe and destroys the handle.
+            </p>
+            <p><b><tt>P = popenw(CMD)</tt></b> is for writing to a process.  Called with the command line string CMD, it initializes the pipe and returns the pipe handle
+               in P.  <tt>N = popenw(P, D[, F])</tt> then writes the data in vector D to the process (using the format conversion in F), returning the number of items written,
+               and <tt>popen(P, [])</tt> closes the pipe.
+            </p>
+            <p>I don't have any provision for both reading and writing to the same process, unfortunately - popenr and popenw have separate
+               handle tables, so the handles aren't interchangable. Something for the future (a unified popen extension that takes an access
+               mode as an argument).
+            </p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Code</a></li>
+               <li><a href="#2">Precompiled MEX files</a></li>
+               <li><a href="#3">Windows</a></li>
+               <li><a href="#4">Acknowledgments</a></li>
+            </ul>
+         </div>
+         <h2>Code<a name="1"></a></h2>
+         <p>The popen functions are provided as MEX extensions to Matlab. Each function is distributed as a single C source file. Below
+            is an example code snippet where I use popenr to read the long MP3 file one bit at a time. For an example of using popenw
+            to write a long MP3 file, see my mp3write function on the mp3read / mp3write page. <a href="http://labrosa.ee.columbia.edu/matlab/mp3read.html">http://labrosa.ee.columbia.edu/matlab/mp3read.html</a></p><pre class="codeinput"><span class="comment">% Compile the MEX function (you only need to do this once):</span>
+mex <span class="string">popenr.c</span>
+
+<span class="comment">% Setup constants for example</span>
+nframes = 50;
+sampsperframe = 1000;
+FS = 44100;
+downsamp = 2;
+
+filename = <span class="string">'piano.mp3'</span>;
+
+<span class="comment">% Set up the mpeg audio decode command as a readable stream</span>
+cmd = [<span class="string">'/usr/bin/mpg123 -q -s -m -'</span>,num2str(downsamp),<span class="string">' '</span>,filename];
+
+p = popenr(cmd);
+
+<span class="keyword">if</span> p &lt; 0
+  error([<span class="string">'Error running popenr('</span>,cmd,<span class="string">')'</span>]);
+<span class="keyword">end</span>
+
+<span class="comment">% Pull values one chunk at a time, for incremental processing</span>
+<span class="comment">% without having to load the entire file into memory</span>
+<span class="keyword">for</span> frame = 1:nframes
+  <span class="keyword">if</span> rem(frame,10) == 0
+    disp([filename,<span class="string">' is processing .. : '</span>,num2str(frame),<span class="keyword">...</span>
+          [<span class="string">' out of '</span>],num2str(nframes),<span class="string">' frames'</span>]);
+  <span class="keyword">end</span>
+
+  <span class="comment">% Get the next chunk of data from the process</span>
+  Y = popenr(p,[sampsperframe/downsamp,1],<span class="string">'int16'</span>);
+
+  Sr = FS/downsamp;
+
+  <span class="comment">% Process the block of samples in Y</span>
+  E(frame) = norm(Y)/sqrt(length(Y));
+  <span class="comment">% ... or whatever</span>
+
+<span class="keyword">end</span>
+
+<span class="comment">% Close pipe</span>
+popenr(p,-1);
+
+<span class="comment">% Plot results (to have a graphic!)</span>
+plot([1:nframes]*(sampsperframe/FS),E);
+xlabel(<span class="string">'time / s'</span>);
+ylabel(<span class="string">'rms level'</span>);
+</pre><pre class="codeoutput">piano.mp3 is processing .. : 10 out of 50 frames
+piano.mp3 is processing .. : 20 out of 50 frames
+piano.mp3 is processing .. : 30 out of 50 frames
+piano.mp3 is processing .. : 40 out of 50 frames
+piano.mp3 is processing .. : 50 out of 50 frames
+</pre><img vspace="5" hspace="5" src="popenr_demo_01.png"> <h2>Precompiled MEX files<a name="2"></a></h2>
+         <p>There are precompiled mex files available for some Unix flavors at: <a href="http://labrosa.ee.columbia.edu/matlab/popenrw.html">http://labrosa.ee.columbia.edu/matlab/popenrw.html</a></p>
+         <h2>Windows<a name="3"></a></h2>
+         <p>As far as I know, popen() is not available under Windows. If you know different, and you get these extensions working under
+            Windows, I would be very interested to hear about it, and post the results here.
+         </p>
+         <h2>Acknowledgments<a name="4"></a></h2>
+         <p>Thanks to Scott Leishman of U Toronto for his modifications.</p>
+         <p>Last updated: $Date: 2007/01/14 04:12:56 $ Dan Ellis <a href="dpwe@ee.columbia.edu">dpwe@ee.columbia.edu</a></p>
+         <p class="footer"><br>
+            Published with MATLAB&reg; 7.3<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% Popen access from Matlab
+%
+% popen() REPLACE_WITH_DASH_DASH for "pipe open" REPLACE_WITH_DASH_DASH is a very useful system call provided
+% in many flavors of Unix. It runs a command passed in as a string
+% then returns a file handle so that the parent process can read or
+% write to the process as if it was a file; data passed this way is 
+% connected to the standard input or the standard output of the child
+% process.
+%
+% I created this because I wanted to process very long MP3 files in
+% Matlab. Originally I wrote mp3read to allow me to decode just a
+% small section of a long MP3 file without having to decode the
+% whole thing, but every time I wanted to read another segment, I
+% had to open the file again, then seek through to the point I
+% wanted to read. 
+%
+% Instead, by using popen to open an MP3 decoding process that
+% writes to standard output, I can "pull" as many frames as I want
+% from the file, then put the process to sleep while I deal with
+% those frames, then, on my next read from popen, the process is
+% reawoken and the next block of data can be accessed. But this
+% could be used for any application where there are long data
+% streams to read or write, and you want to handle them a bit at a
+% time. 
+%
+% For simplicity, there are two Matlab extensions provided:
+%
+% *|P = popenr(CMD)|* runs the string CMD in a unix shell returning a
+% handle in P. Subsequent calls to |X = popenr(P, N [, F])| reads N
+% values from the pipe P, converting each value according to the
+% optional format string F (which defaults to 'char', but can be
+% 'int16' etc.). A final call of |popen(P, -1)| closes the pipe and
+% destroys the handle. 
+%
+% *|P = popenw(CMD)|* is for writing to a process.  Called with the
+% command line string CMD, it initializes the pipe and returns the
+% pipe handle in P.  |N = popenw(P, D[, F])| then writes the data in
+% vector D to the process (using the format conversion in F),
+% returning the number of items written, and |popen(P, [])| closes the
+% pipe.
+%
+% I don't have any provision for both reading and writing to the
+% same process, unfortunately - popenr and popenw have separate
+% handle tables, so the handles aren't interchangable. Something
+% for the future (a unified popen extension that takes an access
+% mode as an argument). 
+%
+%% Code
+%
+% The popen functions are provided as MEX extensions to Matlab. 
+% Each function is distributed as a single C source file.
+% Below is an example code snippet where I use popenr to read the
+% long MP3 file one bit at a time.
+% For an example of using popenw to write a long MP3 file, see my
+% mp3write function on the mp3read / mp3write page.
+% http://labrosa.ee.columbia.edu/matlab/mp3read.html
+
+% Compile the MEX function (you only need to do this once):
+mex popenr.c
+
+% Setup constants for example
+nframes = 50;
+sampsperframe = 1000;
+FS = 44100;
+downsamp = 2;
+
+filename = 'piano.mp3';
+
+% Set up the mpeg audio decode command as a readable stream
+cmd = ['/usr/bin/mpg123 -q -s -m -',num2str(downsamp),' ',filename];
+
+p = popenr(cmd);
+
+if p < 0
+  error(['Error running popenr(',cmd,')']);
+end
+
+% Pull values one chunk at a time, for incremental processing
+% without having to load the entire file into memory
+for frame = 1:nframes
+  if rem(frame,10) == 0
+    disp([filename,' is processing .. : ',num2str(frame),...
+          [' out of '],num2str(nframes),' frames']);
+  end
+  
+  % Get the next chunk of data from the process
+  Y = popenr(p,[sampsperframe/downsamp,1],'int16');
+
+  Sr = FS/downsamp;
+
+  % Process the block of samples in Y
+  E(frame) = norm(Y)/sqrt(length(Y));
+  % ... or whatever
+  
+end
+
+% Close pipe
+popenr(p,-1);
+
+% Plot results (to have a graphic!)
+plot([1:nframes]*(sampsperframe/FS),E);
+xlabel('time / s');
+ylabel('rms level');
+    
+%% Precompiled MEX files
+% There are precompiled mex files available for some Unix flavors
+% at: http://labrosa.ee.columbia.edu/matlab/popenrw.html
+
+%% Windows
+% As far as I know, popen() is not available under Windows. If you
+% know different, and you get these extensions working under
+% Windows, I would be very interested to hear about it, and post
+% the results here. 
+
+%% Acknowledgments
+% Thanks to Scott Leishman of U Toronto for his modifications.
+%
+% Last updated: $Date: 2007/01/14 04:12:56 $
+% Dan Ellis <dpwe@ee.columbia.edu>
+  
+##### SOURCE END #####
+-->
+   </body>
+</html>
