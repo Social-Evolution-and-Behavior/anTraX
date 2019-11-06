@@ -32,6 +32,10 @@ def new_model(prmtrs):
 
         model = small(prmtrs['nclasses'], prmtrs['target_size'])
 
+    elif prmtrs['modeltype'] == 'medium':
+
+        model = medium(prmtrs['nclasses'], prmtrs['target_size'])
+
     else:
 
         print('Unknown or unimplemented model type')
