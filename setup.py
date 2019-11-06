@@ -1,5 +1,5 @@
 from setuptools import setup
-
+from setuptools.command.install import install
 
 def readme():
     with open('README.md') as f:
@@ -37,3 +37,15 @@ setup(name='antrax',
             'pymatreader @ git+https://github.com/Social-Evolution-and-Behavior/pymatreader.git'
             ],
       zip_safe=False)
+
+
+class PostInstallCommand(install):
+    """Post-installation for installation mode."""
+    def run(self):
+
+        # install package
+        install.run(self)
+
+        # make app dir
+
+        # download pre trained classifiers

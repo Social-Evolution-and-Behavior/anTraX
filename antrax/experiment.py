@@ -43,8 +43,12 @@ class axExperiment:
         self.trackletdir = join(self.sessiondir, 'tracklets')
         self.labelsdir = join(self.sessiondir, 'labels')
         self.paramsdir = join(self.sessiondir, 'parameters')
+        self.antdatadir = join(self.sessiondir, 'antdata')
         self.prmtrs = self.get_prmtrs()
         self.movies_info = self.get_movies_info()
+        
+        
+        self.antlist = self.get_labels()['ant_labels']
 
         self.slurmdir = join(expdir, 'slurm')
         mkdir(self.slurmdir)
@@ -275,13 +279,12 @@ class axExperiment:
             ims = make_white_bg(ims)
         
         return ims
-        
-    
 
-    def get_ant_data(self, movlist=None, antlist=None):
+    def get_ant_data(self, movlist=None, antlist=None, fields=None):
 
-        pass
-    
+        ad = axAntData(self, movlist=movlist, antlist=antlist)
+        return ad
+
     def get_autoids(self, movlist=None):
         
         autoids = {}
@@ -430,12 +433,104 @@ class axExperiment:
         return dlcdata
         
 
-            
 class axAntData:
     
-    def __init__(self):
+    def __init__(self, ex, movlist=None, antlist=None):
+
+        self.ex = ex
+        self.data = None
+
+        if movlist is None:
+            self.movlist = ex.movlist
+        else:
+            self.movlist = movlist
+
+        if antlist is None:
+            self.antlist = ex.antlist
+        else:
+            self.antlist = antlist
+
+        self.load()
+
+    def load(self):
+
+        mdfs = []
+
+        for m in self.movlist:
+
+            filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '.mat')
+            antdata = read_mat(filename)
+
+            # convert to dataframe
+            dfs = []
+            for ant in antdata.keys():
+                cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or')])
+                dfs.append(pd.DataFrame(antdata[ant], columns=cols))
+            df = pd.concat(dfs, axis=1)
+            df['frame'] = np.arange(self.ex.movies_info.iloc[m - 1]['fi'], self.ex.movies_info.iloc[m - 1]['ff'] + 1)
+            df = df.set_index('frame')
+            mdfs.append(df)
+
+        self.data = pd.concat(mdfs, axis=0)
+        
+    def set_v(self):
+        
+        for ant in self.antlist:
+            dx = self.data[ant]['x'].diff()
+            dy = self.data[ant]['y'].diff()
+            self.data[(ant,'v')] = np.sqrt(dx**2 + dy**2)
+            
+    def set_nest(self, window=None, thresh = (0.5, 0.005)):
+        
+        idx = pd.IndexSlice
+        
+        # nest is defined as the median location of all ants (interpolate over missing values)
+        
+        self.data[('nest','x')] = self.data.loc[:,idx[:,'x']].interpolate(limit_area='inside').median(axis=1)
+        self.data[('nest','y')] = self.data.loc[:,idx[:,'y']].interpolate(limit_area='inside').median(axis=1)
+        
+        # median smoothing for consistency
+        
+        if window is not None:
+            
+            self.data[('nest','x')] = self.data[('nest','x')].rolling(window, center=True).median()
+            self.data[('nest','y')] = self.data[('nest','y')].rolling(window, center=True).median()
+        
+        
+        for ant in self.antlist:
+            dx = self.data[ant]['x'] - self.data['nest']['x']
+            dy = self.data[ant]['y'] - self.data['nest']['y']
+            self.data[(ant,'dnest')] = np.sqrt(dx**2 + dy**2)
+            
+        for ant in self.antlist:
+            self.data[(ant,'outside')] = self.data[(ant,'dnest')] > thresh[1]
+            
+        self.data[('nest','valid')] =  self.data.loc[:,idx[:,'outside']].mean(axis=1) <= thresh[0]
+        
+    def set_on_edge(self, dthresh = 0.002):
         
         pass
+        
+        
+    
+    def set_interacting(self, dthresh=0.002):
+        
+        idx = pd.IndexSlice
+        
+        # define interacting as being close to other ant while outside the nest
+        
+        for ant in self.antlist:
+            otherants = [x for x in self.antlist if not x==ant]
+            out = self.data.loc[:,idx[:,'outside']].droplevel(axis=1,level=1).apply(lambda x: x.where(x, np.nan))
+            dx = self.data.loc[:,idx[otherants ,'x']].subtract(self.data[ant]['x'],axis=0).droplevel(axis=1,level=1)
+            dy = self.data.loc[:,idx[otherants ,'y']].subtract(self.data[ant]['y'],axis=0).droplevel(axis=1,level=1)
+            d = np.sqrt(dx**2 + dy**2) * out
+            self.data[(ant,'interacting')] = d.min(axis=1) < dthresh
+            
+    
+    def head(self):
+        
+        self.data.head()
         
 class axTrackletData:
 
