@@ -64,7 +64,31 @@ def MobileNetV2(nclasses, target_size):
 
 def medium(nClasses, target_size):
 
-    pass
+    model = Sequential()
+    model.add(Convolution2D(128, (3, 3), activation='relu', input_shape=(target_size, target_size, 3)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.25))
+
+    # model.add(Convolution2D(64, (3, 3), activation='relu'))
+    model.add(Convolution2D(256, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.25))
+
+    # model.add(Convolution2D(64, (3, 3), activation='relu'))
+    model.add(Convolution2D(512, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.25))
+
+    model.add(Flatten())
+    model.add(BatchNormalization())
+    # model.add(Dense(64, activation='softmax'))
+    model.add(Dropout(0.25))
+    model.add(Dense(nClasses, activation='softmax'))
+
+    return model
 
 
 def small(nClasses, target_size):
