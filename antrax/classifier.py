@@ -168,7 +168,7 @@ class axClassifier:
 
     def predict_images(self):
 
-        if self.images.size == 0:
+        if tf.shape(self.images.shape)[0] == 0:
             return 'Unknown', 0, -1
 
         y = self.model.predict(self.images)
