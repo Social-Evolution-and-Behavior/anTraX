@@ -156,7 +156,7 @@ class axClassifier:
 
         # resize images
         if self.images.shape[1] != self.prmtrs['target_size'] or self.prmtrs['scale'] != 1:
-            a0 = self.prmtrs['target']
+            a0 = self.prmtrs['target_size']
             a1 = int(float(a0) * self.prmtrs['scale'])
             resized = np.zeros([self.images.shape[0], a1, a1, self.images.shape[-1]], dtype=np.uint8)
             for i in range(self.images.shape[0]):
