@@ -289,7 +289,8 @@ class axClassifier:
         self.imagefiles = [x for _, x in sorted(zip(movieindex, self.imagefiles))]
         movieindex = sorted(movieindex)
         if not movlist == 'all':
-            movlist = [int(m) for m in movlist.split(',')]
+            if isinstance(movlist, str):
+                movlist = [int(m) for m in movlist.split(',')]
             self.imagefiles = [f for f in self.imagefiles if movieindex[self.imagefiles.index(f)] in movlist]
 
         for f in self.imagefiles:

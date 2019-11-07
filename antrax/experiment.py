@@ -10,7 +10,7 @@ import csv
 import h5py
 
 from .utils import *
-
+from .analysis_functions import *
 
 class axExperiment:
 
@@ -46,7 +46,6 @@ class axExperiment:
         self.antdatadir = join(self.sessiondir, 'antdata')
         self.prmtrs = self.get_prmtrs()
         self.movies_info = self.get_movies_info()
-        
         
         self.antlist = self.get_labels()['ant_labels']
 
@@ -521,13 +520,37 @@ class axAntData:
         
         for ant in self.antlist:
             otherants = [x for x in self.antlist if not x==ant]
-            out = self.data.loc[:,idx[:,'outside']].droplevel(axis=1,level=1).apply(lambda x: x.where(x, np.nan))
+            out = self.data[ant]['outside'].apply(lambda x: np.where(x, x, np.nan))
             dx = self.data.loc[:,idx[otherants ,'x']].subtract(self.data[ant]['x'],axis=0).droplevel(axis=1,level=1)
             dy = self.data.loc[:,idx[otherants ,'y']].subtract(self.data[ant]['y'],axis=0).droplevel(axis=1,level=1)
-            d = np.sqrt(dx**2 + dy**2) * out
-            self.data[(ant,'interacting')] = d.min(axis=1) < dthresh
+            d = np.sqrt(dx**2 + dy**2) 
+            self.data[(ant,'interacting')] = (d.min(axis=1) < dthresh) * out
+            
+    def set_stops(self, vthresh=0.0005):
+        
+        idx = pd.IndexSlice
+        fps = self.ex.movies_info['fps'][0]
+        
+        out = self.data.loc[:,idx[:,'outside']].droplevel(axis=1,level=1).apply(lambda x: x.where(x, np.nan))
+        v = self.data.loc[:,idx[:,'v']].droplevel(axis=1,level=1).copy()
+        v = (v * out).rolling(fps).mean()
+                
+        for ant in self.antlist:
+            
+            self.data[(ant,'stop')] = v[ant] < vthresh
             
     
+    def set_kinematics(self, dt=0.1):
+        
+        idx = pd.IndexSlice
+        fps = self.ex.movies_info['fps'][0]
+        
+        for ant in self.antlist:
+            df = trajectory_kinematics(self.data[ant], dt=1/fps)
+            self.data[(ant,'curvature')] = df['curvature']
+            self.data[(ant,'acceleration')] = df['a']
+            self.data[(ant,'normal_acceleration')] = df['an']
+            
     def head(self):
         
         self.data.head()
