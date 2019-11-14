@@ -113,6 +113,8 @@ def prepare_antrax_job(ex, step, taskarray, opts):
         cmd = ''
 
     elif step == 'dlc':
+        if taskarray is None:
+            taskarray = ex.movlist
         opts['jobname'] = 'dlc:' + ex.expname
         opts['filename'] = 'dlc'
         opts['cpus'] = opts.get('cpus', 6)

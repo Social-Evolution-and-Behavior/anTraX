@@ -14,7 +14,7 @@ from antrax.utilshpc import *
 @parser.value_converter
 def parse_hpc_options(s):
 
-    if s in None or s == '':
+    if s is None or s == '':
         return {}
 
     opts = {x.split('=')[0]: x.split('=')[1] for x in s.split(',') if '=' in x}
@@ -131,7 +131,7 @@ def solve(explist):
     pass
 
 
-def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=None):
+def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' '):
     """Run DeepLabCut on antrax experiment
 
      :param explist: path to experiment folder, path to file with experiment folders, path to a folder containing several experiments
@@ -156,6 +156,7 @@ def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=Non
             clear_tracking_data(e, 'dlc', movlist, hpc_options)
             jobfile = prepare_antrax_job(e, 'dlc', taskarray=movlist, opts=hpc_options)
             submit_antrax_job(jobfile)
+
 
 if __name__ == '__main__':
 
