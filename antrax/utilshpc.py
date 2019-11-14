@@ -125,7 +125,7 @@ def prepare_antrax_job(ex, step, taskarray, opts):
     create_slurm_job_file(opts)
 
 
-def clear_tracking_data(ex, step, opts):
+def clear_tracking_data(ex, step, movlist, opts):
 
     # it is a good idea to clear tracking data centrally before hpc run, so we'll know which tasks failed without
     # looking at the logs
@@ -133,7 +133,7 @@ def clear_tracking_data(ex, step, opts):
     if opts.get('dry', False):
         return
 
-    for m in opts['movlist']:
+    for m in movlist:
 
         if step == 'track':
 
