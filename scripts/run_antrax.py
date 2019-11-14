@@ -14,7 +14,7 @@ from antrax.utilshpc import *
 @parser.value_converter
 def parse_hpc_options(s):
 
-    opts = {x[0]: x[1] for x in s.split(',')}
+    opts = {x.split('=')[0]: x.split('=')[1] for x in s.split(',') if '=' in x}
     for k, v in opts.items():
         if v.isnumeric():
             opts[k] = int(v)
@@ -33,10 +33,6 @@ def parse_movlist(movlist):
 def parse_explist(exparg):
 
     exps = []
-
-    print(exparg)
-    print(isdir(exparg))
-    print(is_expdir(exparg))
 
     if isdir(exparg) and is_expdir(exparg):
         exps.append(axExperiment(exparg))
@@ -143,6 +139,9 @@ def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=Non
      :param hpc_options: comma seperated list of options for hpc
      """
     from antrax.dlc import dlc4antrax
+
+
+    print(hpc_options)
 
     for e in explist:
 
