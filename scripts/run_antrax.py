@@ -154,8 +154,8 @@ def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=Non
         else:
             hpc_options['cfg'] = cfg
             clear_tracking_data(e, 'dlc', movlist, hpc_options)
-            prepare_antrax_job(e, 'dlc', taskarray=movlist, opts=hpc_options)
-
+            jobfile = prepare_antrax_job(e, 'dlc', taskarray=movlist, opts=hpc_options)
+            submit_antrax_job(jobfile)
 
 if __name__ == '__main__':
 

@@ -49,6 +49,8 @@ def create_slurm_job_file(opts):
 
         f.writelines("srun -N1 %s\n" % cmd)
 
+    return jobfile
+
 
 def submit_slurm_job_file(jobfile):
 
@@ -60,9 +62,13 @@ def submit_slurm_job_file(jobfile):
     return jid
 
 
-def submit_antrax_job(jobfile, kwargs):
+def submit_antrax_job(jobfile):
 
     jid = submit_slurm_job_file(jobfile)
+
+    print('')
+    print('Job number ' + str(jid) + ' was submitted')
+    print('')
 
     # log the job id
 
@@ -111,7 +117,7 @@ def prepare_antrax_job(ex, step, taskarray, opts):
         opts['filename'] = 'dlc'
         opts['cpus'] = opts.get('cpus', 6)
         #precmd.append('export ')
-        opts['cmd'] = 'run_antrax dlc ' + ex.expdir + \
+        opts['cmd'] = 'run_antrax.py dlc ' + ex.expdir + \
             ' --session ' + ex.session + \
             ' --cfg ' + opts['cfg'] + \
             ' --movlist $SLURM_ARRAY_TASK_ID'
@@ -121,7 +127,9 @@ def prepare_antrax_job(ex, step, taskarray, opts):
 
     opts['workdir'] = ex.slurmdir
     opts['taskarray'] = taskarray
-    create_slurm_job_file(opts)
+    jobfile = create_slurm_job_file(opts)
+
+    return jobfile
 
 
 def clear_tracking_data(ex, step, movlist, opts):
