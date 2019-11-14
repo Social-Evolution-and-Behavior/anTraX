@@ -142,6 +142,9 @@ def clear_tracking_data(ex, step, movlist, opts):
     if opts.get('dry', False):
         return
 
+    if movlist is None:
+        movlist = ex.movlist
+
     for m in movlist:
 
         if step == 'track':
