@@ -8,6 +8,7 @@ import ruamel.yaml
 import h5py 
 import numpy as np
 from numpy import pi
+import skvideo.io as skv
 
 USER = os.getenv("USER")
 HOME = os.getenv("HOME")
@@ -129,16 +130,8 @@ def get_dlc_data_from_file(filename):
     
 def make_white_bg(ims):
     
-    gry = np.tile(np.expand_dims(ims.max(axis=3), -1),(1,1,1,3))
+    gry = np.tile(np.expand_dims(ims.max(axis=3), -1), (1, 1, 1, 3))
     bg = np.ones_like(gry) * 255
-    return np.where(gry==0, bg, ims)
-    
-    
-### angle arithmetics
+    return np.where(gry == 0, bg, ims)
 
 
-
-        
-        
-        
-        

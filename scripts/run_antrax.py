@@ -1,35 +1,46 @@
 #!/usr/bin/env python3
 
-from clize import run, Parameter
+from clize import run, Parameter, parser
 from sigtools.wrappers import decorator
 from os.path import isfile, isdir, join, splitext
 
 from time import sleep
 
 from antrax import *
+from antrax.utilshpc import *
 
-@decorator
-def parse_movlist(wrapped, *args, movlist=None, **kwargs):
+########################### AUX functions #########################
+
+@parser.value_converter
+def parse_hpc_options(s):
+
+    opts = {x[0]: x[1] for x in s.split(',')}
+    for k, v in opts.items():
+        if v.isnumeric():
+            opts[k] = int(v)
+
+    return opts
+
+
+@parser.value_converter
+def parse_movlist(movlist):
 
     movlist = parse_movlist_str(movlist)
 
-    return wrapped(*args, movlist=movlist, **kwargs)
+    return movlist
 
+@parser.value_converter
+def parse_explist(exparg):
 
-@decorator
-def expand_explist(wrapped, *args, **kwargs):
-    """A decorator to expand argument to experiment list
+    exps = []
 
-    :param wrapped: The decorated function
-    :param exparg: The explist argument to expand. Can be a text file with expdir list, a root directory, or just an expdir
-    """
-
-    exparg = args[0]
+    print(exparg)
+    print(isdir(exparg))
+    print(is_expdir(exparg))
 
     if isdir(exparg) and is_expdir(exparg):
-        explist = [exparg]
+        exps.append(axExperiment(exparg))
     elif isfile(exparg):
-        explist = []
         with open(exparg) as f:
             for line in f:
                 line = line.rstrip()
@@ -37,11 +48,18 @@ def expand_explist(wrapped, *args, **kwargs):
                     continue
                 if line[0] != '#':
                     lineparts = line.split(' ')
-                    explist.append(lineparts[0])
-    else:
+                    exps.append(axExperiment(lineparts[0]))
+    elif isdir(exparg):
         explist = find_expdirs(exparg)
+        exps = [axExperiment(e) for e in explist if is_expdir(e)]
+    else:
+        print('Something wrong with explist argument')
+        exps = []
 
-    return wrapped(explist, *args[1:], **kwargs)
+    return exps
+
+
+########################### Run functions ##########################
 
 
 def configure():
@@ -65,26 +83,22 @@ def configure():
         sleep(0.25)
 
 
-@expand_explist
-@parse_movlist
-def track(explist, session=None, movlist='all', nw=0):
+def track(explist, movlist='all'):
     """Track experiment (or list of experiments) on local machine
 
-    :param expdirs:
-    :param session:
-    :param movlist:
-    :param nw:
+    :param expdirs: A message to store alongside the commit
     """
+
+    exps = parse_explist(explist)
+    movlist = parse_movlist(movlist)
+
     print('')
     print('Tracking experiments:')
-    for e in explist:
-        ex = axExperiment(e, session)
-        print(ex.expname)
-
-    #
+    for e in exps:
+        print(e)
 
 
-def train(classdir, *, modeltype='small', scratch=False, ne=5, unknown_weight=50, verbose=1, nw=0):
+def train(classdir, *, scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None, nw=0, scale=None):
     """Train a classifier on local machine
 
     :param classdir: The classifier directory to train
@@ -96,27 +110,14 @@ def train(classdir, *, modeltype='small', scratch=False, ne=5, unknown_weight=50
     :param unknown_weight:
     :param verbose:
     """
+    if target_size is not None:
+        target_size = int(target_size)
 
-    if isfile(classfile):
-
-        c = axClassifier.load(classfile)
-
-    else:
-
-        c = axClassifier()
-
-    c.train(from_scratch=scratch,
-                  ne=ne,
-                  unknown_weight=unknown_weight,
-                  verbose=verbose)
-
-    c.save(join(classdir, 'model.h5'))
-    c.validate(join(classdir, 'examples'))
+    if scale is not None:
+        scale = float(scale)
 
 
-@expand_explist
-@parse_movlist
-def classify(explist, *, classdir, nw=0, session=None, expanded_explist=None, movlist='all', usepassed=False, dont_use_min_conf=False, consv_factor=None):
+def classify(explist, *, classdir, nw=0, session=None, movlist='all', usepassed=False, dont_use_min_conf=False, consv_factor=None):
 
     C = axClassifier(classdir, nw, consv_factor=consv_factor, use_min_conf=(not dont_use_min_conf))
 
@@ -125,17 +126,33 @@ def classify(explist, *, classdir, nw=0, session=None, expanded_explist=None, mo
                          movlist=movlist,
                          usepassed=usepassed)
 
-@expand_explist
-@parse_movlist
-def solve(explist, session=None):
+
+def solve(explist):
 
     pass
 
-@expand_explist
-@parse_movlist
-def hpc(explist, session=None, expanded_explist=None):
 
-    pass
+def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=''):
+    """Run DeepLabCut on antrax experiment
+
+     :param explist: path to experiment folder, path to file with experiment folders, path to a folder containing several experiments
+     :param session: run on specific session
+     :param cfg: Full path to DLC project config file
+     :param movlist: List of video indices to run (default is all)
+     :param hpc: Run using slurm worload maneger (default is False)
+     :param hpc_options: comma seperated list of options for hpc
+     """
+    from antrax.dlc import dlc4antrax
+
+    for e in explist:
+
+        if not hpc:
+            print('Running DeepLabCut on experiment ' + e.expname)
+            dlc4antrax(e, dlccfg=cfg, movlist=movlist)
+        else:
+            hpc_options['cfg'] = cfg
+            clear_tracking_data(e, 'dlc', **hpc_options)
+            prepare_antrax_job(e, 'dlc', taskarray=movlist, cfg=cfg, **hpc_options)
 
 
 if __name__ == '__main__':
@@ -146,7 +163,7 @@ if __name__ == '__main__':
         'train': train,
         'classify': classify,
         'solve': solve,
-        'hpc': hpc
+        'dlc': dlc
     }
 
     run(function_list)

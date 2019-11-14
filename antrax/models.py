@@ -2,10 +2,11 @@
 from os.path import isfile, isdir
 
 import tensorflow as tf
+import tensorflow.keras as keras
 
-from tensorflow.keras.models import Sequential, model_from_json, model_from_yaml
-from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
-from tensorflow.keras.layers import Convolution2D, MaxPooling2D,BatchNormalization
+from keras.models import Sequential, model_from_json, model_from_yaml
+from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.layers import Convolution2D, MaxPooling2D,BatchNormalization
 
 
 def new_model(prmtrs):

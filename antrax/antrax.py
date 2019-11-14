@@ -4,32 +4,26 @@ from clize import run
 from sigtools.wrappers import decorator
 from os.path import isfile, isdir, join, splitext
 
-from antrax import *
-
-@decorator
-def parse_movlist(wrapped, *args, **kwargs):
-
-    if 'movlist' in kwargs.keys():
-
-        kwargs['movlist'] = parse_movlist_str(kwargs['movlist'])
-
-    return wrapped(*args, **kwargs)
+from . import *
+from .utilshpc import *
 
 
-@decorator
-def expand_explist(wrapped, *args, **kwargs):
-    """A decorator to expand argument to experiment list
+########################### AUX functions #########################
 
-    :param wrapped: The decorated function
-    :param exparg: The explist argument to expand. Can be a text file with expdir list, a root directory, or just an expdir
-    """
+def parse_movlist(movlist):
 
-    exparg = args[0]
+    movlist = parse_movlist_str(movlist)
+
+    return movlist
+
+
+def parse_explist(exparg, session=None):
+
+    exps = []
 
     if isdir(exparg) and is_expdir(exparg):
-        explist = [exparg]
+        exps.append(axExperiment(exparg, session))
     elif isfile(exparg):
-        explist = []
         with open(exparg) as f:
             for line in f:
                 line = line.rstrip()
@@ -37,13 +31,18 @@ def expand_explist(wrapped, *args, **kwargs):
                     continue
                 if line[0] != '#':
                     lineparts = line.split(' ')
-                    explist.append(lineparts[0])
-    else:
+                    exps.append(axExperiment(lineparts[0],session))
+    elif isdir(exparg):
         explist = find_expdirs(exparg)
+        exps = [axExperiment(e, session) for e in explist if is_expdir(e)]
+    else:
+        print('Something wrong with explist argument')
+        exps = []
 
-    exps = [axExperiment(e) for e in explist]
-    return wrapped(*args, exps=exps, **kwargs)
+    return exps
 
+
+########################### Run functions ##########################
 
 def configure():
     """Launch antrax configuration app"""
@@ -52,12 +51,16 @@ def configure():
     print('Launching antrax configuration app')
     print('')
 
-@expand_explist
-def track(explist, exps=None, movlist='all'):
+
+def track(explist, movlist='all'):
     """Track experiment (or list of experiments) on local machine
 
     :param expdirs: A message to store alongside the commit
     """
+
+    exps = parse_explist(explist)
+    movlist = parse_movlist(movlist)
+
     print('')
     print('Tracking experiments:')
     for e in exps:
@@ -82,21 +85,7 @@ def train(classdir, *, scratch=False, ne=5, unknown_weight=50, verbose=1, target
     if scale is not None:
         scale = float(scale)
 
-    C = axClassifier(classdir, nw)
 
-    C.train_model(from_scratch=scratch,
-                  ne=ne,
-                  unknown_weight=unknown_weight,
-                  verbose=verbose,
-                  scale=scale,
-                  target_size=target_size)
-
-    C.save_model()
-    C.validate_model()
-
-
-@expand_explist
-@parse_movlist
 def classify(explist, *, classdir, nw=0, session=None, movlist='all', usepassed=False, dont_use_min_conf=False, consv_factor=None):
 
     C = axClassifier(classdir, nw, consv_factor=consv_factor, use_min_conf=(not dont_use_min_conf))
@@ -106,22 +95,32 @@ def classify(explist, *, classdir, nw=0, session=None, movlist='all', usepassed=
                          movlist=movlist,
                          usepassed=usepassed)
 
-@expand_explist
-@parse_movlist
+
 def solve(explist):
 
     pass
 
-@expand_explist
-@parse_movlist
-def hpc(explist):
 
-    pass
+def dlc(explist, *, dlccfg, movlist=None, session=None, hpc=False, **kwargs):
+    """Run DeepLabCut on antrax experiment
 
+     :param explist: path to experiment folder, path to file with experiment folders, path to a folder containing several experiments
+     :param dlccfg: Full path to DLC project config file
+     :param movlist: List of video indices to run (default is all)
+     :param hpc: Run using slurm worload maneger (default is False)
+     """
+    from .dlc import dlc4antrax
 
-def track_hpc(explist):
+    exps = parse_explist(explist, session)
+    movlist = parse_movlist(movlist)
 
-    pass
+    for e in exps:
+        if not hpc:
+            print('Running DeepLabCut on experiment ' + e.expname)
+            dlc4antrax(e, dlccfg=dlccfg, movlist=movlist)
+        else:
+            clear_tracking_data(e, 'dlc', **kwargs)
+            prepare_antrax_job(e, 'dlc', taskarray=movlist, dlccfg=dlccfg, **kwargs)
 
 
 if __name__ == '__main__':
@@ -132,7 +131,7 @@ if __name__ == '__main__':
         'train': train,
         'classify': classify,
         'solve': solve,
-        'hpc': hpc
+        'dlc': dlc
     }
 
     run(function_list)
