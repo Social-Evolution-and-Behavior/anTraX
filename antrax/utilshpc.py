@@ -7,9 +7,9 @@ from .utils import *
 
 def create_slurm_job_file(opts):
 
-    jobfile = opts.get('jobfile')
     jobname = opts.get('jobname')
-    logdir = opts.get('logdir')
+    filename = opts.get('filename')
+    workdir = opts.get('workdir')
     cmd = opts.get('cmd')
     taskarray = opts.get('taskarray')
 
@@ -22,9 +22,8 @@ def create_slurm_job_file(opts):
 
     precmd = opts.get('precmd', [])
 
-    logfile = opts.get('logfile', jobname)
-    logfile = join(logdir, logfile)
-
+    jobfile = join(workdir, filename + '.sh')
+    logfile = join(workdir, filename)
 
     with open(jobfile, 'w') as f:
 
@@ -109,8 +108,7 @@ def prepare_antrax_job(ex, step, taskarray, opts):
 
     elif step == 'dlc':
         opts['jobname'] = 'dlc:' + ex.expname
-        opts['jobfile'] = join(ex.slurmdir, 'antrax_dlc.sh')
-        opts['logfile'] = 'dlc'
+        opts['filename'] = 'dlc'
         opts['cpus'] = opts.get('cpus', 6)
         #precmd.append('export ')
         opts['cmd'] = 'run_antrax dlc ' + ex.expdir + \
@@ -121,6 +119,7 @@ def prepare_antrax_job(ex, step, taskarray, opts):
     else:
         return
 
+    opts['workdir'] = ex.slurmdir
     opts['taskarray'] = taskarray
     create_slurm_job_file(opts)
 
