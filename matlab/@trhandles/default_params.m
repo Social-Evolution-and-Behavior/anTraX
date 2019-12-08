@@ -71,7 +71,7 @@ prmtrs.segmentation_ColorContrastAdjust = false;
 prmtrs.segmentation_ColorContrast = [1,1,1];
 
 % structuring element used by 'applyMasktoIm' in SegmentIm
-prmtrs.se_graymask = strel('disk',round(10*(prmtrs.geometry_scale0/prmtrs.geometry_rscale)));
+% prmtrs.se_graymask = strel('disk',round(10*(prmtrs.geometry_scale0/prmtrs.geometry_rscale)));
 
 prmtrs.thrsh_meanareamax = 3.5e-6;
 prmtrs.thrsh_meanareamin = 1e-6;
@@ -88,8 +88,6 @@ prmtrs.linking_dilatespeed = 7e-3;                  %(m/s)
 prmtrs.linking_ofconnectmin_0 = 40;
 prmtrs.linking_scale_factor = 1;
 
-offlterprmtr = round(50*(prmtrs.geometry_scale0/prmtrs.geometry_rscale));
-prmtrs.linking_offilter = fspecial('gaussian',[offlterprmtr offlterprmtr], 2);
 prmtrs.linking_low_fps_hack = false;
 
 %% Classification

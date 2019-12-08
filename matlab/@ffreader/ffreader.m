@@ -96,7 +96,10 @@ classdef ffreader < handle
         end
         
         function close(self)
-            popenr(self.p,-1);
+            try
+                popenr(self.p,-1);
+            catch
+            end
             self.isopen=false;
         end
         

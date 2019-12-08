@@ -16,6 +16,10 @@ elseif exist([Trck.paramsdir,'labels.csv'],'file')
         labels(1).(c) = torow(A(ix,1));
     end
     
+    if ~ismember('ant_labels',categories)
+        labels.ant_labels = {};
+    end
+    
     if ~ismember('noant_labels',categories)
         labels.noant_labels = {};
     end
@@ -25,10 +29,8 @@ elseif exist([Trck.paramsdir,'labels.csv'],'file')
     end
     
     if ~ismember('other_labels',categories)
-        labels.other_labels = {};
-    end
- 
-    if ~ismember('Unknown',labels.noant_labels)
+        labels.other_labels = {'Unknown'};
+    elseif ~ismember('Unknown',labels.other_labels)
         labels.other_labels = cat(2,labels.other_labels,'Unknown');
     end
     

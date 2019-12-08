@@ -410,42 +410,75 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             end
         end
         
-        function XY = loadxy(Trck,movlist,colony)
+        function XY = loadxy(Trck,varargin)
+            
+            p = inputParser;
+
+            addRequired(p,'Trck',@(x) isa(x,'trhandles'));
+            addParameter(p,'movlist','all',@(x) isnumeric(x) || strcmp(x,'all'))
+            addParameter(p,'colony','all',@ischar)
+            addParameter(p,'type','final',@(x) ismember(x,{'final','untagged','noprop'}));
+            parse(p,Trck,varargin{:});
+            
             
             xydir = [Trck.trackingdir,'antdata',filesep];
             
             
-            if Trck.get_param('geometry_multi_colony') && nargin>2 && strcmp(colony,'all')
+            if Trck.get_param('geometry_multi_colony')  && strcmp(p.Results.colony,'all')
                 
                 for i=1:Trck.Ncolonies
                     c = Trck.colony_labels{i};
-                    [XY.(c),frames] = Trck.loadxy(movlist,c);
+                    XY.(c) = Trck.loadxy(movlist,c,varargin);
                 end
                 return 
                 
             end
             
             
-            if Trck.get_param('geometry_multi_colony') && nargin>2
-                xydir = [xydir,colony,filesep];
+            if Trck.get_param('geometry_multi_colony')
+                
+                xydir = [xydir,p.Results.colony,filesep];
+            
             end
             
             
-            if nargin<2 || strcmp(movlist,'all')
+            if strcmp(p.Results.movlist,'all')
                
                 movlist = Trck.graphlist;
+                
+            else
+                
+                movlist = p.Results.movlist;
                 
             end
             
             
+            switch p.Results.type
+                
+                case 'final'
+                    
+                    sfx = '';
+                    
+                case 'noprop'
+                    
+                    sfx = '_noprop';
+                    
+                case 'untagged'
+                    
+                    sfx = 'untagged';
+                    
+            end
+            
+            
             xyfiles = {};
+            
             for i=1:length(movlist)
                 m = movlist(i);
                 splitted = exist([xydir,'xy_',num2str(m),'_',num2str(m),'_p1.mat'],'file');
                 if ~splitted
-                    xyfiles{end+1} = ['xy_',num2str(m),'_',num2str(m),'.mat'];
+                    xyfiles{end+1} = ['xy_',num2str(m),'_',num2str(m),sfx,'.mat'];
                 else
-                    a = dir([xydir,'xy_',num2str(m),'_',num2str(m),'_p*.mat']);
+                    a = dir([xydir,'xy_',num2str(m),'_',num2str(m),'_p*', sfx ,'.mat']);
                     a = {a.name};
                     f1 = @(x) strsplit(x(1:end-4),'_p');
                     f2 = @(x) str2double(x{2});
@@ -844,12 +877,15 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 expdir=[expdir,filesep];
             end
             Trck.expdir=expdir;
+            Trck.trackingdirname = trackingdirname;
             Trck.load_params;
             Trck.set_er;
             %Trck.validate(expdir);
             Trck.filename = filename;
             Trck.load_bg;
             Trck.load_masks;
+            Trck.init_ba_obj;
+            Trck.init_of_obj;
         end
         
     end % static methods

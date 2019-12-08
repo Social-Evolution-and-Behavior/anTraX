@@ -549,6 +549,11 @@ function T = read_dat_file(filename,datflds)
         if length(datflds)>size(T,2)
             datflds=datflds(1:size(T,2));
         end
+    elseif isnan(str2double(line(1)))
+        datflds = strsplit(strtrim(line(1:end)),'\t');
+        if length(datflds)>size(T,2)
+            datflds=datflds(1:size(T,2));
+        end
     end
     
     if exist('datflds','var')

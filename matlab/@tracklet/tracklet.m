@@ -14,7 +14,7 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
         tf trtime           % end frame info
         colony              % colony index
         colony_label        % colony label
-        dscale              % the spatial scale factor (pix/m)
+        
         ID struct           % struct to hold ID info
         exist
         comments = {}
@@ -23,7 +23,7 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
     end
     
     
-    properties  (Transient, Access=?trgraph)
+    properties  (Transient)
         
         %%% data properties (not saved with object)
         
@@ -32,8 +32,8 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
         
         dataflds
         
-        datachanged
-        imageschanged
+        datachanged = false
+        imageschanged = false
  
     end
     
@@ -66,7 +66,7 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
     
     properties (Dependent)
         
-        
+        dscale              % the spatial scale factor (pix/m)
         
         %%% pointers to data files
         
@@ -176,7 +176,7 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
             trj.expname = Trck.expname;
             
             % get the scale
-            trj.dscale = Trck.get_param('geometry_rscale');
+            % trj.dscale = Trck.get_param('geometry_rscale');
             
             % maximum number of frames remaining in the current movie gives
             % the maximum length of the data for the following fields
@@ -1001,6 +1001,11 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
             
         end
 
+        function s = get.dscale(trj)
+        
+            s = trj.Trck.get_param('geometry_rscale');
+            
+        end
         
         function m = get.m(trj)
             m = trj.ti.movnum;

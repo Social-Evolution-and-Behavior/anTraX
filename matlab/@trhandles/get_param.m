@@ -31,6 +31,22 @@ switch pname
     case 'sqsz'
         sqsz = 2.5*sqrt(Trck.get_param('thrsh_meanareamax'))/Trck.get_param('geometry_rscale');
         p = 2*round(sqsz/2);
+        
+    case 'single_video_post_commands'
+        
+        p = Trck.prmtrs.(pname);
+        if isempty(p)
+            p = {};
+        end
+    case 'linking_method'
+ 
+        p = Trck.prmtrs.linking_method;
+        
+        if isa(p,'char')
+            p = eval(['@',p]);
+            Trck.set_param('linking_method',p);
+        end
+        
     otherwise
         if isfield(Trck.prmtrs,pname)
             % first see if parameter is already set in Trck
