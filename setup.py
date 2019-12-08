@@ -1,5 +1,7 @@
 from setuptools import setup
 from setuptools.command.install import install
+import os
+
 
 def readme():
     with open('README.md') as f:
@@ -25,7 +27,6 @@ setup(name='antrax',
             'clize',
             'tensorflow==1.15',
             'h5py',
-            'keras',
             'sklearn',
             'ruamel-yaml',
             'pillow',
@@ -43,9 +44,19 @@ class PostInstallCommand(install):
     """Post-installation for installation mode."""
     def run(self):
 
+        # put binaries appropriate for OS in correct location
+
         # install package
         install.run(self)
 
-        # make app dir
+        # make app dirs
+        home = os.getenv("HOME")
+        dirs = [os.path.join(home, '.antrax'),
+                os.path.join(home, '.antrax/classifiers'),
+                os.path.join(home, '.antrax/parameters')]
 
-        # download pre trained classifiers
+        _ = [os.mkdir(d) for d in dirs if not os.path.isdir(d)]
+
+        # download classifiers
+
+        # download parameter files

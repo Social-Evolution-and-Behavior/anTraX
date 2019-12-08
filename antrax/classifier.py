@@ -2,8 +2,8 @@ from os import listdir
 from os.path import isfile, join
 import tensorflow as tf
 from tensorflow import keras
-from keras.preprocessing import image
-from keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 import h5py
 import numpy as np
 import os

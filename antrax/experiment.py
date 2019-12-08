@@ -12,6 +12,7 @@ import h5py
 from .utils import *
 from .analysis_functions import *
 
+
 class axExperiment:
 
     def __init__(self, expdir, session=None, expinfo={}):
@@ -68,7 +69,7 @@ class axExperiment:
 
     def get_file_list(self, ftype='video'):
 
-        if ftype == 'graph':
+        if ftype == 'graph' or ftype == 'track':
             files = glob(join(self.sessiondir, 'graphs/graph*.mat')) + glob(join(self.sessiondir, 'graphs/*/graph*.mat'))
             files = [x for x in files if 'trjs' not in x]
             files = [x for x in files if '_p' not in x]
@@ -79,10 +80,10 @@ class axExperiment:
             files = [x for x in files if '_p' not in x]
             a = [int(x.split('/')[-1].split('.mat')[0].split('_')[-1]) for x in files]
             a = list(set(a))
-        elif ftype == 'autoids' or ftype == 'autoid':
+        elif ftype == 'autoids' or ftype == 'autoid' or ftype == 'classify':
             files = glob(join(self.sessiondir, 'labels/autoids*.csv'))
             a = [int(x.split('/')[-1].split('.csv')[0].split('_')[-1]) for x in files]
-        elif ftype == 'xy':
+        elif ftype == 'xy' or ftype == 'solve':
             files = glob(join(self.sessiondir, 'antdata/xy*.mat')) + glob(join(self.sessiondir, 'antdata/*/xy*.mat'))
             files = [x for x in files if '_p' not in x]
             a = [int(x.split('/')[-1].split('.mat')[0].split('_')[-1]) for x in files]
@@ -265,10 +266,28 @@ class axExperiment:
         if ntracklets is not None and ntracklets < len(images):
 
             tracklets = list(images.keys())
-            images = {tracklet:images[tracklet] for tracklet in tracklets[:ntracklets]}
-
+            images = {tracklet: images[tracklet] for tracklet in tracklets[:ntracklets]}
 
         return images
+
+    def get_tracklet_table(self, movlist=None):
+
+        if movlist is None:
+            movlist = self.movlist
+
+        tracklet_table = []
+
+        for m in movlist:
+
+            tracklet_table_m = pd.read_csv(
+                join(self.antdatadir, 'tracklets_table_' + str(m) + '_' + str(m) + '.csv'))
+
+            tracklet_table.append(tracklet_table_m)
+
+        tracklet_table = pd.concat(tracklet_table, axis=0)
+        tracklet_table = tracklet_table.set_index('tracklet', drop=True)
+
+        return tracklet_table
     
     def get_tracklet_images(self, tracklet, bg='w'):
         

@@ -1,8 +1,8 @@
 
 from tempfile import mkdtemp
 import numpy as np
-import deeplabcut as dlc
 import skvideo.io as skv
+from skimage.io import imsave
 import shutil
 import os
 from glob import glob
@@ -11,22 +11,100 @@ import pandas as pd
 from .utils import *
 from .experiment import *
 
+idx = pd.IndexSlice
 
-def images2avi(images, vidfile):
+
+import deeplabcut as dlc
+
+
+def process_images(images):
 
     # expand dims if needed
     if images.ndim == 3:
         images = images[None, :, :, :]
 
-    images = images.astype('float') / 255
-    images = images.min(axis=3, keepdims=True)
+    # make gray scale
+    # images = images.astype('float') / 255
+    gry = np.repeat(images.min(axis=3, keepdims=True), 3, axis=3)
 
-    images[images == 0] = 255
+    # make white background
+    images[gry == 0] = 255
 
-    images = images / 0.6 - 1 / 6
-    images = np.clip(images, 0, 1)
-    images = 255 * np.repeat(images, 3, axis=3)
-    images = images.astype('uint8')
+    # increase contrast
+    # images = images / 0.6 - 1 / 6
+    # images = np.clip(images, 0, 1)
+
+    # make rgb
+    #images = 255 * np.repeat(images, 3, axis=3)
+    #images = images.astype('uint8')
+
+    return images
+
+
+def create_trainset(ex, projdir, n=100, antlist=None, movlist=None, vid=True):
+
+    if antlist is None:
+        antlist = ex.antlist
+
+    if vid:
+        viddir = ex.sessiondir + '/videos4dlc/'
+        mkdir(viddir)
+
+    # get tracklet table
+    tracklet_table = ex.get_tracklet_table(movlist)
+
+    # filter single ant tracklets
+    tracklet_table = tracklet_table[tracklet_table['single'] == 1]
+
+    # examples per ant:
+    na = int(n/len(antlist)) + 1
+
+    # init vidlist
+    vidlist = []
+
+    for ant in antlist:
+
+        if vid:
+
+            vidname = viddir + ex.expname + '_' + ant + '.mp4'
+
+            if isfile(vidname):
+                k = 1
+                while isfile(vidname):
+                    vidname = viddir + ex.expname + '_' + ant + '_' + str(k) + '.mp4'
+                    k += 1
+
+            writer = skv.FFmpegWriter(vidname)
+        else:
+            framedir = projdir + '/labeled-data/' + ex.expname + '_' + ant
+            mkdir(framedir)
+            cnt = 1
+        ttable = tracklet_table[tracklet_table['ant'] == ant]
+        btable = tracklet_table_to_blob_table(ttable)
+        btable = btable.sample(na)
+        ts = set(btable['tracklet'].values)
+        ms = set(btable['m'].values)
+        images = ex.get_images(movlist=ms, tracklets=ts)
+
+        for t, ims in images.items():
+
+            ix = btable.loc[btable['tracklet'] == t, 'ix'].values
+
+            for ixx in ix:
+                if vid:
+                    writer.writeFrame(ims[ixx])
+                else:
+                    fname = join(framedir, 'img{0:03d}.png'.format(cnt))
+                    imsave(fname, ims[ixx])
+                    cnt += 1
+        if vid:
+            vidlist.append(vidname)
+            writer.close()
+
+    return vidlist
+
+
+def images2avi(images, vidfile):
 
     # save video
     skv.vwrite(vidfile, images, inputdict={'-vcodec': 'rawvideo', '-pix_fmt': 'rgb24'},
@@ -36,6 +114,8 @@ def images2avi(images, vidfile):
 def images2avidir(images, viddir):
 
     for i, (k, ims) in enumerate(images.items()):
+
+        ims = process_images(ims)
 
         vidfile = join(viddir, k + '.avi')
         images2avi(ims, vidfile)

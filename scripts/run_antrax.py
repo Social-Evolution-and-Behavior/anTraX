@@ -6,8 +6,7 @@ from os.path import isfile, isdir, join, splitext
 
 from time import sleep
 
-from antrax import *
-from antrax.utilshpc import *
+from antrax.hpc import antrax_hpc_job
 
 ########################### AUX functions #########################
 
@@ -82,33 +81,19 @@ def configure():
         sleep(0.25)
 
 
-def track(explist, movlist='all'):
-    """Track experiment (or list of experiments) on local machine
+def track(explist: parse_explist, *, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options=' ',
+          session=None):
 
-    :param expdirs: A message to store alongside the commit
-    """
+    for e in explist:
+        if hpc:
+            hpc_options['classifier'] = classifier
+            hpc_options['movlist'] = movlist
+            antrax_hpc_job(e, 'classify', opts=hpc_options)
+        else:
+            C.predict_experiment(e, movlist=movlist)
 
-    exps = parse_explist(explist)
-    movlist = parse_movlist(movlist)
+def train(classifier, *, scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None, nw=0, scale=None):
 
-    print('')
-    print('Tracking experiments:')
-    for e in exps:
-        print(e)
-
-
-def train(classdir, *, scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None, nw=0, scale=None):
-    """Train a classifier on local machine
-
-    :param classdir: The classifier directory to train
-    :param scratch: Start training from scratch
-    :param ne: Number of training epochs to run
-    :param nw: Number of processes to use
-    :param scale:
-    :param target_size:
-    :param unknown_weight:
-    :param verbose:
-    """
     if target_size is not None:
         target_size = int(target_size)
 
@@ -116,14 +101,20 @@ def train(classdir, *, scratch=False, ne=5, unknown_weight=50, verbose=1, target
         scale = float(scale)
 
 
-def classify(explist, *, classdir, nw=0, session=None, movlist='all', usepassed=False, dont_use_min_conf=False, consv_factor=None):
+def classify(explist: parse_explist, *, classifier, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options=' ',
+             nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None):
 
-    C = axClassifier(classdir, nw, consv_factor=consv_factor, use_min_conf=(not dont_use_min_conf))
+    if not hpc:
+        from antrax.classifier import axClassifier
+        C = axClassifier.load(classifier)
 
-    C.predict_experiment(explist,
-                         session=session,
-                         movlist=movlist,
-                         usepassed=usepassed)
+    for e in explist:
+        if hpc:
+            hpc_options['classifier'] = classifier
+            hpc_options['movlist'] = movlist
+            antrax_hpc_job(e, 'classify', opts=hpc_options)
+        else:
+            C.predict_experiment(e, movlist=movlist)
 
 
 def solve(explist):
@@ -139,23 +130,18 @@ def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=Non
      :param cfg: Full path to DLC project config file
      :param movlist: List of video indices to run (default is all)
      :param hpc: Run using slurm worload maneger (default is False)
-     :param hpc_options: comma seperated list of options for hpc
+     :param hpc_options: comma separated list of options for hpc run
      """
-    from antrax.dlc import dlc4antrax
-
-    if hpc_options is None:
-        hpc_options = {}
 
     for e in explist:
-
-        if not hpc:
+        if hpc:
+            hpc_options['cfg'] = cfg
+            hpc_options['movlist'] = movlist
+            antrax_hpc_job(e, 'dlc', opts=hpc_options)
+        else:
+            from antrax.dlc import dlc4antrax
             print('Running DeepLabCut on experiment ' + e.expname)
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
-        else:
-            hpc_options['cfg'] = cfg
-            clear_tracking_data(e, 'dlc', movlist, hpc_options)
-            jobfile = prepare_antrax_job(e, 'dlc', taskarray=movlist, opts=hpc_options)
-            submit_antrax_job(jobfile)
 
 
 if __name__ == '__main__':

@@ -4,6 +4,105 @@ import numpy as np
 import pandas as pd
 
 
+
+def wavelet_expansion(x, n=25, maxscale=50):
+
+    import pywt
+
+    scales = np.geomspace(1, maxscale, num=n, endpoint=True)
+
+    x = (x - np.nanmean(x, axis=0)) / np.nanstd(x, axis=0)
+    x, _ = pywt.cwt(x, scales=scales, wavelet='morl', axis=0)
+    x = np.moveaxis(x, [0, 1, 2], [2, 0, 1])
+    x = np.reshape(x, (x.shape[0], x.shape[1] * x.shape[2]))
+
+    return x
+
+
+def postural_features(ad, n=25, bodyparts=['Head','L_ant_root','R_ant_root','L_ant_tip','R_ant_tip','Neck','ThxAbd','Tail'], refpart='Neck'):
+        
+        import pywt
+        
+        idx = pd.IndexSlice
+        
+        likelihhod_threshold = 0.99
+        
+        cols = [bp+'_likelihood' for bp in bodyparts]
+        likelihood =  ad.data.loc[:,idx[:,cols]]
+        likelihood = likelihood.stack(level='ant', dropna=False)
+        likelihood = likelihood.min(axis=1)
+        likelihood = likelihood.unstack()
+        likelihood[likelihood<likelihhod_threshold] = np.nan
+        
+        
+        cols = sorted([bp+'_x' for bp in bodyparts] + [bp+'_y' for bp in bodyparts])
+        data = ad.data.loc[:,idx[:,cols]].copy()
+
+        refx = data.loc[:,idx[:,refpart+'_x']].copy()
+        refy = data.loc[:,idx[:,refpart+'_y']].copy()
+        
+        data = data.drop(refpart+'_x', axis=1, level=1)
+        data = data.drop(refpart+'_y', axis=1, level=1)
+        
+        bodyparts.remove(refpart)
+        
+        refx.shape
+                
+        for bp in bodyparts:
+            data.loc[:,idx[:,bp+'_x']] = data.loc[:,idx[:,bp+'_x']] * likelihood
+            data.loc[:,idx[:,bp+'_y']] = data.loc[:,idx[:,bp+'_y']] * likelihood
+            data.loc[:,idx[:,bp+'_x']] = data.loc[:,idx[:,bp+'_x']] - refx.values
+            data.loc[:,idx[:,bp+'_y']] = data.loc[:,idx[:,bp+'_y']] - refy.values
+                
+                
+        df = []
+        
+        for ant in ad.antlist:
+            x = data.loc[:,idx[ant,:]].values
+            x = wavelet_expansion(x, n=n, maxscale=50)
+            mi = pd.MultiIndex.from_tuples([(ant,i) for i in range(x.shape[1])],names=['ant','feature'])
+            df.append(pd.DataFrame(x, index=data.index, columns=mi))
+        
+        df = pd.concat(df, axis=1)
+        df = df.stack(level='ant', dropna=False)
+        df = df.dropna()
+        
+        return df
+
+
+def tsne_mapping(df, trainsetsize=1000):
+    
+    import sklearn
+    
+    print('Preparing data')
+    
+    # if dataframe with ants, cast into long format
+    df = df.stack(level='ant', dropna=False)
+    
+    # filter out nans
+    df1 = df.dropna()
+    
+    # sample training set
+    df1 = df1.sample(n=trainsetsize, axis=0)
+    
+    # find mapping
+    print('Training tsne')
+    tsne = sklearn.manifold.TSNE(n_components=2, perplexity=30)
+    tsne.fit(df1.values)
+    
+    # project
+    print('Projecting')
+    mi = pd.MultiIndex.from_tuples([('x','y')])
+    df = pd.DataFrame(tsne.transform(df.values), index=df.index, columns=mi)
+    
+    # put ant table back together
+    df = df.unstack(level='ant')
+    print('Done')
+    
+    return df, tsne
+
+
+
 def trajectory_kinematics(df, dt=1):
 
     df = df.copy()

@@ -135,3 +135,28 @@ def make_white_bg(ims):
     return np.where(gry == 0, bg, ims)
 
 
+def angle(x1,y1,x2,y2):
+    dx = x2 - x1
+    dy = y2 - y1
+    return np.arctan2(dx, dy)
+
+
+def to_angle(x, per=2*np.pi):
+    return (x + per/2) % per - per/2
+
+
+def tracklet_table_to_blob_table(tracklet_table):
+
+    blob_table = []
+    for t, trow in tracklet_table.iterrows():
+        trow['tracklet'] = t
+        frames = np.arange(trow['from'], trow['to']+1)
+        ix = frames - trow['from']
+        btable = pd.concat([trow.copy() for _ in range(trow['from'], trow['to']+1)], axis=1).T
+        btable['ix'] = ix
+        blob_table.append(btable)
+
+    blob_table = pd.concat(blob_table, axis=0, ignore_index=True)
+    #blob_table = blob_table.set_index(['tracklet', 'ix'])
+
+    return blob_table
