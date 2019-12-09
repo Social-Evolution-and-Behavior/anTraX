@@ -162,7 +162,7 @@ class axClassifier:
 
             self.images = resized[:, int((a1 - a0) / 2):int((a1 + a0) / 2), int((a1 - a0) / 2):int((a1 + a0) / 2), :]
 
-        self.images = tf.cast(self.images, tf.float32)
+        self.images = self.images.astype('float32')
 
     def predict_images(self):
 
