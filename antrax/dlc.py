@@ -123,51 +123,44 @@ def images2avidir(images, viddir):
 
 def predict_images(images, dlccfg, dbfile):
 
-    ok = True
     viddir = mkdtemp()
-
-    print('Writing temp video files in dir ' + viddir)
-
     try:
+        print('Writing temp video files in dir ' + viddir)
         images2avidir(images, viddir)
+        print('Finished video writing')
     except:
-        ok = False
+        shutil.rmtree(viddir)
         print('Failed video writing')
-
-    print('Finished video writing')
+        raise
 
     destdir = mkdtemp()
-    print('Running DLC. Results will be stored in ' + destdir)
-
-    if ok:
-        try:
-            dlc.analyze_videos(dlccfg, [viddir], destfolder=destdir)
-        except:
-            ok = False
-            print('DLC failed')
-
-    print('Finished DLC run')
+    try:
+        print('Running DLC. Results will be stored in ' + destdir)
+        dlc.analyze_videos(dlccfg, [viddir], destfolder=destdir)
+        print('Finished DLC run')
+    except:
+        shutil.rmtree(viddir)
+        shutil.rmtree(destdir)
+        print('DLC failed')
+        raise
 
     print('Storing prediction in ' + dbfile)
 
-    if ok:
-        try:
-            for tracklet in images.keys():
-                h5file = sorted(glob(join(destdir, tracklet) + '*.h5'), key=os.path.getmtime)[-1]
-                df = pd.read_hdf(h5file)
-                df.to_hdf(dbfile, key=tracklet, mode='a')
-        except:
-            ok = False
-            print('Failed storing results')
+    try:
+        for tracklet in images.keys():
+            h5file = sorted(glob(join(destdir, tracklet) + '*.h5'), key=os.path.getmtime)[-1]
+            df = pd.read_hdf(h5file)
+            df.to_hdf(dbfile, key=tracklet, mode='a')
+    except:
+        shutil.rmtree(viddir)
+        shutil.rmtree(destdir)
+        print('Failed storing results')
+        raise
 
     # clean
     print('Cleaning up')
     shutil.rmtree(destdir)
     shutil.rmtree(viddir)
-    if ok:
-        print('Finished!')
-    else:
-        print('Failed :-((((')
 
 
 def dlc4antrax(expdir, dlccfg, *, session=None, movlist=None, ntracklets=None):
