@@ -6,7 +6,9 @@ from os.path import isfile, isdir, join, splitext
 
 from time import sleep
 
+from antrax import *
 from antrax.hpc import antrax_hpc_job
+from antrax.utils import *
 
 ########################### AUX functions #########################
 
