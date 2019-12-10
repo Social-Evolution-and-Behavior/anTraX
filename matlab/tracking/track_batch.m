@@ -9,8 +9,15 @@ addParameter(p,'NumWorkers',-1);
 addParameter(p,'classdir',[]);
 addParameter(p,'report',1000,@isnumeric);
 addParameter(p,'trackingdirname',[]);
+addParameter(p,'diary',[]);
 
 parse(p,expdir,varargin{:});
+
+
+if ~isempty(p.Results.diary)
+    diary(p.Results.diary);
+end
+
 
 Trck = trhandles.load(expdir,p.Results.trackingdirname);
 expdir = Trck.expdir;
@@ -18,6 +25,9 @@ expdir = Trck.expdir;
 if ~isempty(p.Results.classdir)
     Trck.classdir=p.Results.classdir;
 end
+
+
+
 
 %% set profile and number of workers to use:
 
@@ -72,5 +82,5 @@ end
 
 submit(TrackingJob)
 report('I',['Job submitted with ',num2str(numel(TrackingJob.Tasks)),' tasks']);
-
+diary off
 

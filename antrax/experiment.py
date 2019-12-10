@@ -45,6 +45,7 @@ class axExperiment:
         self.labelsdir = join(self.sessiondir, 'labels')
         self.paramsdir = join(self.sessiondir, 'parameters')
         self.antdatadir = join(self.sessiondir, 'antdata')
+        self.logsdir = join(self.sessiondir, 'logs')
         self.prmtrs = self.get_prmtrs()
         self.movies_info = self.get_movies_info()
         
@@ -52,6 +53,7 @@ class axExperiment:
 
         self.slurmdir = join(expdir, 'slurm')
         mkdir(self.slurmdir)
+        mkdir(self.logsdir)
 
     def get_subdirs(self):
 

@@ -11,9 +11,14 @@ addParameter(p,'batchparams',[]);
 addParameter(p,'path_to_antrax',[]);
 addParameter(p,'trackingdirname',[]);
 addParameter(p,'moviepart',[]);
+addParameter(p,'diary',[]);
 
 % parse inputs
 parse(p,expdir,varargin{:});
+
+if ~isempty(p.Results.diary)
+    diary(p.Results.diary);
+end
 
 Trck = trhandles.load(expdir,p.Results.trackingdirname);
 Trck.er.init_buf(0);
@@ -173,4 +178,4 @@ for i=1:length(post_commands)
 end
 
 report('G','Done!');
-
+diary off

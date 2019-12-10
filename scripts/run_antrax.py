@@ -6,7 +6,9 @@ from os.path import isfile, isdir, join, splitext
 
 from time import sleep
 
+from antrax import axExperiment
 from antrax.hpc import antrax_hpc_job
+from antrax.utils import *
 
 ########################### AUX functions #########################
 
@@ -62,35 +64,38 @@ def parse_explist(exparg):
 
 def configure():
     """Launch antrax configuration app"""
-
-    try:
-        import matlab.engine
-    except:
-        print('')
-        print('Please install MATLAB and MATLAB engine for python')
-        print('')
-        return
-
-    # Start matlab engine
-    eng = matlab.engine.start_matlab()
-
-    # Run the antrax app
+    eng = start_matlab()
     a = eng.antrax()
 
     while eng.isvalid(a, ):
         sleep(0.25)
 
 
-def track(explist: parse_explist, *, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options=' ',
+def track(explist: parse_explist, *, movlist: parse_movlist=None, nw=2, hpc=False, hpc_options: parse_hpc_options=' ',
           session=None):
 
-    for e in explist:
-        if hpc:
+    if hpc:
+        for e in explist:
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'classify', opts=hpc_options)
-        else:
-            C.predict_experiment(e, movlist=movlist)
+    else:
+
+        Q = MatlabQueue(nw=nw)
+
+        for e in explist:
+            for m in movlist:
+                Q.add_track_task(e, m)
+
+        # wait for tasks to complete
+        Q.join()
+
+        # run cross movie link
+        for e in explist:
+            Q.add_task('link_across_movies', [e.expdir])
+
+        # close
+        Q.stop_workers()
 
 def train(classifier, *, scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None, nw=0, scale=None):
 
