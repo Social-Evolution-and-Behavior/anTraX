@@ -7,6 +7,7 @@ from os.path import isfile, isdir, join, splitext
 from time import sleep
 
 from antrax import *
+from antrax.matlab import *
 from antrax.hpc import antrax_hpc_job
 from antrax.utils import *
 
@@ -64,11 +65,8 @@ def parse_explist(exparg):
 
 def configure():
     """Launch antrax configuration app"""
-    eng = start_matlab()
-    a = eng.antrax()
 
-    while eng.isvalid(a, ):
-        sleep(0.25)
+    launch_antrax_app()
 
 
 def track(explist: parse_explist, *, movlist: parse_movlist=None, nw=2, hpc=False, hpc_options: parse_hpc_options=' ',
@@ -96,6 +94,7 @@ def track(explist: parse_explist, *, movlist: parse_movlist=None, nw=2, hpc=Fals
 
         # close
         Q.stop_workers()
+
 
 def train(classifier, *, scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None, nw=0, scale=None):
 

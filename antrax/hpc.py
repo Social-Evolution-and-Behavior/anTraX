@@ -123,10 +123,9 @@ def antrax_hpc_job(ex, step, opts):
         opts['jobname'] = 'trk:' + ex.expname
         opts['filename'] = 'trk'
         opts['cpus'] = opts.get('cpus', 2)
-        opts['cmd'] = 'run_antrax track ' + ex.expdir + \
-              ' --session ' + ex.session + \
-              ' --classdir ' + opts['classdir'] + \
-              ' --movlist $SLURM_ARRAY_TASK_ID'
+        opts['cmd'] = 'run_antrax.py track ' + ex.expdir + \
+            ' --session ' + ex.session + \
+            ' --movlist $SLURM_ARRAY_TASK_ID'
 
     elif step == 'post':
         opts['jobname'] = 'pst:' + ex.expname
@@ -139,7 +138,7 @@ def antrax_hpc_job(ex, step, opts):
         opts['jobname'] = 'cls:' + ex.expname
         opts['filename'] = 'cls'
         opts['cpus'] = opts.get('cpus', 6)
-        opts['cmd'] = 'run_antrax classify expdir' + \
+        opts['cmd'] = 'run_antrax.py classify expdir' + \
             ' --session ' + opts['session'] + \
             ' --classdir ' + opts['classdir'] + \
             ' --movlist $SLURM_ARRAY_TASK_ID'
@@ -164,7 +163,7 @@ def antrax_hpc_job(ex, step, opts):
     else:
         return
 
-    opts['workdir'] = ex.slurmdir
+    opts['workdir'] = ex.logsdir
 
     if not opts.get('dry', False):
         jobfile = create_slurm_job_file(opts)
