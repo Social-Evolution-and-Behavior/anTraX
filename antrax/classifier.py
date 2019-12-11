@@ -283,6 +283,8 @@ class axClassifier:
         self.imagedir = ex.imagedir
         self.outdir = outdir if outdir is not None else ex.labelsdir
 
+        mkdir(self.outdir)
+
         self.imagefiles = [f for f in listdir(self.imagedir) if isfile(join(self.imagedir, f))]
         self.imagefiles = [f for f in self.imagefiles if 'images' in f]
         movieindex = [int(x.rstrip('.mat').split('_')[1]) for x in self.imagefiles]

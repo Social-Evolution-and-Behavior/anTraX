@@ -36,7 +36,7 @@ eval(['mcc -m antrax.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'app'])
 
 % compile the track function
 report('I','    ...track function')
-eval(['mcc -m track_batch.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'track_batch'])
+eval(['mcc -m track_single_movie.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'track_batch'])
 
 % compile the solve function
 report('I','    ...solve function')
