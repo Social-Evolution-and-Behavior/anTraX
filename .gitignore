@@ -25,3 +25,9 @@
 *.egg-info*
 
 matlab1/*
+
+
+bin/run_*.sh
+bin/mcc*
+bin/readme*
+bin/required*
