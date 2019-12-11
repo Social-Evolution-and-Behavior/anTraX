@@ -829,13 +829,17 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
         
         function Trck = load(expdir,trackingdirname)
             
+            if nargin<2
+                trackingdirname = [];
+            end
             
-            if isa(expdir,'trhandles')
+            
+            if isa(expdir,'trhandles') && (isempty(trackingdirname) || strcmp(expdir.trackingdirname, trackingdirname))
                 Trck = expdir;
                 return
             end
 
-            if nargin<2 || isempty(trackingdirname)
+            if isempty(trackingdirname)
                 
                 % get list of tracking dirs
                 sessions = find_sessions(expdir);

@@ -1,10 +1,12 @@
-function link_across_movies(Trck,varargin)
+function link_across_movies(expdir,varargin)
 
 p = inputParser();
-addRequired(p,'Trck',@(x) isa(x,'trhandles'));
+addRequired(p,'expdir',@(x) (ischar(x) && isfolder(x)) || isa(x,'trhandles'));
 addParameter(p,'reset',false,@islogical);
 
-parse(p,Trck,varargin{:});
+parse(p,expdir,varargin{:});
+
+Trck = trhandles.load(expdir,p.Results.trackingdirname);
 
 links_file = [Trck.graphdir,'cross_movie_links.mat'];
 
