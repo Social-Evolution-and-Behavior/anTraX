@@ -25,6 +25,10 @@ PLATFORM = sys.platform
 MACOS = PLATFORM == 'darwin'
 LINUX = PLATFORM == 'linux'
 
+if MACOS:
+    MATLAB_PLATFORM = 'maci64'
+elif LINUX:
+    MATLAB_PLATFORM = 'glnx64'
 
 
 if not ANTRAX_USE_MCR:
@@ -59,6 +63,8 @@ else:
 
 def run_mcr_function(fun, args, diary=DEVNULL):
 
+    fun = 'antrax_' + MATLAB_PLATFORM + '_' + fun
+
     if LINUX:
 
         cmd = ANTRAX_BIN_PATH + fun + ' ' + ' '.join(args)
@@ -81,13 +87,13 @@ def start_matlab():
     return eng
 
 
-def track_single_movie(ex, m):
+def track_single_movie(ex, m, mcr=ANTRAX_USE_MCR):
 
     print('Start tracking of movie ' + str(m) + ' in ' + ex.expname)
 
     diaryfile = join(ex.logsdir, 'track_' + str(m) + '.log')
 
-    if ANTRAX_USE_MCR:
+    if mcr:
         with open(diaryfile) as diary:
             run_mcr_function('track_single_movie', ['trackingdirname', ex.session, 'm', m], diary=diary)
 
