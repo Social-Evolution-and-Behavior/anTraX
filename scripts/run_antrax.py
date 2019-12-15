@@ -69,7 +69,7 @@ def configure():
     launch_antrax_app()
 
 
-def track(explist: parse_explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options=' ',
+def track(explist: parse_explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
           session=None):
 
     if hpc:
