@@ -2,12 +2,15 @@ function make_annotated_video(Trck, varargin)
 
 p = inputParser;
 
+colors = distinguishable_colors(Trck.NIDs,{'w','k','y'});
+
 addRequired(p,'Trck',@(x) isa(x,'trhandles'));
 addParameter(p,'fi',1);
 addParameter(p,'ff',600);
 addParameter(p,'ids','all');
 addParameter(p,'outline',true,@islogical);
 addParameter(p,'speedup',1,@isnumeric);
+addParameter(p,'colors',colors,@isnumeric);
 addParameter(p,'downsample',1,@isnumeric);
 addParameter(p,'linewidth',3,@isnumeric);
 addParameter(p,'mark_blobs',false,@islogical);
@@ -18,14 +21,16 @@ addParameter(p,'bgcorrect',true,@islogical);
 addParameter(p,'text','',@ischar);
 addParameter(p,'crop',false,@islogical);
 addParameter(p,'markblobs',false,@islogical);
+addParameter(p,'xy_smooth_window',10,@isnumeric);
 addParameter(p,'labelsize',24,@isnumeric);
+
 addParameter(p,'outfile',[Trck.trackingdir,Trck.expname,'_annotated.avi'],@ischar);
 
 parse(p,Trck,varargin{:});
 
-xy_smooth_window = 10;
+xy_smooth_window = p.Results.xy_smooth_window;
 scale = Trck.get_param('geometry_rscale');
-colors = distinguishable_colors(Trck.NIDs,{'w','k','y'});
+colors = p.Results.colors;
 
 % load xy
 fi = p.Results.fi;

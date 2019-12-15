@@ -189,6 +189,6 @@ class MatlabQueue(queue.Queue):
         for i in range(self.nw):
             self.put(None)
 
-        if wait:
-            self.join()
+        for t in self.threads:
+            t.join()
 

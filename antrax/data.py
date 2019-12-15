@@ -148,6 +148,7 @@ class axAntData:
         
         for ant in self.antlist:
             df = trajectory_kinematics(self.data[ant], dt=1/fps)
+            self.data[(ant,'velocity')] = df['v']
             self.data[(ant,'curvature')] = df['curvature']
             self.data[(ant,'acceleration')] = df['a']
             self.data[(ant,'normal_acceleration')] = df['an']

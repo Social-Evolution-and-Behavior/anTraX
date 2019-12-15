@@ -3,7 +3,11 @@
 import numpy as np
 import pandas as pd
 
+idx = pd.IndexSlice
 
+def test():
+    
+    print('tested')
 
 def wavelet_expansion(x, n=25, maxscale=50):
 
@@ -18,6 +22,27 @@ def wavelet_expansion(x, n=25, maxscale=50):
 
     return x
 
+
+def behavioral_features(ad, n=25, features=['velocity', 'acceleration', 'normal_acceleration', 'r_ant_angle', 'l_ant_angle']):
+
+    import pywt
+    
+    data = ad.data.loc[:,idx[:,features]].copy()
+    
+    df = []
+    
+    for ant in ad.antlist:
+            
+        x = data.loc[:,idx[ant,:]].values
+        x = wavelet_expansion(x, n=n, maxscale=50)
+        mi = pd.MultiIndex.from_tuples([(ant,i) for i in range(x.shape[1])],names=['ant','feature'])
+        df.append(pd.DataFrame(x, index=data.index, columns=mi))
+    
+    df = pd.concat(df, axis=1)
+    df = df.stack(level='ant', dropna=False)
+    df = df.dropna()
+        
+    return df
 
 def postural_features(ad, n=25, bodyparts=['Head','L_ant_root','R_ant_root','L_ant_tip','R_ant_tip','Neck','ThxAbd','Tail'], refpart='Neck'):
         
@@ -104,7 +129,8 @@ def tsne_mapping(df, trainsetsize=1000):
 
 
 def trajectory_kinematics(df, dt=1):
-
+    
+    
     df = df.copy()
     
     x = df['x'].values
