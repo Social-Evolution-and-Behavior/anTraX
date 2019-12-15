@@ -16,7 +16,7 @@ from .utils import *
 USER = os.getenv("USER")
 HOME = os.getenv("HOME")
 
-ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR')==1
+ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR') == 'True'
 ANTRAX_PATH = os.getenv('ANTRAX_PATH')
 ANTRAX_BIN_PATH = ANTRAX_PATH + '/bin/'
 
