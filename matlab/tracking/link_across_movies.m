@@ -2,6 +2,7 @@ function link_across_movies(expdir,varargin)
 
 p = inputParser();
 addRequired(p,'expdir',@(x) (ischar(x) && isfolder(x)) || isa(x,'trhandles'));
+addParameter(p,'trackingdirname',[]);
 addParameter(p,'reset',false,@islogical);
 
 parse(p,expdir,varargin{:});

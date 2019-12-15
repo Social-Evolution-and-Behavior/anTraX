@@ -277,7 +277,14 @@ class axClassifier:
 
     def predict_experiment(self, expdir, session=None, movlist='all', outdir=None, usepassed=False):
 
-        ex = axExperiment(expdir, session)
+        if type(expdir) == axExperiment:
+            if session is not None and not expdir.session == session:
+                ex = axExperiment(expdir.expdir, session)
+            else:
+                ex = expdir
+                expdir = ex.expdir
+        else:
+            ex = axExperiment(expdir, session)
 
         self.labels = ex.get_labels()
         self.imagedir = ex.imagedir
@@ -290,7 +297,7 @@ class axClassifier:
         movieindex = [int(x.rstrip('.mat').split('_')[1]) for x in self.imagefiles]
         self.imagefiles = [x for _, x in sorted(zip(movieindex, self.imagefiles))]
         movieindex = sorted(movieindex)
-        if not movlist == 'all':
+        if movlist is not None and not movlist == 'all':
             if isinstance(movlist, str):
                 movlist = [int(m) for m in movlist.split(',')]
             self.imagefiles = [f for f in self.imagefiles if movieindex[self.imagefiles.index(f)] in movlist]

@@ -5,8 +5,10 @@ function compile_antrax_executables
 %%% to be run for every version release
 %%%
 
-antraxdir = [fileparts(which('track_batch')),'/../../'];
-srcdir = [antraxdir,filesep,'matlab',filesep,'tracking'];
+
+x=strsplit(fileparts(which('track_batch')),filesep);
+antraxdir = strjoin(x(1:end-2),filesep);
+srcdir = [antraxdir,filesep,'matlab'];
 bindir = [antraxdir,filesep,'bin',filesep];
 
 prefix = ['antrax_',lower(computer),'_'];
@@ -37,8 +39,13 @@ eval(['mcc -m antrax.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'app'])
 % compile the track function
 report('I','    ...track function')
 eval(['mcc -m track_single_movie.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'track_single_movie'])
+
+% compile the stitch function
+report('I','    ...stitch function')
 eval(['mcc -m link_across_movies.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'link_across_movies'])
 
 % compile the solve function
 report('I','    ...solve function')
+eval(['mcc -m solve_single_graph.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'solve_single_graph'])
+
 

@@ -7,7 +7,7 @@ from glob import glob
 import ruamel.yaml
 import h5py 
 import numpy as np
-
+from datetime import datetime
 
 from numpy import pi
 import skvideo.io as skv
@@ -23,6 +23,13 @@ class ANTRAXError(Exception):
 
     def __init__(self, msg):
         print(msg)
+
+
+def report(a, msg):
+
+    a = ' -' + a + '- '
+    ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
+    print(ts + a + msg)
 
 
 def rename_expdir(expdir, new_expname):

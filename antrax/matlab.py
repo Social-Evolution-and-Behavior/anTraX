@@ -16,62 +16,60 @@ from .utils import *
 USER = os.getenv("USER")
 HOME = os.getenv("HOME")
 
-ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR')
+ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR')==1
 ANTRAX_PATH = os.getenv('ANTRAX_PATH')
 ANTRAX_BIN_PATH = ANTRAX_PATH + '/bin/'
 
 PLATFORM = sys.platform
-
 MACOS = PLATFORM == 'darwin'
 LINUX = PLATFORM == 'linux'
 
 if MACOS:
     MATLAB_PLATFORM = 'maci64'
 elif LINUX:
-    MATLAB_PLATFORM = 'glnx64'
-
+    MATLAB_PLATFORM = 'glnxa64'
 
 if not ANTRAX_USE_MCR:
 
     # case we running real matlab
     import matlab.engine
 
+
+# for the case of mcr, add mcr to library path
+MCR = os.getenv('ANTRAX_MCR')
+
+if LINUX:
+    LDPATH = [MCR + '/runtime/glnxa64',
+              MCR + '/bin/glnxa64',
+              MCR + '/sys/os/glnxa64',
+              MCR + '/sys/opengl/lib/glnxa64']
+    LDPATH = ':'.join(LDPATH)
+    os.putenv('LD_LIBRARY_PATH', LDPATH)
+
+elif MACOS:
+    LDPATH = [MCR + '/runtime/maci64',
+              MCR + '/bin/maci64',
+              MCR + '/sys/os/maci64']
+    LDPATH = ':'.join(LDPATH)
+    os.putenv('DYLD_LIBRARY_PATH', LDPATH)
 else:
 
-    # for the case of mcr, add mcr to library path
-    MCR = os.getenv('ANTRAX_MCR')
-
-    if LINUX:
-        LDPATH = [MCR + '/runtime/glnx64',
-                  MCR + '/bin/glnx64',
-                  MCR + '/sys/os/glnx64',
-                  MCR + '/sys/opengl/lib/glnx64']
-        LDPATH = ':'.join(LDPATH)
-        os.environ['LD_LIBRARY_PATH'] == LDPATH
-
-    elif MACOS:
-        LDPATH = [MCR + '/runtime/maci64',
-                  MCR + '/bin/maci64',
-                  MCR + '/sys/os/maci64']
-        LDPATH = ':'.join(LDPATH)
-        os.environ['DYLD_LIBRARY_PATH'] == LDPATH
-    else:
-
-        # raise error
-        pass
+    # raise error
+    pass
 
 
 def run_mcr_function(fun, args, diary=DEVNULL):
 
     fun = 'antrax_' + MATLAB_PLATFORM + '_' + fun
+    args = [str(a) for a in args]
 
     if LINUX:
 
-        cmd = ANTRAX_BIN_PATH + fun + ' ' + ' '.join(args)
+        cmd = [ANTRAX_BIN_PATH + fun] + args
 
     elif MACOS:
 
-        cmd = ANTRAX_BIN_PATH + fun + '.app/Contents/MacOS/' + fun + ' ' + ' '.join(args)
+        cmd = [ANTRAX_BIN_PATH + fun + '.app/Contents/MacOS/' + fun] + args
 
     p = Popen(cmd, stdout=diary, stderr=diary)
 
@@ -87,27 +85,78 @@ def start_matlab():
     return eng
 
 
+def solve_single_graph(ex, g, mcr=ANTRAX_USE_MCR):
+
+    report('I', 'Start ID propagation of graph ' + str(g) + ' in ' + ex.expname)
+
+    diaryfile = join(ex.logsdir, 'solve_' + str(g) + '.log')
+
+    if mcr:
+
+        with open(diaryfile, 'w') as diary:
+            run_mcr_function('solve_single_graph', [ex.expdir, g, 'trackingdirname', ex.session], diary=diary)
+
+    else:
+
+        out = io.StringIO()
+        eng = start_matlab()
+        try:
+            eng.solve_single_graph(ex.expdir, g, 'trackingdirname', ex.session,
+                                   nargout=0, stdout=out, stderr=out)
+        except:
+            raise
+        finally:
+            with open(diaryfile, 'w') as diary:
+                out.seek(0)
+                shutil.copyfileobj(out, diary)
+
+        eng.quit()
+
+    report('I', 'Finished propagation in graph ' + str(g) + ' in ' + ex.expname)
+
+
 def track_single_movie(ex, m, mcr=ANTRAX_USE_MCR):
 
-    print('Start tracking of movie ' + str(m) + ' in ' + ex.expname)
+    report('I', 'Start tracking of movie ' + str(m) + ' in ' + ex.expname)
 
     diaryfile = join(ex.logsdir, 'track_' + str(m) + '.log')
 
     if mcr:
-        with open(diaryfile) as diary:
-            run_mcr_function('track_single_movie', ['trackingdirname', ex.session, 'm', m], diary=diary)
+
+        with open(diaryfile, 'w') as diary:
+            run_mcr_function('track_single_movie', [ex.expdir, m, 'trackingdirname', ex.session], diary=diary)
 
     else:
+
         out = io.StringIO()
         eng = start_matlab()
-        eng.track_single_movie(ex.expdir, 'trackingdirname', ex.session, 'm', m, 'diary', diaryfile, nargout=0,
-                               stdout=out, stderr=out)
+        try:
 
-        with open(diaryfile) as diary:
-            out.seek(0)
-            shutil.copyfileobj(out, diary)
+            eng.track_single_movie(ex.expdir, m, 'trackingdirname', ex.session,
+                                   nargout=0, stdout=out, stderr=out)
+        except:
+            raise
+        finally:
+            with open(diaryfile, 'w') as diary:
+                out.seek(0)
+                shutil.copyfileobj(out, diary)
 
-    print('Finished tracking of movie ' + str(m) + ' in ' + ex.expname)
+        eng.quit()
+
+    report('I', 'Finished tracking of movie ' + str(m) + ' in ' + ex.expname)
+
+
+def link_across_movies(ex, mcr=ANTRAX_USE_MCR):
+
+    report('I', 'Running cross movie link function for ' + ex.expname)
+
+    if mcr:
+        run_mcr_function('link_across_movies', [ex.expdir, 'trackingdirname', ex.session])
+    else:
+        eng = start_matlab()
+        eng.link_across_movies(ex.expdir, 'trackingdirname', ex.session, nargout=0)
+
+    report('I', 'Finished')
 
 
 def launch_antrax_app():
@@ -117,66 +166,34 @@ def launch_antrax_app():
     while eng.isvalid(app, ):
         sleep(0.25)
 
+    eng.quit()
+
 
 class MatlabQueue(queue.Queue):
 
-    def __init__(self, nw=None):
+    def __init__(self, nw=None, mcr=ANTRAX_USE_MCR):
 
         super().__init__()
         self.threads = []
         self.nw = nw
+        self.mcr = mcr
         if nw is not None:
             self.start_workers()
 
-    def add_track_task(self, ex, m):
-
-        self.put(('track', ex, m))
-
-    def add_solve_task(self, ex, g):
-
-        pass
-
-    def add_task(self, fun, args):
-
-        self.put((fun, args))
-
     def worker(self):
 
-        # start matlab engine
-        if not ANTRAX_USE_MCR:
-            eng = start_matlab()
-
         while True:
-            out = io.StringIO()
-            err = io.StringIO()
             item = self.get()
             if item is None:
                 break
-            if item[0] == 'track':
-                ex = item[1]
-                m = item[2]
-                diaryfile = join(ex.logsdir, 'track_' + str(m) + '.log')
-                print('Start tracking of movie ' + str(m) + ' in ' + ex.expname)
-
-                eng.track_single_movie(ex.expdir, 'trackingdirname', ex.session, 'm', m, 'diary', diaryfile, nargout=0,
-                                       stdout=out, stderr=err)
-                print('Finished tracking of movie ' + str(m) + ' in ' + ex.expname)
-            elif item[0] == 'solve':
-                pass
-            else:
-                print('Start ', item[0])
-                fun = eval('eng.' + item[0])
-                fun(*item[1], nargout=0, stdout=out, stderr=err)
-                print('Finished ', item[0])
+            eval(item[0])(*item[1:], mcr=self.mcr)
             self.task_done()
-
-        eng.quit()
 
     def start_workers(self):
 
         threads = []
 
-        print('Starting ' + str(self.nw) + ' matlab workers')
+        report('I', 'Starting ' + str(self.nw) + ' workers')
         for i in range(self.nw):
             t = Thread(target=self.worker)
             t.start()
@@ -190,5 +207,10 @@ class MatlabQueue(queue.Queue):
             self.put(None)
 
         if wait:
-            self.join()
+            for t in self.threads:
+                t.join()
+
+        report('I', 'Workers closed')
+
+
 

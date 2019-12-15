@@ -26,9 +26,6 @@ if ~isempty(p.Results.classdir)
     Trck.classdir=p.Results.classdir;
 end
 
-
-
-
 %% set profile and number of workers to use:
 
 if isa(p.Results.profile,'parallel.cluster.Local')
