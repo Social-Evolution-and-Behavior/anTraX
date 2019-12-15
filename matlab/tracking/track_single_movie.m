@@ -3,9 +3,9 @@ function track_single_movie(expdir,varargin)
 
 p = inputParser;
 addRequired(p,'expdir',@(x) (ischar(x) && isfolder(x)) || isa(x,'trhandles'));
-addOptional(p,'m',[],@(x) isnumeric(x));
-addParameter(p,'from',[],@(x) isnumeric(x)||isa(c,'trtime'));
-addParameter(p,'to',[],@(x) isnumeric(x)||isa(c,'trtime'));
+addOptional(p,'m',[],@(x) isnumeric(x)||ischar(x));
+addParameter(p,'from',[],@(x) isnumeric(x)||isa(x,'trtime')||ischar(x));
+addParameter(p,'to',[],@(x) isnumeric(x)||isa(x,'trtime')||ischar(x));
 addParameter(p,'report',1000,@isnumeric);
 addParameter(p,'batchparams',[]);
 addParameter(p,'path_to_antrax',[]);
@@ -25,17 +25,30 @@ Trck.er.init_buf(0);
 
 %% set frame range to track
 
-if ~isempty(p.Results.m) && (~isempty(p.Results.from) || ~isempty(p.Results.to))
-    m = p.Results.m;
-    ti = trtime(Trck,max([p.Results.from,Trck.get_param('videos_first_frame_to_track')]));
-    tf = trtime(Trck,min([p.Results.to,Trck.er.totalframenum]));
-elseif ~isempty(p.Results.m)
-    m = p.Results.m;
+m = p.Results.m;
+if ischar(m)
+    m = str2double(m);
+end
+
+from = p.Results.from;
+if ischar(from)
+    from = str2double(from);
+end
+
+to = p.Results.to;
+if ischar(to)
+    to = str2double(to);
+end
+
+if ~isempty(m) && (~isempty(from) || ~isempty(to))
+    ti = trtime(Trck,max([from,Trck.get_param('videos_first_frame_to_track')]));
+    tf = trtime(Trck,min([to,Trck.er.totalframenum]));
+elseif ~isempty(m)
     ti = trtime(Trck,Trck.er.movies_info(m).fi);
     tf = trtime(Trck,Trck.er.movies_info(m).ff);
 else
-    ti = trtime(Trck,max([p.Results.from,Trck.get_param('videos_first_frame_to_track')]));
-    tf = trtime(Trck,min([p.Results.to,Trck.er.totalframenum]));
+    ti = trtime(Trck,max([from,Trck.get_param('videos_first_frame_to_track')]));
+    tf = trtime(Trck,min([to,Trck.er.totalframenum]));
     m = ti.m;
 end
 

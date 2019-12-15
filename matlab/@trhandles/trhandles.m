@@ -511,7 +511,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 movlist=1:Trck.er.nmovies;
             end
             
-            if nargin<3 || isempty(colony)
+            if nargin<3 || isempty(colony) || ~Trck.get_param('geometry_multi_colony') 
                 colony='';
             elseif isnumeric(colony) && colony>Trck.Ncolonies
                 report('E','No such colony index')
@@ -586,6 +586,39 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
     
     %%% get/set methods
     methods
+        
+        function groups = get_solve_groups(Trck)
+            
+            
+            switch Trck.get_param('graph_groupby')
+            
+                
+                % whole experiment
+                case 'experiment'
+                    
+                    groups{1} = Trck.movlist;
+            
+                % by subdir
+                case 'subdirs'
+                    
+                    for i=1:length(Trck.er.subdirs)
+                       
+                        groups{i} = Trck.er.subdirs(i).mi:Trck.er.subdirs(i).mf;
+                        
+                    end
+            
+                % individual
+                case 'movie'
+                    
+                    groups = num2cell(Trck.movlist);
+            
+                % custom
+                case 'custom'
+            
+            
+            end
+            
+        end
         
         function ename = get.expname(Trck)
             

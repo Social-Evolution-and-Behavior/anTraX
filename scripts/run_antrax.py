@@ -69,7 +69,7 @@ def configure():
     launch_antrax_app()
 
 
-def track(explist: parse_explist, *, movlist: parse_movlist=None, nw=2, hpc=False, hpc_options: parse_hpc_options=' ',
+def track(explist: parse_explist, *, movlist: parse_movlist=None, mcr=False, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options=' ',
           session=None):
 
     if hpc:
@@ -79,18 +79,43 @@ def track(explist: parse_explist, *, movlist: parse_movlist=None, nw=2, hpc=Fals
             antrax_hpc_job(e, 'classify', opts=hpc_options)
     else:
 
-        Q = MatlabQueue(nw=nw)
+        Q = MatlabQueue(nw=nw, mcr=mcr)
 
-        for e in explist:
-            for m in movlist:
-                Q.add_track_task(e, m)
+        if not onlystitch:
+            for e in explist:
+                movlist1 = e.movlist if movlist is None else movlist
+                for m in movlist1:
+                    Q.put(('track_single_movie', e, m))
 
-        # wait for tasks to complete
-        Q.join()
+            # wait for tasks to complete
+            Q.join()
 
         # run cross movie link
         for e in explist:
-            Q.add_task('link_across_movies', [e.expdir])
+            Q.put(('link_across_movies', e))
+
+        # close
+        Q.stop_workers()
+
+
+def solve(explist: parse_explist, *, glist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options=' ',
+          session=None):
+
+    if hpc:
+        for e in explist:
+            hpc_options['classifier'] = classifier
+            hpc_options['movlist'] = glist
+            antrax_hpc_job(e, 'classify', opts=hpc_options)
+    else:
+
+        Q = MatlabQueue(nw=nw, mcr=mcr)
+
+        for e in explist:
+            for g in glist:
+                Q.put(('solve_single_graph', e, g))
+
+        # wait for tasks to complete
+        Q.join()
 
         # close
         Q.stop_workers()
@@ -110,7 +135,7 @@ def classify(explist: parse_explist, *, classifier, movlist: parse_movlist=None,
 
     if not hpc:
         from antrax.classifier import axClassifier
-        C = axClassifier.load(classifier)
+        c = axClassifier.load(classifier)
 
     for e in explist:
         if hpc:
@@ -118,12 +143,7 @@ def classify(explist: parse_explist, *, classifier, movlist: parse_movlist=None,
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'classify', opts=hpc_options)
         else:
-            C.predict_experiment(e, movlist=movlist)
-
-
-def solve(explist):
-
-    pass
+            c.predict_experiment(e, movlist=movlist)
 
 
 def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' '):

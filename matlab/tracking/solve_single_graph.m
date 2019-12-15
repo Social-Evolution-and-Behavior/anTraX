@@ -2,11 +2,11 @@ function solve_single_graph(expdir,varargin)
 
 p = inputParser;
 addRequired(p,'expdir',@(x) (ischar(x) && isfolder(x)) || isa(x,'trhandles'));
+addOptional(p,'g',[]);
 addParameter(p,'movlist',[],@(x) isnumeric(x));
 addParameter(p,'colony','')
 addParameter(p,'batchinfo',[]);
 addParameter(p,'trackingdirname',[]);
-addParameter(p,'NumWorkers',2);
 addParameter(p,'graph_pairs_maxdepth',[]);
 
 % parse inputs
@@ -24,12 +24,32 @@ elseif Trck.get_param('geometry_multi_colony') && ~ismember(colony,Trck.colony_l
     return
 end
 
+if ~isempty(p.Results.g)
+   
+    groups = Trck.get_solve_groups();
+    
+    if p.Results.g>length(groups)
+        error('g is larger than number of groups')
+    else
+        movlist = groups{p.Results.g};
+        report('I', ['solving graph from movies',num2str(movlist)])
+    end
+    
+else
+    
+    movlist = p.Results.movlist;
+    
+end
+
+if ~all(ismember(movlist,Trck.graphlist))
+    error('Some movies dont have a tracklet graph')
+end
+
 if ~isempty(p.Results.graph_pairs_maxdepth)
     Trck.set_param('graph_pairs_maxdepth',p.Results.graph_pairs_maxdepth);
 end
 
-G = Trck.loaddata(p.Results.movlist,colony);
-G.NumWorkers = p.Results.NumWorkers;
+G = Trck.loaddata(movlist,colony);
 
 solve(G);
 report('I','Extracting xy data')
