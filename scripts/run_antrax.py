@@ -16,7 +16,7 @@ from antrax.utils import *
 @parser.value_converter
 def parse_hpc_options(s):
 
-    if s is None or s == '':
+    if s is None or s == ' ':
         return {}
 
     opts = {x.split('=')[0]: x.split('=')[1] for x in s.split(',') if '=' in x}
