@@ -69,14 +69,14 @@ def configure():
     launch_antrax_app()
 
 
-def track(explist: parse_explist, *, movlist: parse_movlist=None, mcr=False, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options=' ',
+def track(explist: parse_explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options=' ',
           session=None):
 
     if hpc:
         for e in explist:
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
-            antrax_hpc_job(e, 'classify', opts=hpc_options)
+            antrax_hpc_job(e, 'track', opts=hpc_options)
     else:
 
         Q = MatlabQueue(nw=nw, mcr=mcr)

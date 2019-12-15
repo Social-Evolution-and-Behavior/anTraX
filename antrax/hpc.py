@@ -125,7 +125,8 @@ def antrax_hpc_job(ex, step, opts):
         opts['cpus'] = opts.get('cpus', 2)
         opts['cmd'] = 'run_antrax.py track ' + ex.expdir + \
             ' --session ' + ex.session + \
-            ' --movlist $SLURM_ARRAY_TASK_ID'
+            ' --movlist $SLURM_ARRAY_TASK_ID' + \
+            ' --mcr'
 
     elif step == 'post':
         opts['jobname'] = 'pst:' + ex.expname
