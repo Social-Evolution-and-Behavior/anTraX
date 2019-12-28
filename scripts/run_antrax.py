@@ -149,7 +149,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=5
     c.save(classfile)
 
 
-def classify(explist: parse_explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options=' ',
+def classify(explist: parse_explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options={},
              nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None):
 
     if not hpc:
