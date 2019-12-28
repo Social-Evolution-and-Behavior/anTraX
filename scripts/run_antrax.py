@@ -5,7 +5,7 @@ from sigtools.wrappers import decorator
 from os.path import isfile, isdir, join, splitext
 
 from time import sleep
-
+from imageio import imread
 from antrax import *
 from antrax.matlab import *
 from antrax.hpc import antrax_hpc_job
@@ -63,10 +63,16 @@ def parse_explist(exparg):
 ########################### Run functions ##########################
 
 
-def configure():
+def configure(expdir):
     """Launch antrax configuration app"""
 
-    launch_antrax_app()
+    launch_antrax_app(expdir)
+
+
+def validate(expdir):
+    """Launch antrax configuration app"""
+
+    launch_validate_classifications_app(expdir)
 
 
 def track(explist: parse_explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
@@ -121,28 +127,52 @@ def solve(explist: parse_explist, *, glist: parse_movlist=None, mcr=False, nw=2,
         Q.stop_workers()
 
 
-def train(classifier, *, scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None, nw=0, scale=None):
+def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None):
 
     if target_size is not None:
         target_size = int(target_size)
 
-    if scale is not None:
-        scale = float(scale)
+    classfile = join(classdir, name + '.h5')
+    examplesdir = join(classdir, 'examples')
+
+    if isfile(classfile):
+        c = axClassifier.load(classfile)
+    else:
+        n = len(glob(examplesdir + '/*'))
+        if target_size is None:
+            f = glob(examplesdir + '/*/*.png')[0]
+            target_size = max(imread(f).shape)
+
+        c = axClassifier(name, nclasses=n, target_size=target_size)
+
+    c.train(examplesdir, from_scratch=scratch, ne=ne)
+    c.save(classfile)
 
 
-def classify(explist: parse_explist, *, classifier, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options=' ',
+def classify(explist: parse_explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options=' ',
              nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None):
 
     if not hpc:
         from antrax.classifier import axClassifier
+
+    from_expdir = classifier is None
+
+    if not hpc and not from_expdir:
+
         c = axClassifier.load(classifier)
 
     for e in explist:
+
+        if from_expdir:
+            classifier = e.sessiondir + '/classifier/classifier.h5'
+
         if hpc:
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'classify', opts=hpc_options)
         else:
+            if from_expdir:
+                c = axClassifier.load(classifier)
             c.predict_experiment(e, movlist=movlist)
 
 
@@ -172,6 +202,7 @@ if __name__ == '__main__':
 
     function_list = {
         'configure': configure,
+        'validate': validate,
         'track': track,
         'train': train,
         'classify': classify,

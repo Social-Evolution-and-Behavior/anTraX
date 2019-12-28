@@ -1,4 +1,5 @@
-function prmtrs = default_params(Trck) %#ok<*INUSD>
+function prmtrs = default_params(Trck, name) %#ok<*INUSD>
+
 
 prmtrs = struct('null',[]);
 

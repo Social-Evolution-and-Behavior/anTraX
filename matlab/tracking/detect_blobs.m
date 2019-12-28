@@ -25,7 +25,7 @@ end
 % want the tracking to fail in that case, so we define the frame as the
 % background, which will yield no blobs --> all trajectory will be closed.
 
-skipFrame = Trck.currfrm.dat.interrupt && ~Trck.get_param('videos_track_on_interrupt');
+skipFrame = (Trck.currfrm.dat.interrupt==1) && ~Trck.get_param('videos_track_on_interrupt');
 
 if skipFrame || isempty(frame)
     frame = BG;

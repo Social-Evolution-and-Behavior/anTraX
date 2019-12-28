@@ -28,6 +28,8 @@ report('I','    ...main antrax app')
 eval(['mcc -m antrax.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'app'])
 
 % compile validation app
+report('I','    ...autoids app')
+eval(['mcc -m verify_autoids_app.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'validate_classifications'])
 
 
 % compile graph explorer
