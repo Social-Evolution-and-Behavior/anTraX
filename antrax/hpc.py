@@ -140,8 +140,8 @@ def antrax_hpc_job(ex, step, opts):
         opts['filename'] = 'cls'
         opts['cpus'] = opts.get('cpus', 6)
         opts['cmd'] = 'run_antrax.py classify expdir' + \
+            ' --classifier ' + opts['classifier'] + \
             ' --session ' + ex.session + \
-            ' --classdir ' + opts['classdir'] + \
             ' --movlist $SLURM_ARRAY_TASK_ID'
 
     elif step == 'solve':
