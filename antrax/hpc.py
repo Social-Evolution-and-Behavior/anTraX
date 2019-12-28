@@ -139,7 +139,7 @@ def antrax_hpc_job(ex, step, opts):
         opts['jobname'] = 'cls:' + ex.expname
         opts['filename'] = 'cls'
         opts['cpus'] = opts.get('cpus', 6)
-        opts['cmd'] = 'run_antrax.py classify expdir' + \
+        opts['cmd'] = 'run_antrax.py classify ' + ex.expdir + \
             ' --classifier ' + opts['classifier'] + \
             ' --session ' + ex.session + \
             ' --movlist $SLURM_ARRAY_TASK_ID'
