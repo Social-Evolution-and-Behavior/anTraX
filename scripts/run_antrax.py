@@ -39,8 +39,6 @@ def parse_explist(exparg):
 
     exps = []
 
-    print('parsing ' + exparg)
-
     if isdir(exparg) and is_expdir(exparg):
         exps.append(axExperiment(exparg))
     elif isfile(exparg):
