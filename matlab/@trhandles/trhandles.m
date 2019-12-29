@@ -597,9 +597,13 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 case 'experiment'
                     
                     groups{1} = Trck.movlist;
+                    
+                case 'wholeexperiment'
+                    
+                    groups{1} = Trck.movlist;
             
                 % by subdir
-                case 'subdirs'
+                case 'subdir'
                     
                     for i=1:length(Trck.er.subdirs)
                        
@@ -614,8 +618,16 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             
                 % custom
                 case 'custom'
+                    
+                    error('not implemented')
+                    groups = {}
+            end
             
             
+            for i=1:length(groups)
+               
+                groups{i} = intersect(groups{i},Trck.graphlist);
+                
             end
             
         end

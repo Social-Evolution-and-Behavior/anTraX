@@ -23,14 +23,6 @@ class axExperiment:
         self.expdir = expdir
         self.expname = expdir.rstrip('/').split('/')[-1]
         self.expinfo = expinfo
-        self.alt_expname = self.expname
-        if 'temperature' in self.expdir:
-            self.alt_expname = os.path.abspath(self.expdir).split('/')[-3]
-
-        self.viddir = join(self.expdir, 'videos') if isdir(join(self.expdir, 'videos')) else self.expdir
-
-        self.subdirs = self.get_subdirs()
-        self.movlist = self.get_movlist()
 
         if session is not None:
             self.session = session
@@ -48,7 +40,20 @@ class axExperiment:
         self.logsdir = join(self.sessiondir, 'logs')
         self.prmtrs = self.get_prmtrs()
         self.movies_info = self.get_movies_info()
-        
+
+        self.alt_expname = self.expname
+
+        if 'temperature' in self.expdir:
+            self.alt_expname = os.path.abspath(self.expdir).split('/')[-3]
+
+        self.viddir = join(self.expdir, 'videos') if isdir(join(self.expdir, 'videos')) else self.expdir
+
+        self.subdirs = self.get_subdirs()
+        self.movlist = self.get_movlist()
+        self.glist, self.ggroups = self.get_glist()
+
+
+
         self.antlist = self.get_labels()['ant_labels']
 
         self.slurmdir = join(expdir, 'slurm')
@@ -203,7 +208,33 @@ class axExperiment:
 
         return self.labels
 
-    def get_graph_groups(self):
+    def get_glist(self):
+
+        if self.prmtrs['graph_groupby'] == 'wholeexperiment':
+
+            glist = [1]
+            ggroups = self.movlist
+
+        elif self.prmtrs['graph_groupby'] == 'subdir':
+
+            glist = [g+1 for g in range(len(self.subdirs))]
+            ggroups = [list(range(int(x.split('_')[0]), int(x.split('_')[1]) + 1)) for x in self.subdirs]
+            ggroups = [[x for x in g if x in self.movlist] for g in ggroups]
+
+        elif self.prmtrs['graph_groupby'] == 'custom':
+
+            ggroups = self.prmtrs['graph_groups']
+            glist = [g + 1 for g in range(len(ggroups))]
+
+        else:
+
+            print('Something wrong with graph lists')
+            glist = []
+            ggroups = []
+
+        return glist, ggroups
+
+    def get_graph_group(self, g):
 
         ggroups = [list(range(int(x.split('_')[0]), int(x.split('_')[1]) + 1)) for x in self.subdirs]
         ggroups = [[x for x in g if x in self.movlist] for g in ggroups]

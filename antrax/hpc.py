@@ -107,12 +107,6 @@ def antrax_hpc_job(ex, step, opts):
     if not step == 'track':
         movlist = [m for m in movlist if m in ex.get_file_list('images')]
 
-    opts['taskarray'] = movlist
-
-    # solve need special handling
-    if step == 'solve':
-        taskarray = None
-
     # clear tracking data for movlist
     if not opts.get('dry', False):
         clear_tracking_data(ex, step, movlist, opts)
@@ -120,8 +114,10 @@ def antrax_hpc_job(ex, step, opts):
     precmd = []
 
     if step == 'track':
+
         opts['jobname'] = 'trk:' + ex.expname
         opts['filename'] = 'trk'
+        opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 2)
         opts['cmd'] = 'run_antrax.py track ' + ex.expdir + \
             ' --session ' + ex.session + \
@@ -129,8 +125,10 @@ def antrax_hpc_job(ex, step, opts):
             ' --mcr'
 
     elif step == 'post':
+
         opts['jobname'] = 'pst:' + ex.expname
         opts['filename'] = 'pst'
+        opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 2)
         opts['cmd'] = ''
 
@@ -138,6 +136,7 @@ def antrax_hpc_job(ex, step, opts):
 
         opts['jobname'] = 'cls:' + ex.expname
         opts['filename'] = 'cls'
+        opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 6)
         opts['cmd'] = 'run_antrax.py classify ' + ex.expdir + \
             ' --classifier ' + opts['classifier'] + \
@@ -145,15 +144,21 @@ def antrax_hpc_job(ex, step, opts):
             ' --movlist $SLURM_ARRAY_TASK_ID'
 
     elif step == 'solve':
+
         opts['jobname'] = 'slv:' + ex.expname
         opts['filename'] = 'slv'
+        opts['taskarray'] = opts['glist']
         opts['cpus'] = opts.get('cpus', 4)
-        opts['cmd'] = ''
+        opts['cmd'] = 'run_antrax.py solve ' + ex.expdir + \
+            ' --session ' + ex.session + \
+            ' --g $SLURM_ARRAY_TASK_ID' + \
+            ' --mcr'
 
     elif step == 'dlc':
 
         opts['jobname'] = 'dlc:' + ex.expname
         opts['filename'] = 'dlc'
+        opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 6)
         #precmd.append('export ')
         opts['cmd'] = 'run_antrax.py dlc ' + ex.expdir + \
