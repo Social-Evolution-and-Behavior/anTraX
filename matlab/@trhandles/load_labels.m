@@ -1,12 +1,7 @@
 function load_labels(Trck)
 
-if exist([Trck.paramsdir,'labels.mat'],'file')
 
-    load([Trck.paramsdir,'labels.mat']);
-    Trck.labels = labels;
-    Trck.save_labels;
-    
-elseif exist([Trck.paramsdir,'labels.csv'],'file')
+if exist([Trck.paramsdir,'labels.csv'],'file')
     labels = struct;
     A = readcell([Trck.paramsdir,'labels.csv']);
     categories = unique(A(:,2));
@@ -35,14 +30,12 @@ elseif exist([Trck.paramsdir,'labels.csv'],'file')
     end
     
     Trck.labels = labels;
-    
-
 
 else
 
     labels.tagcolors = {'B','G','O','P'};
     labels.ant_labels = all_possible_ids(labels.tagcolors);
-    labels.nonant_labels = {'NoAnt'};
+    labels.noant_labels = {'NoAnt'};
     labels.other_labels = {'Unknown'};
     Trck.labels = labels;
 

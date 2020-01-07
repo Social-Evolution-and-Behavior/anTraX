@@ -12,9 +12,11 @@ end
 % get dilating kernel
 
 dt = Trck.currfrm.dat.tracking_dt;
-dt = min([dt,4/Trck.er.framerate]);
-
-dilatepropag = strel('disk',ceil(Trck.get_param('linking_dilatespeed')*dt/Trck.get_param('geometry_rscale')),0);
+dt = min([dt, 4/Trck.er.framerate]);
+dt = max([dt, 1/Trck.er.framerate]);
+dilatespeed = Trck.get_param('linking_maxspeed') * Trck.get_param('linking_cluster_radius_coeff');
+dilaterad = dilatespeed*dt/Trck.get_param('geometry_rscale');
+dilatepropag = strel('disk',ceil(dilaterad),0);
 
 % dilate prev and current frames
 combined = imdilate(Trck.prevfrm.BW_2|Trck.currfrm.BW_2,dilatepropag);
@@ -82,7 +84,7 @@ for i=1:max(cluster_label(:))
             uendblobs = unique(endblobs);
             for k=1:length(uendblobs)
                 Trck.ConnectArray(previx(j),uendblobs(k)) = nnz(endblobs==uendblobs(k));
-                Trck.ConnectArraybin(previx(j),uendblobs(k)) = Trck.ConnectArray(previx(j),uendblobs(k))>Trck.get_param('linking_ofconnectmin');
+                Trck.ConnectArraybin(previx(j),uendblobs(k)) = Trck.ConnectArray(previx(j),uendblobs(k))>Trck.get_param('linking_flow_cutoff');
             end
         end
         

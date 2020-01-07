@@ -2,8 +2,9 @@
 
 from clize import run, Parameter, parser
 from sigtools.wrappers import decorator
+import os
 from os.path import isfile, isdir, join, splitext
-
+from glob import glob
 from time import sleep
 from imageio import imread
 from antrax import *
@@ -34,13 +35,13 @@ def parse_movlist(movlist):
 
     return movlist
 
-@parser.value_converter
-def parse_explist(exparg):
+#@parser.value_converter
+def parse_explist(exparg, session=None):
 
     exps = []
 
     if isdir(exparg) and is_expdir(exparg):
-        exps.append(axExperiment(exparg))
+        exps.append(axExperiment(exparg, session))
     elif isfile(exparg):
         with open(exparg) as f:
             for line in f:
@@ -49,10 +50,10 @@ def parse_explist(exparg):
                     continue
                 if line[0] != '#':
                     lineparts = line.split(' ')
-                    exps.append(axExperiment(lineparts[0]))
+                    exps.append(axExperiment(lineparts[0], session))
     elif isdir(exparg):
         explist = find_expdirs(exparg)
-        exps = [axExperiment(e) for e in explist if is_expdir(e)]
+        exps = [axExperiment(e, session) for e in explist if is_expdir(e)]
     else:
         print('Something wrong with explist argument')
         exps = []
@@ -63,20 +64,74 @@ def parse_explist(exparg):
 ########################### Run functions ##########################
 
 
-def configure(expdir):
+def configure(expdir=None):
     """Launch antrax configuration app"""
 
-    launch_antrax_app(expdir)
+    args = [expdir] if expdir is not None else []
+    launch_matlab_app('antrax', args)
 
 
-def validate(expdir):
+def extract_trainset(expdir, *, session=None):
     """Launch antrax configuration app"""
 
-    launch_validate_classifications_app(expdir)
+    args = [expdir] if session is None else [expdir, 'session', session]
+    launch_matlab_app('verify_autoids_app', args)
+
+def merge_trainset(source, target):
+
+    mkdir(target)
+    mkdir(target + '/examples')
+
+    source_labels = classes_from_examplesdir(source + '/examples/')
+
+    for sl in source_labels:
+
+        mkdir(target + '/examples/' + sl)
+
+        sfiles = glob(source + '/examples/' + sl + '/*.png')
+        tfiles = [sf.replace(source, target) for sf in sfiles]
+
+        for sf, tf in zip(sfiles, tfiles):
+            shutil.copyfile(sf, tf)
+
+def graph_explorer(expdir, *, session=None):
+
+    args = [expdir] if session is None else [expdir, 'session', session]
+    launch_matlab_app('graph_explorer', args)
+
+def validate(expdir, *, session=None):
+    """Launch antrax configuration app"""
+
+    args = [expdir] if session is None else [expdir, 'session', session]
+    launch_matlab_app('verify_tracking', args)
+
+def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, antlist=None, nimages=100, video=False, username='anTraX'):
+
+    import deeplabcut as dlc
+    from antrax.dlc import  create_trainset
 
 
-def track(explist: parse_explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
+    ex = axExperiment(expdir, session)
+
+    if isdir(dlcdir) and not isfile(dlcdir + '/config.yaml'):
+        report('E', 'directory exists, but does contain a deeplabcut configuration file! check your parameters')
+        return
+
+    if not isdir(dlcdir):
+
+        report('I', 'DLC project does not exists, creating')
+        pathlist = os.path.normpath(dlcdir).split(os.path.sep)
+        wd = os.path.sep.join(pathlist[:-1])
+        projname = pathlist[-1]
+        dlcdir = dlc.create_new_project(projname, username, [], working_directory=wd)
+
+    create_trainset(ex, dlcdir, n=nimages, antlist=antlist, movlist=movlist, vid=video)
+
+
+def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
           session=None):
+
+    explist = parse_explist(explist, session)
 
     if hpc:
         for e in explist:
@@ -104,8 +159,10 @@ def track(explist: parse_explist, *, movlist: parse_movlist=None, mcr=False, cla
         Q.stop_workers()
 
 
-def solve(explist: parse_explist, *, glist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
+def solve(explist, *, glist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
           session=None):
+
+    explist = parse_explist(explist, session)
 
     if hpc:
 
@@ -152,8 +209,10 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=5
     c.save(classfile)
 
 
-def classify(explist: parse_explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options={},
+def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options={},
              nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None):
+
+    explist = parse_explist(explist, session)
 
     if not hpc:
         from antrax.classifier import axClassifier
@@ -179,7 +238,7 @@ def classify(explist: parse_explist, *, classifier=None, movlist: parse_movlist=
             c.predict_experiment(e, movlist=movlist)
 
 
-def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' '):
+def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' '):
     """Run DeepLabCut on antrax experiment
 
      :param explist: path to experiment folder, path to file with experiment folders, path to a folder containing several experiments
@@ -189,6 +248,8 @@ def dlc(explist: parse_explist, *, cfg, movlist: parse_movlist=None, session=Non
      :param hpc: Run using slurm worload maneger (default is False)
      :param hpc_options: comma separated list of options for hpc run
      """
+
+    explist = parse_explist(explist, session)
 
     for e in explist:
         if hpc:
@@ -205,6 +266,10 @@ if __name__ == '__main__':
 
     function_list = {
         'configure': configure,
+        'extract-trainset': extract_trainset,
+        'merge-trainset': merge_trainset,
+        'graph-explorer': graph_explorer,
+        'export-dlc-trainset': export_dlc,
         'validate': validate,
         'track': track,
         'train': train,

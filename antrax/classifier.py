@@ -502,17 +502,6 @@ def scale_and_crop(im, scale):
     return im
 
 
-def classes_from_examplesdir(examplesdir):
-
-    # how many classes in example dir?
-    classes = sorted([x.split('/')[-1] for x in glob(examplesdir+'/*')])
-
-    # exclude empty subdirectories
-    classes = [x for x in classes if listdir(join(examplesdir, x))]
-
-    return classes
-
-
 def tmp_examplesdir(examplesdirs, n=None):
 
     print('-I- making joined example dir')

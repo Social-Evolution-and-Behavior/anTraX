@@ -170,3 +170,13 @@ def tracklet_table_to_blob_table(tracklet_table):
 
     return blob_table
 
+
+def classes_from_examplesdir(examplesdir):
+
+    # how many classes in example dir?
+    classes = sorted([x.split('/')[-1] for x in glob(examplesdir+'/*')])
+
+    # exclude empty subdirectories
+    classes = [x for x in classes if os.listdir(join(examplesdir, x))]
+
+    return classes

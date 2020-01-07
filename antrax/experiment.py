@@ -28,6 +28,7 @@ class axExperiment:
             self.session = session
             if not isdir(join(expdir, session)):
                 print('Session ' + session + 'does not exist in experiment')
+                return
         else:
             self.session = self.get_latest_session()
 

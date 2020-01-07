@@ -1,22 +1,37 @@
 site_name: anTraX
 site_author: Asaf Gal
-repo_url: https://github.com/Social-Evolution-and-Behavior/CATT/
+copyright: '© 2020'
+repo_url: https://github.com/Social-Evolution-and-Behavior/anTraX/
 nav:
 - Home: index.md
-- Installation: Installation.md
-- User Guide: 
-    - The anTraX workflow: workflow.md
-    - Organize your data: data_organization.md
-    - Configure a tracking session: configuration.md
-    - Run tracking: running.md
-    - Classify tracklets: classify-tracklets.md
-    - Validate the results: validation.md
-    - Working with output data: data_export.md
+- Installation: installation.md
+- Datasets: datasets.md
+- Preparing data for tracking: data_organization.md
+- Configuring a tracking session: configuration.md
+- Run the tracking: tracking.md
+- Classifying tracklets: classification.md
+- Graph propagation: propagation.md
+- Validating the tracking results: validation.md
+- Analyzing tracking results: analysis.md
+- Using DeepLabCut for analyzing individual behavior: dlc.md
+- Using anTraX on HPC environment: hpc.md
 - Tips and best practices: tips.md
-- Examples: examples.md
-- Analysis: analysis.md
-- About: about.md
+- Release notes: release.md
 theme: readthedocs
 markdown_extensions:
     - smarty
     - fenced_code
+    - admonition
+    - footnotes
+    - codehilite:
+        guess_lang: true
+    - toc:
+        permalink: false
+plugins:
+    - search
+    - mkpdfs:
+        author: Asaf Gal
+        company: "The Laboratory of Social Evolution and Behavior" 
+        design: docs/style.css
+        toc_title: Table of contents
+        output_path: pdf/documentation.pdf

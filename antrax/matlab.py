@@ -159,20 +159,11 @@ def link_across_movies(ex, mcr=ANTRAX_USE_MCR):
     report('I', 'Finished')
 
 
-def launch_validate_classifications_app(expdir, mcr=ANTRAX_USE_MCR):
+def launch_matlab_app(appname, args, mcr=ANTRAX_USE_MCR):
 
     eng = start_matlab()
-    app = eng.verify_autoids_app(expdir)
-    while eng.isvalid(app, ):
-        sleep(0.25)
-
-    eng.quit()
-
-
-def launch_antrax_app(expdir, mcr=ANTRAX_USE_MCR):
-
-    eng = start_matlab()
-    app = eng.antrax(expdir)
+    args = ['"' + a + '"' if type(a) is str else str(a) for a in args]
+    app = eval('eng.' + appname + '(' + ','.join([str(a) for a in args]) + ')')
     while eng.isvalid(app, ):
         sleep(0.25)
 

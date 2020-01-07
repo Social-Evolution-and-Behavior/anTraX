@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+<meta charset="utf-8"/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Asaf Gal" name="author"/>
+<link href="../img/favicon.ico" rel="shortcut icon"/>
+<title>Classifying tracklets - anTraX</title>
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" rel="stylesheet" type="text/css"/>
+<link href="../css/theme.css" rel="stylesheet" type="text/css">
+<link href="../css/theme_extra.css" rel="stylesheet" type="text/css">
+<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+<script>
+    // Current page data
+    var mkdocs_page_name = "Classifying tracklets";
+    var mkdocs_page_input_path = "classification.md";
+    var mkdocs_page_url = null;
+  </script>
+<script defer="" src="../js/jquery-2.1.1.min.js"></script>
+<script defer="" src="../js/modernizr-2.8.3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</link></link></head>
+<body class="wy-body-for-nav" role="document">
+<div class="wy-grid-for-nav">
+<nav class="wy-nav-side stickynav" data-toggle="wy-nav-shift">
+<div class="wy-side-nav-search">
+<a class="icon icon-home" href=".."> anTraX</a>
+<div role="search">
+<form action="../search.html" class="wy-form" id="rtd-search-form" method="get">
+<input name="q" placeholder="Search docs" title="Type search term here" type="text"/>
+</form>
+</div>
+</div>
+<div aria-label="main navigation" class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation">
+<ul class="current">
+<li class="toctree-l1">
+<a class="" href="../home/">Home</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../installation/">Installation</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../data_organization/">Preparing data for tracking</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../configuration/">Configuring a tracking session</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../tracking/">Run the tracking</a>
+</li>
+<li class="toctree-l1 current">
+<a class="current" href="./">Classifying tracklets</a>
+<ul class="subnav">
+<li class="toctree-l2"><a href="#classification-workflow">Classification workflow</a></li>
+<li class="toctree-l2"><a href="#creating-a-training-set">Creating a training set</a></li>
+<li class="toctree-l2"><a href="#merging-training-sets">Merging training sets</a></li>
+<li class="toctree-l2"><a href="#training-the-classifier">Training the classifier</a></li>
+<li class="toctree-l2"><a href="#classifying-tracklets">Classifying tracklets</a></li>
+<li class="toctree-l2"><a href="#validating-classification-and-retraining">Validating classification and retraining</a></li>
+</ul>
+</li>
+<li class="toctree-l1">
+<a class="" href="../propagation/">Graph propagation</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../validation/">Validating the tracking results</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../analysis/">Analyzing tracking results</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../dlc/">Using DeepLabCut for analyzing individual behavior</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../hpc/">Using anTraX on HPC environment</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../tips/">Tips and best practices</a>
+</li>
+</ul>
+</div>
+       
+    </nav>
+<section class="wy-nav-content-wrap" data-toggle="wy-nav-shift">
+<nav aria-label="top navigation" class="wy-nav-top" role="navigation">
+<i class="fa fa-bars" data-toggle="wy-nav-top"></i>
+<a href="..">anTraX</a>
+</nav>
+<div class="wy-nav-content">
+<div class="rst-content">
+<div aria-label="breadcrumbs navigation" role="navigation">
+<ul class="wy-breadcrumbs">
+<li><a href="..">Docs</a> »</li>
+<li>Classifying tracklets</li>
+<li class="wy-breadcrumbs-aside">
+<a class="icon icon-github" href="https://github.com/Social-Evolution-and-Behavior/anTraX/edit/master/docs/classification.md"> Edit on GitHub</a>
+</li>
+</ul>
+<hr/>
+</div>
+<div role="main"><a class="md-content__icon pdf-download-btn" download href="../pdf/combined.pdf" title="Download"><i class="fa fas fa-download"></i><small> PDF</small></a>
+<div class="section">
+<h3 id="classification-workflow">Classification workflow</h3>
+<p>In this step we will classify each tracklet that was marked as possible single ant tracklet. Each of these tracklet will be assigned as either:</p>
+<ul>
+<li>An ant ID from the list of possible IDs</li>
+<li>A non-ant tracklet, wither as a general category or a specific one if such exist in the classifier.</li>
+<li>A multi ant tracklet</li>
+<li>An ambigious tracklet (‘Unknown’) in case the classifier couldn’t make a decision.  </li>
+</ul>
+<p>Each tracklet is classified by first classifying all blob images belonging to that tracklet, using the <em>blob classifier</em> and then weighting these classifications to produce a whole tracklet classification. The blob classifier is a trained deep convolutional network (CNN), that needs to be trained on a trainset of pre-classified blob images</p>
+<h3 id="creating-a-training-set">Creating a training set</h3>
+<p>The blob classifier is a trained deep convolutional network (CNN), that needs to be trained on a trainset of pre-classified blob images. anTraX includes an interactive GUI application to prepare such a training set from a tracked experiment:</p>
+<pre><code>antrax extract-trainset &lt;expdir&gt;
+</code></pre>
+<p>Note that it might take a few minutes for the app to prepare the image dataset for labeling, especially if the experiment is long and/or multi colony.</p>
+<p><img alt="verify_autoids_app" src="../images/verify_autoids_app.png"/></p>
+<p>The app will display blobs images from a randomly selected tracklet. </p>
+<h3 id="merging-training-sets">Merging training sets</h3>
+<p>The exported examples are saved as images in the experimental directory, under <code>/session/classifier/examples/id/</code>. When creating a classifier specific to that experiment, training can be done from that directory. But in order to create a general classifier to be used on many experiments, it is necessary to create a trainset that contain examples from a few experiments. This can be done with the command:</p>
+<pre><code>antrax merge-trainset &lt;source-classdir&gt; &lt;dest-classdir&gt;
+</code></pre>
+<p>This will merge all the examples from the source classifier directory (usually <code>expdir/session/classifier</code>) into the destination classifier directory. It is recommended to keep multi-experiment classifiers seperate from any specific experimental directory to avoid confusion.</p>
+<p><strong>Important:</strong> the user is responsible to make sure the label list matches when merging trainsets. Otherwise, problems might arise.</p>
+<h3 id="training-the-classifier">Training the classifier</h3>
+<pre><code>antrax train &lt;classdir&gt; 
+</code></pre>
+<h3 id="classifying-tracklets">Classifying tracklets</h3>
+<p>To run classification in batch mode:</p>
+<pre><code>antrax classify &lt;experiments&gt;
+</code></pre>
+<p>The <code>experiments</code> argument can be either a full path to an experimental directory, a full path to a text file with a list of experimental directories (all of which will run in parallel), or a full path to a folder that contains one or more experimental directories (all of which will run in parallel).</p>
+<p>The classify command accepts the following options:</p>
+<p>`–classifier <path-to-classifier file=""></path-to-classifier></p>
+<p>Explicit path to a classifier (<code>.h5</code> file created by the train process). By default, anTraX will use the classifier file that exist in the default location in the experimental directory <code>expdir/session/classifier/classifier.h5</code>. If it doesn’t exist, an erorr will be raised.</p>
+<p><code>--movlist &lt;list of movie indices&gt;</code></p>
+<p>By default, anTraX will track all movies in the experiment. This can be changed by using this option. Example for valid inputs incluse: <code>4</code>, <code>3,5,6</code>, <code>1-5,7</code>.</p>
+<p><code>--session &lt;session name&gt;</code></p>
+<p>If your experiment contains more than one configured session, anTraX will run on the last configured one. Use this option to choose a session explicitly.</p>
+<h3 id="validating-classification-and-retraining">Validating classification and retraining</h3>
+<p>The app will display random classified tracklets from the experiments. If the displayed tracklet was assigned with a valid ant ID, you can mark it as correct, wrong, or false positive (i.e. should not have been assigned with an ID). If the displayed tracklet was assigned with a non-ant label, you can mark it as false negative if it is an ant, or just skip to next to mark it as correct. Note that we don’t count correctness in assigning the various non-ant labels here. The stats will be appear in the text window, both as per-tracklet error and per-frame error. Ambiguous tracklets are shown but do not have an error response (saying ‘I don’t know’ is not considered an error).  </p>
+<p>When a tracklet is misclassified, or marked as unknown, you have the option to add its images as examples in the classifier directory. For doing that, choose the correct label from the dropdown menu. If you wish to export all images of that tracklet (be careful, always check the images first), press the <strong>Export all</strong> button. IF only a subset of frames are good examples, press the <strong>Choose frames</strong> button. A second window will appear:</p>
+<p>In that window, frames from the tracklet will be presented one by one. For each, either select <strong>Import as ID</strong> if it is a good example (rule of thumb: if you can say which ant it is by this image alone), select <strong>Import as unknown</strong> if it is definitely an unrecognizable image. If in doubt, skip this frame by pressing <strong>Next</strong>.</p>
+<p>Important: if you made an error while marking the tracklet as correct/wrong/etc, you can correct by going back and re-marking the tracklet, and it will fix the stats appropriately. However, if images from a tracklet were exported as examples under the wrong ID/label, it is not enough to re-export them under the correct label. You will have to open the classifier directory in the systems’s file explorer, look under the wrong label you exported, and delete the images. It is useful to sort by modification date and look at the most recently modified.  </p>
+<p>Classification is done by evaluating a trained tensor-flow neural network on each blob image. The classifier ‘lives’ in a self contained file, and can be shared between experiments. The classifier directory contains a file that stores the neural network topology and parameters in <code>classdir/model.h5</code>, and a sudirectory named <code>examples</code> that contains a data set of labeled images used for training. The example images are organized into subdirectories named by their labels. </p>
+</div>
+</div>
+<footer>
+<div aria-label="footer navigation" class="rst-footer-buttons" role="navigation">
+<a class="btn btn-neutral float-right" href="../propagation/" title="Graph propagation">Next <span class="icon icon-circle-arrow-right"></span></a>
+<a class="btn btn-neutral" href="../tracking/" title="Run the tracking"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+</div>
+<hr/>
+<div role="contentinfo">
+<!-- Copyright etc -->
+</div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+</div>
+</div>
+</section>
+</div>
+<div class="rst-versions" role="note" style="cursor: pointer">
+<span class="rst-current-version" data-toggle="rst-current-version">
+<a class="fa fa-github" href="https://github.com/Social-Evolution-and-Behavior/anTraX/" style="float: left; color: #fcfcfc"> GitHub</a>
+<span><a href="../tracking/" style="color: #fcfcfc;">« Previous</a></span>
+<span style="margin-left: 15px"><a href="../propagation/" style="color: #fcfcfc">Next »</a></span>
+</span>
+</div>
+<script>var base_url = '..';</script>
+<script defer="" src="../js/theme.js"></script>
+<script defer="" src="../search/main.js"></script>
+</body>
+</html>

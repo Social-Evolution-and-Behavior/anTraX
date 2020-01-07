@@ -410,7 +410,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             end
         end
         
-        function XY = loadxy(Trck,varargin)
+        function [XY, frames] = loadxy(Trck,varargin)
             
             p = inputParser;
 
@@ -428,7 +428,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 
                 for i=1:Trck.Ncolonies
                     c = Trck.colony_labels{i};
-                    XY.(c) = Trck.loadxy(movlist,c,varargin);
+                    [XY.(c),frames] = Trck.loadxy(movlist,c,varargin);
                 end
                 return 
                 
@@ -491,7 +491,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             
             for i=1:length(xyfiles)
                 xy(i) = load([xydir,xyfiles{i}]);
-                %frames{i} = tocol(Trck.er.movies_info(movlist(i)).fi:Trck.er.movies_info(movlist(i)).ff);
+                frames{i} = tocol(Trck.er.movies_info(movlist(i)).fi:Trck.er.movies_info(movlist(i)).ff);
             end
             
             XY = struct;
@@ -501,7 +501,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 XY(1).(ids{i}) = cat(1,xy.(ids{i}));
             end
             
-            %frames = cat(1,frames{:});
+            frames = cat(1,frames{:});
             
         end
              
@@ -722,7 +722,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
         end
         
         function c = get.allLabels(Trck)
-            c = [tocol(Trck.labels.ant_labels);tocol(Trck.labels.nonant_labels);tocol(Trck.labels.other_labels)];
+            c = [tocol(Trck.labels.ant_labels);tocol(Trck.labels.noant_labels);tocol(Trck.labels.other_labels)];
         end
         
         function NID = get.NIDs(Trck)

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+<meta charset="utf-8"/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Asaf Gal" name="author"/>
+<link href="../img/favicon.ico" rel="shortcut icon"/>
+<title>Tips and best practices - anTraX</title>
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" rel="stylesheet" type="text/css"/>
+<link href="../css/theme.css" rel="stylesheet" type="text/css">
+<link href="../css/theme_extra.css" rel="stylesheet" type="text/css">
+<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+<script>
+    // Current page data
+    var mkdocs_page_name = "Tips and best practices";
+    var mkdocs_page_input_path = "tips.md";
+    var mkdocs_page_url = null;
+  </script>
+<script defer="" src="../js/jquery-2.1.1.min.js"></script>
+<script defer="" src="../js/modernizr-2.8.3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</link></link></head>
+<body class="wy-body-for-nav" role="document">
+<div class="wy-grid-for-nav">
+<nav class="wy-nav-side stickynav" data-toggle="wy-nav-shift">
+<div class="wy-side-nav-search">
+<a class="icon icon-home" href=".."> anTraX</a>
+<div role="search">
+<form action="../search.html" class="wy-form" id="rtd-search-form" method="get">
+<input name="q" placeholder="Search docs" title="Type search term here" type="text"/>
+</form>
+</div>
+</div>
+<div aria-label="main navigation" class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation">
+<ul class="current">
+<li class="toctree-l1">
+<a class="" href="../home/">Home</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../installation/">Installation</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../data_organization/">Preparing data for tracking</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../configuration/">Configuring a tracking session</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../tracking/">Run the tracking</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../classification/">Classifying tracklets</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../propagation/">Graph propagation</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../validation/">Validating the tracking results</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../analysis/">Analyzing tracking results</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../dlc/">Using DeepLabCut for analyzing individual behavior</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../hpc/">Using anTraX on HPC environment</a>
+</li>
+<li class="toctree-l1 current">
+<a class="current" href="./">Tips and best practices</a>
+<ul class="subnav">
+<li class="toctree-l2"><a href="#marking-ants">Marking ants</a></li>
+<li class="toctree-l2"><a href="#recording-videos">Recording videos</a></li>
+<li class="toctree-l2"><a href="#computer-configuration-and-parallel-execution">Computer configuration and parallel execution</a></li>
+<li class="toctree-l2"><a href="#tracking-setting-and-parameters">Tracking setting and parameters</a></li>
+<li class="toctree-l2"><a href="#training-and-classification">Training and classification</a></li>
+<li class="toctree-l2"><a href="#id-propagation">ID propagation</a></li>
+<li class="toctree-l2"><a href="#debugging-and-fixing-the-tracking">Debugging and fixing the tracking</a></li>
+<li class="toctree-l2"><a href="#working-with-xy-trajectories">Working with xy trajectories</a></li>
+</ul>
+</li>
+</ul>
+</div>
+       
+    </nav>
+<section class="wy-nav-content-wrap" data-toggle="wy-nav-shift">
+<nav aria-label="top navigation" class="wy-nav-top" role="navigation">
+<i class="fa fa-bars" data-toggle="wy-nav-top"></i>
+<a href="..">anTraX</a>
+</nav>
+<div class="wy-nav-content">
+<div class="rst-content">
+<div aria-label="breadcrumbs navigation" role="navigation">
+<ul class="wy-breadcrumbs">
+<li><a href="..">Docs</a> »</li>
+<li>Tips and best practices</li>
+<li class="wy-breadcrumbs-aside">
+<a class="icon icon-github" href="https://github.com/Social-Evolution-and-Behavior/anTraX/edit/master/docs/tips.md"> Edit on GitHub</a>
+</li>
+</ul>
+<hr/>
+</div>
+<div role="main"><a class="md-content__icon pdf-download-btn" download href="../pdf/combined.pdf" title="Download"><i class="fa fas fa-download"></i><small> PDF</small></a>
+<div class="section">
+<h3 id="marking-ants">Marking ants</h3>
+<ul>
+<li>
+<p>Choose colors that are easily separated in RGB space. As a rule of thumb, colors that are easily separated by a human eye in the video will result in better tracking (surprise!). The color set Blue, Green, Orange, Pink and Yellow usually results in good accuracy.</p>
+</li>
+<li>
+<p>It is important to make sure that all tags are visible to the camera for a large part of the frames, at least when an ant is on the move. For that reason, side-byside tags are usually less preferable than placing tags one behind the other. </p>
+</li>
+<li>
+<p>It is not advised to use variable number of tags per ant (for example, using “no tag” as an additional color). As tags are often not visible (e.g. when an ant is grooming, or on its side), this can lead to high error rate (i.e. obscured tag is identified as a no-tag ID).</p>
+</li>
+<li>
+<p>It is possible to use symmetric color combinations (e.g. Blue-Green and Green-Blue) in the same experiment. However, note that in that case asymmetry in the ant image is necessary for good classification. For example, for <em>O. biroi</em>, a thorax tag and abdomen tag will work nicely, assuming the head and the antennae are breaking the image symmetry (don’t paint the head!).    </p>
+</li>
+</ul>
+<h3 id="recording-videos">Recording videos</h3>
+<ul>
+<li>
+<p>the program is designed to identify dark ants on a light background. The better the contrast, the easier it is to segment the ants from their background. </p>
+</li>
+<li>
+<p>It is recommended to tune the camera, especially the brightness, contrast and saturation levels, so to make sure tag colors are maximally distinguishable. A bit of over saturation is usually advised. </p>
+</li>
+<li>
+<p>As the software segment the image using background subtraction, it is important to make sure the image is stable throughout the experiment. Particularly, that there are no camera movement, arena movements and illumination fluctuations. </p>
+</li>
+<li>
+<p>Sometimes, it is necessary to pause the experiment and to take care of the experimental colonies. In the case that the arenas cannot be precisely returned to their exact position relative to the camera, or that there was a change in the arena themselves that can results in a changing background, it is recommended to start a new video subdirectory to hold movies. Backgrounds can be created separately for each subdirectory. </p>
+</li>
+<li>
+<p>Video resolution should be high enough to identify the color tags. As a rule of thumb a tag size of at least 5x5 pixels is recommended. </p>
+</li>
+<li>
+<p>Video framerate should be high enough to make sure ant blobs in consecutive frame overlap considerably.</p>
+</li>
+</ul>
+<h3 id="computer-configuration-and-parallel-execution">Computer configuration and parallel execution</h3>
+<ul>
+<li>
+<p>It is recommended to setup a MATLAB parallel profile named <code>catt</code> using the MATLAB dialog. The software will look for this profile be default. If it doesn’t exist, it will use the default profile. A dedicated profile enables optimizing the settings for tracking runs without changing the default settings for other purposes.</p>
+</li>
+<li>
+<p>A tracking job will typically use around 125-150% CPU. Therefore, it is recommended to set the number of workers to about 0.5-0.75 of the number of threads supported by your machine. Also, set the number of threads per worker to two. It is also recommended to have at least 2GB of RAM and 4GB of swap per worker. </p>
+</li>
+<li>
+<p>Tracking jobs are usually long. It is advised to use a desktop computer or workstation and not a laptop computer. Make sure the turn off auto sleep on the computer. </p>
+</li>
+</ul>
+<h3 id="tracking-setting-and-parameters">Tracking setting and parameters</h3>
+<ul>
+<li>
+<p>What is a good background</p>
+</li>
+<li>
+<p>median vs max</p>
+</li>
+<li>
+<p>What is a good ROI mask</p>
+</li>
+<li>
+<p>Good segmentation </p>
+</li>
+<li>
+<p>Why single ant threshold are important</p>
+</li>
+</ul>
+<h3 id="training-and-classification">Training and classification</h3>
+<ul>
+<li>
+<p>Choosing good examples for training a classifier is an art. On the one hand, it is a good practice to span the space of possible presentations of the ants, and choose “atypical” images. On the other hand, as this space is huge, we are practically guaranteed to be in an under-sampled regime, so it is better no to use examples in ambiguous areas of the image space. As a rule of thumb, don’t use images that are not easily identifiable for a human. </p>
+</li>
+<li>
+<p>If you see a systematic classification error between two IDs, especially if there is no clear visual reason for this error, 99% you have some contamination of the training set. Try checking the example directory of the classified label and look for examples that belong to the actual ant ID. Delete them and retrain the classifier.</p>
+</li>
+<li>
+<p>Neural networks are best trained using negative examples. Otherwise, they will produce high rate of false positives in cases where none of the known labels exist. In our case, this is represented by the “Unknown” class (and the “Multi” class if exist). It is important to add as much examples as possible to this class. Good images are those that a human cannot identify at all. Tracklets labeled as “Unknown” are not left for the propagation algorithm to assign.</p>
+</li>
+<li>
+<p>Why are some tracklets identified as “Unknown” although they are very obvious to recognize? This might be due to a few possible reasons. Sometimes the training set is contaminated (it is always recommended to check the set every now and then). Sometimes this is due to short tracklets having a more conservative classification threshold. Sometimes it is due to apparently good images being discarded because of some frame filter (try running without frame filters - LINK).</p>
+</li>
+</ul>
+<h3 id="id-propagation">ID propagation</h3>
+<h3 id="debugging-and-fixing-the-tracking">Debugging and fixing the tracking</h3>
+<h3 id="working-with-xy-trajectories">Working with xy trajectories</h3>
+<ul>
+<li></li>
+</ul>
+</div>
+</div>
+<footer>
+<div aria-label="footer navigation" class="rst-footer-buttons" role="navigation">
+<a class="btn btn-neutral" href="../hpc/" title="Using anTraX on HPC environment"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+</div>
+<hr/>
+<div role="contentinfo">
+<!-- Copyright etc -->
+</div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+</div>
+</div>
+</section>
+</div>
+<div class="rst-versions" role="note" style="cursor: pointer">
+<span class="rst-current-version" data-toggle="rst-current-version">
+<a class="fa fa-github" href="https://github.com/Social-Evolution-and-Behavior/anTraX/" style="float: left; color: #fcfcfc"> GitHub</a>
+<span><a href="../hpc/" style="color: #fcfcfc;">« Previous</a></span>
+</span>
+</div>
+<script>var base_url = '..';</script>
+<script defer="" src="../js/theme.js"></script>
+<script defer="" src="../search/main.js"></script>
+</body>
+</html>

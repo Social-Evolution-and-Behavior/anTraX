@@ -5,10 +5,22 @@ function p = get_param(Trck,pname)
 switch pname
     
     case 'thrsh_meanarea'
+        
         a = Trck.get_param('thrsh_meanareamax');
         b = Trck.get_param('thrsh_meanareamin');
         p = (a+b)/2;
+        
+    case 'linking_flow_cutoff'
+        
+        c = Trck.get_param('linking_flow_cutoff_coeff');
+        ant_size = Trck.get_param('thrsh_meanarea');
+        scale =  Trck.get_param('geometry_rscale');
+        
+        p = c * ant_size/scale^2;
+        
     case 'linking_ofconnectmin'
+        
+        %%%%%% OBS %%%%%%%
         
         % this is the ref value, for obir in the ref scale
         p0 = Trck.get_param('linking_ofconnectmin_0');

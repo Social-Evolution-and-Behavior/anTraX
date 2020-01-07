@@ -5,6 +5,7 @@ import skvideo.io as skv
 from skimage.io import imsave
 import shutil
 import os
+from os.path import isfile, isdir
 from glob import glob
 import pandas as pd
 
@@ -50,6 +51,10 @@ def create_trainset(ex, projdir, n=100, antlist=None, movlist=None, vid=True):
         viddir = ex.sessiondir + '/videos4dlc/'
         mkdir(viddir)
 
+    if isfile(projdir):
+        pathlist = os.path.normpath(projdir).split(os.path.sep)
+        projdir = os.path.sep.join(pathlist[:-1])
+
     # get tracklet table
     tracklet_table = ex.get_tracklet_table(movlist)
 
@@ -77,8 +82,14 @@ def create_trainset(ex, projdir, n=100, antlist=None, movlist=None, vid=True):
             writer = skv.FFmpegWriter(vidname)
         else:
             framedir = projdir + '/labeled-data/' + ex.expname + '_' + ant
-            mkdir(framedir)
-            cnt = 1
+            if not isdir(framedir):
+                mkdir(framedir)
+                cnt = 1
+            else:
+                files = glob(framedir + '/img*.png')
+                cnt = 1 + max([int(os.path.basename(x)[3:-4]) for x in files])
+
+
         ttable = tracklet_table[tracklet_table['ant'] == ant]
         btable = tracklet_table_to_blob_table(ttable)
         btable = btable.sample(na)

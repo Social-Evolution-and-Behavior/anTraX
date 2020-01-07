@@ -85,11 +85,21 @@ prmtrs.thrsh_meanarea_0 = 2.25e-6;
 %% Linking 
 
 prmtrs.linking_method = @link_blobs;
-prmtrs.linking_dilatespeed = 7e-3;                  %(m/s)
-prmtrs.linking_ofconnectmin_0 = 40;
-prmtrs.linking_scale_factor = 1;
+
+prmtrs.linking_maxspeed = 3.5e-3;
+prmtrs.linking_cluster_radius_coeff = 2;
+prmtrs.linking_flow_cutoff_coeff = 0.35;
+
+prmtrs.linking_of_maxiter = 20;
+prmtrs.linking_of_smoothness = 0.002;
 
 prmtrs.linking_low_fps_hack = false;
+
+%%%%%% OBS %%%%%%%%
+%prmtrs.linking_ofconnectmin_0 = 40;
+%prmtrs.linking_scale_factor = 1;
+%prmtrs.linking_dilatespeed = 7e-3;   
+
 
 %% Classification
 

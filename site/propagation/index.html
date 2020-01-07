@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+<meta charset="utf-8"/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Asaf Gal" name="author"/>
+<link href="../img/favicon.ico" rel="shortcut icon"/>
+<title>Graph propagation - anTraX</title>
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" rel="stylesheet" type="text/css"/>
+<link href="../css/theme.css" rel="stylesheet" type="text/css">
+<link href="../css/theme_extra.css" rel="stylesheet" type="text/css">
+<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+<script>
+    // Current page data
+    var mkdocs_page_name = "Graph propagation";
+    var mkdocs_page_input_path = "propagation.md";
+    var mkdocs_page_url = null;
+  </script>
+<script defer="" src="../js/jquery-2.1.1.min.js"></script>
+<script defer="" src="../js/modernizr-2.8.3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</link></link></head>
+<body class="wy-body-for-nav" role="document">
+<div class="wy-grid-for-nav">
+<nav class="wy-nav-side stickynav" data-toggle="wy-nav-shift">
+<div class="wy-side-nav-search">
+<a class="icon icon-home" href=".."> anTraX</a>
+<div role="search">
+<form action="../search.html" class="wy-form" id="rtd-search-form" method="get">
+<input name="q" placeholder="Search docs" title="Type search term here" type="text"/>
+</form>
+</div>
+</div>
+<div aria-label="main navigation" class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation">
+<ul class="current">
+<li class="toctree-l1">
+<a class="" href="../home/">Home</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../installation/">Installation</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../data_organization/">Preparing data for tracking</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../configuration/">Configuring a tracking session</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../tracking/">Run the tracking</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../classification/">Classifying tracklets</a>
+</li>
+<li class="toctree-l1 current">
+<a class="current" href="./">Graph propagation</a>
+<ul class="subnav">
+<li class="toctree-l2"><a href="#propagating-ids-on-tracklet-graphs">Propagating IDs on tracklet graphs</a></li>
+<li class="toctree-l2"><a href="#using-the-graph-explorer-to-view-and-debug-id-assigments">Using the graph explorer to view and debug ID assigments</a></li>
+</ul>
+</li>
+<li class="toctree-l1">
+<a class="" href="../validation/">Validating the tracking results</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../analysis/">Analyzing tracking results</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../dlc/">Using DeepLabCut for analyzing individual behavior</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../hpc/">Using anTraX on HPC environment</a>
+</li>
+<li class="toctree-l1">
+<a class="" href="../tips/">Tips and best practices</a>
+</li>
+</ul>
+</div>
+       
+    </nav>
+<section class="wy-nav-content-wrap" data-toggle="wy-nav-shift">
+<nav aria-label="top navigation" class="wy-nav-top" role="navigation">
+<i class="fa fa-bars" data-toggle="wy-nav-top"></i>
+<a href="..">anTraX</a>
+</nav>
+<div class="wy-nav-content">
+<div class="rst-content">
+<div aria-label="breadcrumbs navigation" role="navigation">
+<ul class="wy-breadcrumbs">
+<li><a href="..">Docs</a> »</li>
+<li>Graph propagation</li>
+<li class="wy-breadcrumbs-aside">
+<a class="icon icon-github" href="https://github.com/Social-Evolution-and-Behavior/anTraX/edit/master/docs/propagation.md"> Edit on GitHub</a>
+</li>
+</ul>
+<hr/>
+</div>
+<div role="main"><a class="md-content__icon pdf-download-btn" download href="../pdf/combined.pdf" title="Download"><i class="fa fas fa-download"></i><small> PDF</small></a>
+<div class="section">
+<h3 id="propagating-ids-on-tracklet-graphs">Propagating IDs on tracklet graphs</h3>
+<pre><code>antrax solve &lt;experiments&gt;
+</code></pre>
+<p>The <code>experiments</code> argument can be either a full path to an experimental directory, a full path to a text file with a list of experimental directories (all of which will run in parallel), or a full path to a folder that contains one or more experimental directories (all of which will run in parallel).</p>
+<p>The solve command accepts the following options:</p>
+<p><code>--nw &lt;number of workers&gt;</code></p>
+<p>anTraX will parallelize the traking by video. By default, it will use two MATLAB workers. Depending on your machine power, this can be changed by using this option. </p>
+<p><code>--glist &lt;list of graph indices&gt;</code></p>
+<p>By default, anTraX will track all graphs in the experiment. This can be changed by using this option. Graph indices are an enumeration of movie groups according to the options set in the session configuration. Example for valid inputs incluse: <code>4</code>, <code>3,5,6</code>, <code>1-5,7</code>.</p>
+<p><code>--session &lt;session name&gt;</code></p>
+<p>If your experiment contains more than one configured session, anTraX will run on the last configured one. Use this option to choose a session explicitly.</p>
+<h3 id="using-the-graph-explorer-to-view-and-debug-id-assigments">Using the graph explorer to view and debug ID assigments</h3>
+<p>TBA</p>
+</div>
+</div>
+<footer>
+<div aria-label="footer navigation" class="rst-footer-buttons" role="navigation">
+<a class="btn btn-neutral float-right" href="../validation/" title="Validating the tracking results">Next <span class="icon icon-circle-arrow-right"></span></a>
+<a class="btn btn-neutral" href="../classification/" title="Classifying tracklets"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+</div>
+<hr/>
+<div role="contentinfo">
+<!-- Copyright etc -->
+</div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+</div>
+</div>
+</section>
+</div>
+<div class="rst-versions" role="note" style="cursor: pointer">
+<span class="rst-current-version" data-toggle="rst-current-version">
+<a class="fa fa-github" href="https://github.com/Social-Evolution-and-Behavior/anTraX/" style="float: left; color: #fcfcfc"> GitHub</a>
+<span><a href="../classification/" style="color: #fcfcfc;">« Previous</a></span>
+<span style="margin-left: 15px"><a href="../validation/" style="color: #fcfcfc">Next »</a></span>
+</span>
+</div>
+<script>var base_url = '..';</script>
+<script defer="" src="../js/theme.js"></script>
+<script defer="" src="../search/main.js"></script>
+</body>
+</html>
