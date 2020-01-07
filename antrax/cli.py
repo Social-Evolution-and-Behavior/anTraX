@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 from clize import run, Parameter, parser
 from sigtools.wrappers import decorator
