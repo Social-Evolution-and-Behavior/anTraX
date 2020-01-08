@@ -31,3 +31,5 @@ bin/run_*.sh
 bin/mcc*
 bin/readme*
 bin/required*
+
+site/*
