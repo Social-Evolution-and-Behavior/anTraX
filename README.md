@@ -1,6 +1,6 @@
 ![trails](https://github.com/Social-Evolution-and-Behavior/CATT/blob/master/docs/images/trails.png)
 
-# **anTraX** -  Tracking color tagged ants
+# **anTraX** -  software for tracking color tagged ants
 
 anTraX is a software for video tracking ants tagged with a unique pattern of color dots. It was designed for behavioral experiment using the Clonal Raider Ant [*Ooceraea biroi*](https://en.m.wikipedia.org/wiki/Ooceraea_biroi), but can be used for any other model system. CATT is a **brute force** type tracking algorithm, which was designed to handle high throuput long duration experiments (many colonies over many days). Therefore, it will require considerable computational resources. 
 
