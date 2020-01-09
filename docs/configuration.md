@@ -25,13 +25,13 @@ You can move between sessions, or create new ones, by using the options in the `
 The anTraX application window is divided into two main parts: configuration panel on the left, and the frame viewer on the right. The configuration panel contains multiple tabs corresponding to the algorithm step. The displayed image will be augmented according to the configuration tab currently active.
 The frames in the experiment can be browsed using the selectors on the top part of the configuration panel, which will appear in most of the configuration tabs. A frame in the experimement can be defined either by its video index (the first selector) and the frame index in that video (the second selector), or by its total index in the experiment (the third selector).
 
-![Frame display selection](/images/frame_selection.png)
+![Frame display selection](images/frame_selection.png)
 
 ### Create a background image
 
 The first step in the configuration process is to generate a background image.
 
-![Create background tab](/images/background_creation.png)
+![Create background tab](images/background_creation.png)
 
 Use the ***method*** dropdown to select between the possible background computation methods. The ***median*** method computes the background as the per-pixel per-channel median of a set of randomly selected frames. The ***max*** method computes the background as the per-pixel per-channel max value. Select the number of frames for generating a background image. Obviously, the more frames are used the better the background frame is, especially when median method is used. However, 20 will usually give a good tradeoff between computation time and quality. Frames are randomly selected from the frame range.
 
@@ -51,7 +51,7 @@ To set the scale, choose a feature in the image of which the dimensions are know
 
 When done, enter the Length/Diameter of the feature om mm  in the box, and finish by pressing the ***Done*** button.
 
-![Scale tab](/images/scale.png)
+![Scale tab](images/scale.png)
 
 ### Create an ROI mask
 
@@ -102,13 +102,13 @@ Min intensity (gray level). Blobs with maximum intensity lower than this value w
 
 The display of the segmented frame can be configured usng the checkboxes below the frame selectors: ROI mask can be turned on/off, blobs can be shown as convex hull curves (default) or as colored segmented regions (better to check the fine details of the segmentation). Text showing the blob area in pixels and maximum intensity value can be displayed. 
 
-![Image segmentation](/images/segmentation.png)
+![Image segmentation](images/segmentation.png)
 
 ### Tune single ant size range
 
 anTrax uses the size of individual ant for filtering possible single ant tracklets for classification, and also for calibrating the linking algorithm. The single ant size is defined by the possible size range, which is adjusted in the ***single ant*** tab. For tunning these range parameters, the blobs detected in the displayed frames are marked with green outlines if they are in the single ant range, with red if they are larger, and with pink if they are smaller. It is recommended to scan a decent number of frames throughout the experiment to look for neear-threshold cases. Note that the range doesnt need to perfectly classify blobs, but to capture the possible size range for single ants.
 
-![Single ant size range](/images/single_ants.png)
+![Single ant size range](images/single_ants.png)
 
 
 ### Tune the linking
@@ -125,7 +125,7 @@ The displayed image can be selected as the "previous frame", "current frame", or
 
 **optical flow cutoff coefficient**: When optical flow is used, a flow index will be computed between each blob pair. The pair will be linked if the index is above a cutoff threshold. The cutoff threshold is set by the middle of the single animal range set in the previous tab, times this coefficient. While the linking process is relatively robust to the precise value of this parameter, in some cases, increasing it might lead to an increase in false negative linking errors (missed true links), while decreasing it might lead to increase in false positive linking errors (wrong links). 
 
-![Linking tunning tab](/images/linking.png)
+![Linking tunning tab](images/linking.png)
 
 
 
@@ -141,7 +141,7 @@ If your experiment is a multi colony one, it is assumed the ID list is the same 
 
 The label list is defined by the file `expdir/session/parameters/labels.csv`. Each row in the file contains two entries. The first is the label ID, and the second is the category. Three categories exist: ant_labels, noant_labels, and other_labels. The list must include the label 'Unknown' in the other_labels category. 
 
-![Labels file](/images/labels.png)
+![Labels file](images/labels.png)
 
 The ***IDs*** tab is an easy way to configure the list of labels for ant marked with two color tags: First, check the boxes of the color tags used. A label list containing all possible combinations will be created. Next, trim the list to include only the actually used combinations. Also add no-ant labels as needed. 
 
