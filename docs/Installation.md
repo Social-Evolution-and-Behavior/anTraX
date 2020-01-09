@@ -41,6 +41,8 @@ git checkout <version>
 
 ### Install
 
+To install the python package, run in the anTraX folder:
+
 ```console
 pip install .
 ```
@@ -79,7 +81,7 @@ To do this automatically each time you launch MATLAB, add these lines to your `s
 
 If you use a full MATLAB installation, changes to the MATLAB source code of anTraX will take effect immediately, as it is always run from the repository directory. If you use MCR, you will need to compile your changes for them to take effect.
 
-Changes made to the python source code will take effect only after reinstalling the package. Alternatively, you can install the package in editable mode, for changes to take effect immediately when you make them:
+Changes made to the python source code will take effect only after reinstalling the package. Alternatively, for changes to take effect immediately when you make them, you can install the package in editable mode:
 
 ```console
 cd anTraX
