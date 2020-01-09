@@ -29,9 +29,3 @@ markdown_extensions:
         permalink: false
 plugins:
     - search
-    - mkpdfs:
-        author: Asaf Gal
-        company: "The Laboratory of Social Evolution and Behavior" 
-        design: docs/style.css
-        toc_title: Table of contents
-        output_path: pdf/documentation.pdf
