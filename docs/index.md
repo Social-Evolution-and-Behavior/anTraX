@@ -1,4 +1,4 @@
-![trails](/images/trails.png)
+![trails](images/trails.png)
 
 # **anTraX** -  tracking color tagged ants
 
