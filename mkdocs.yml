@@ -4,7 +4,7 @@ copyright: '© 2020'
 repo_url: https://github.com/Social-Evolution-and-Behavior/anTraX/
 nav:
 - Home: index.md
-- Installation: installation.md
+- Installation: installation11.md
 - Datasets: datasets.md
 - Preparing data for tracking: data_organization.md
 - Configuring a tracking session: configuration.md
