@@ -14,7 +14,7 @@ anTraX works natively on machines running Linux or OSX operating system. It bene
 
 ## Installation and usage
 
-TBA
+See online documentation at https://antrax.readthedocs.io/
 
 ## References
 
