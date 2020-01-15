@@ -43,9 +43,11 @@ if Trck.get_params('geometry_multi_colony')
     end
     
     if isnumeric(p.Results.colony)
-        colony = Trck.colony_labels{p.Results.colony};
+        cix = p.Results.colony;
+        colony = Trck.colony_labels{cix};
     elseif ismember(p.Results.colony, Trck.colony_labels)
         colony = p.Results.colony;
+        cix = find(strcmp(p.Results.colony,Trck.colony_labels));
     else
         report('E', 'Bad colony value')
         return
@@ -91,13 +93,16 @@ if p.Results.crop
     h = size(BGW,1);
     wout = 2000;
     hout = 1500;
+    
+    if Trck.get_params('geometry_multi_colony')
+        bbox = squarebbox(Trck.Masks.colony(:,:,cix)>0,10);
+    else
+        bbox = squarebbox(Trck.TrackingMask(:,:,1)>0,10);
+    end
 
-    bbox = squarebbox(Trck.TrackingMask(:,:,1)>0,10);
-   
     BGW = imcrop(BGW,bbox);
     a = size(BGW,1);
     BGW = imresize(BGW, [1000,1000]);
-    
     
     if ~isempty(msk3)
         msk3 = imcrop(msk3,bbox);
