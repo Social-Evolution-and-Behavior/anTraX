@@ -8,6 +8,7 @@ addRequired(p,'Trck',@(x) isa(x,'trhandles'));
 addParameter(p,'fi',1);
 addParameter(p,'ff',600);
 addParameter(p,'ids','all');
+addParameter(p,'colony','');
 addParameter(p,'outline',true,@islogical);
 addParameter(p,'speedup',1,@isnumeric);
 addParameter(p,'colors',colors,@isnumeric);
@@ -32,6 +33,26 @@ xy_smooth_window = p.Results.xy_smooth_window;
 scale = Trck.get_param('geometry_rscale');
 colors = p.Results.colors;
 
+
+% 
+if Trck.get_params('geometry_multi_colony')
+    
+    if isempty(p.Results.colony)
+        report('E', 'multi colony experiment, please provide colony argument')
+        return
+    end
+    
+    if isnumeric(p.Results.colony)
+        colony = Trck.colony_labels{p.Results.colony};
+    elseif ismember(p.Results.colony, Trck.colony_labels)
+        colony = p.Results.colony;
+    else
+        report('E', 'Bad colony value')
+        return
+    end
+    
+end
+
 % load xy
 fi = p.Results.fi;
 ff = p.Results.ff;
@@ -40,6 +61,10 @@ tf = trtime(Trck,ff);
 t0 = trtime(Trck,ti.m,1);
 f0 = t0.f;
 XY0 = Trck.loadxy('movlist',ti.m:tf.m);
+
+if Trck.get_params('geometry_multi_colony')
+    XY0 = XY0.(colony);
+end
 
 for i=1:Trck.NIDs
     id = Trck.usedIDs{i};
@@ -57,10 +82,7 @@ vw = VideoWriter(p.Results.outfile);
 vw.FrameRate = Trck.er.framerate*p.Results.speedup/p.Results.downsample;
 open(vw)
 
-
 z = 15*rand(Trck.NIDs,2) - 60;
-
-
 
 if p.Results.crop
     
