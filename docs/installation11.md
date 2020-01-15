@@ -69,7 +69,7 @@ source ~/.bash_profile
 
 ### Add anTraX to your MATLAB path
 
-If you intend to use anTraX within an interactive MATLAB session, add the repository to your search path. In the MATLAB command line:
+If you intend to use anTraX within an interactive MATLAB session (requires an active license), add the repository to your search path. In the MATLAB command line:
 
 ```matlab
 addpath(genpath(<path-to-anTraX>/matlab));
