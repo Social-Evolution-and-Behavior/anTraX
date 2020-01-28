@@ -35,7 +35,7 @@ colors = p.Results.colors;
 
 
 % 
-if Trck.get_params('geometry_multi_colony')
+if Trck.get_param('geometry_multi_colony')
     
     if isempty(p.Results.colony)
         report('E', 'multi colony experiment, please provide colony argument')
@@ -64,7 +64,7 @@ t0 = trtime(Trck,ti.m,1);
 f0 = t0.f;
 XY0 = Trck.loadxy('movlist',ti.m:tf.m);
 
-if Trck.get_params('geometry_multi_colony')
+if Trck.get_param('geometry_multi_colony')
     XY0 = XY0.(colony);
 end
 
@@ -94,7 +94,7 @@ if p.Results.crop
     wout = 2000;
     hout = 1500;
     
-    if Trck.get_params('geometry_multi_colony')
+    if Trck.get_param('geometry_multi_colony')
         bbox = squarebbox(Trck.Masks.colony(:,:,cix)>0,10);
     else
         bbox = squarebbox(Trck.TrackingMask(:,:,1)>0,10);
