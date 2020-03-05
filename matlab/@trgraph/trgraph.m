@@ -223,6 +223,8 @@ classdef trgraph < handle & matlab.mixin.SetGet
             G.assigned_ids = false(G.ntrjs,G.NIDs); % repmat({{}},length(G.trjs),1);
             G.possible_ids = true(G.ntrjs,G.NIDs);  % repmat({G.Trck.usedIDs},length(G.trjs),1);
             G.finalized = false(G.ntrjs,1);
+            G.aux.contradictions = 0;
+            G.aux.contradicting_src_nodes = [];
         end
         
         

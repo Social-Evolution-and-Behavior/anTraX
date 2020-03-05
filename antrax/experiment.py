@@ -11,7 +11,7 @@ import h5py
 
 from .utils import *
 from .analysis_functions import *
-
+from .data import *
 
 class axExperiment:
 
@@ -54,12 +54,23 @@ class axExperiment:
         self.glist, self.ggroups = self.get_glist()
 
 
-
-        self.antlist = self.get_labels()['ant_labels']
+        if 'tagged' in self.prmtrs:
+            if self.prmtrs['tagged']:
+                self.antlist = self.get_labels()['ant_labels']
+            else:
+                self.antlist = []
+        else:
+            try:
+                self.antlist = self.get_labels()['ant_labels']
+            except:
+                self.antlist = []
 
         self.slurmdir = join(expdir, 'slurm')
-        mkdir(self.slurmdir)
-        mkdir(self.logsdir)
+        try:
+            mkdir(self.slurmdir)
+            mkdir(self.logsdir)
+        except:
+            report('W', 'Could not create directories')
 
     def get_subdirs(self):
 
@@ -210,6 +221,13 @@ class axExperiment:
         return self.labels
 
     def get_glist(self):
+
+
+        if 'graph_groupby' not in self.prmtrs:
+
+            self.prmtrs['graph_groupby'] = 'subdir'
+
+
 
         if self.prmtrs['graph_groupby'] == 'wholeexperiment':
 

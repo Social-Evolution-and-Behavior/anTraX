@@ -177,7 +177,7 @@ class axClassifier:
         # non-ant label is only assigned if all images were recognized as such. Otherwise, ignore images with non-ant labels for tracklet classification
         y_index = y.argmax(axis=1)
         y_txt = [self.classes[ix] for ix in y_index]
-        y_noant = [lab in self.labels['nonant_labels'] for lab in y_txt]
+        y_noant = [lab in self.labels['noant_labels'] for lab in y_txt]
         y_ambig = [lab in self.labels['other_labels'] for lab in y_txt]
         y_ants = [lab in self.labels['ant_labels'] for lab in y_txt]
 

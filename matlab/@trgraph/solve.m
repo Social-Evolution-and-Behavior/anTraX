@@ -14,7 +14,7 @@ G.node_single = G.get_singles;
 if isempty(G.node_fi)    
     G.node_fi = [G.trjs.fi];
     G.node_ff = [G.trjs.ff];
-    G.node_noant = ismember({G.trjs.propID},G.Trck.labels.nonant_labels);
+    G.node_noant = ismember({G.trjs.propID},G.Trck.labels.noant_labels);
     
 end
 
@@ -341,6 +341,11 @@ elseif ~G.assigned_ids(node,id) && ~G.safe_prop_mode
     G.assigned_ids(node,id) = true;
     n = n + 1;
 elseif ~G.possible_ids(node,id)
+    if ~isfield(G.aux,'contradictions')
+        G.aux.contradictions = 0;
+        G.aux.contradicting_src_nodes = [];
+    end
+    
     G.aux.contradictions = G.aux.contradictions+1;
     G.aux.contradicting_src_nodes(end+1,1) = node;
     return

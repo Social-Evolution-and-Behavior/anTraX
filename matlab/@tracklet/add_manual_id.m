@@ -24,7 +24,7 @@ if isempty(Trck.manualIDs)
     Trck.loadManualIDs;
 end
 
-if ~ismember(p.Results.id,cat(1,tocol(Trck.labels.ant_labels),tocol(Trck.labels.nonant_labels))) && ~strcmp(p.Results.id,'Unknown')
+if ~ismember(p.Results.id,cat(1,tocol(Trck.labels.ant_labels),tocol(Trck.labels.noant_labels))) && ~strcmp(p.Results.id,'Unknown')
     report('E','provided id not in label list')
     return
 end
