@@ -119,7 +119,7 @@ def antrax_hpc_job(ex, step, opts):
         opts['filename'] = 'trk'
         opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 2)
-        opts['cmd'] = 'run_antrax.py track ' + ex.expdir + \
+        opts['cmd'] = 'antrax track ' + ex.expdir + \
             ' --session ' + ex.session + \
             ' --movlist $SLURM_ARRAY_TASK_ID' + \
             ' --mcr'
@@ -138,7 +138,7 @@ def antrax_hpc_job(ex, step, opts):
         opts['filename'] = 'cls'
         opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 6)
-        opts['cmd'] = 'run_antrax.py classify ' + ex.expdir + \
+        opts['cmd'] = 'antrax classify ' + ex.expdir + \
             ' --classifier ' + opts['classifier'] + \
             ' --session ' + ex.session + \
             ' --movlist $SLURM_ARRAY_TASK_ID'
@@ -149,7 +149,7 @@ def antrax_hpc_job(ex, step, opts):
         opts['filename'] = 'slv'
         opts['taskarray'] = opts['glist']
         opts['cpus'] = opts.get('cpus', 4)
-        opts['cmd'] = 'run_antrax.py solve ' + ex.expdir + \
+        opts['cmd'] = 'antrax solve ' + ex.expdir + \
             ' --session ' + ex.session + \
             ' --g $SLURM_ARRAY_TASK_ID' + \
             ' --mcr'
@@ -161,7 +161,7 @@ def antrax_hpc_job(ex, step, opts):
         opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 6)
         #precmd.append('export ')
-        opts['cmd'] = 'run_antrax.py dlc ' + ex.expdir + \
+        opts['cmd'] = 'antrax dlc ' + ex.expdir + \
             ' --session ' + ex.session + \
             ' --cfg ' + opts['cfg'] + \
             ' --movlist $SLURM_ARRAY_TASK_ID'
