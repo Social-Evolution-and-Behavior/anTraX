@@ -91,6 +91,33 @@ def clear_tracking_data(ex, step, movlist, opts):
             [remove(x) for x in glob(dest_folder + '/predictions_' + str(m) + '.h5')]
 
 
+def antrax_hpc_train_job(classdir, opts):
+
+    opts['jobname'] = 'train'
+    opts['filename'] = 'train'
+    opts['taskarray'] = [0]
+    opts['workdir'] = opts.get('workdir', classdir)
+    opts['cpus'] = opts.get('cpus', 24)
+    opts['cmd'] = 'antrax train ' + classdir + \
+                  ' --name ' + opts['name'] + \
+                  ' --scratch ' + opts['scratch'] + \
+                  ' --ne ' + opts['ne'] + \
+                  ' --target-size ' + opts['target_size']
+
+    if not opts.get('dry', False):
+        jobfile = create_slurm_job_file(opts)
+        jid = submit_slurm_job_file(jobfile)
+        print('')
+        print('Job number ' + str(jid) + ' was submitted')
+        print('')
+    else:
+        print('')
+        print('Dry run, no job submitted')
+        print('')
+
+
+
+
 def antrax_hpc_job(ex, step, opts):
 
     # if "missing" is set, get list of videos with missing output

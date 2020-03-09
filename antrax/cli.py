@@ -8,7 +8,7 @@ from time import sleep
 from imageio import imread
 from . import *
 from .matlab import *
-from .hpc import antrax_hpc_job
+from .hpc import antrax_hpc_job, antrax_hpc_train_job
 from .utils import *
 
 ########################### AUX functions #########################
@@ -186,7 +186,19 @@ def solve(explist, *, glist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc
         Q.stop_workers()
 
 
-def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None):
+def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None,
+          hpc=False, hpc_options: parse_hpc_options={}):
+
+    if hpc:
+
+        hpc_options['scratch'] = scratch
+        hpc_options['target_size'] = target_size
+        hpc_options['name'] = name
+        hpc_options['ne'] = ne
+        antrax_hpc_train_job(classdir, opts=hpc_options)
+
+        return
+
 
     if target_size is not None:
         target_size = int(target_size)
