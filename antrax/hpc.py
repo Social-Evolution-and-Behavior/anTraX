@@ -102,7 +102,9 @@ def antrax_hpc_train_job(classdir, opts):
                   ' --name ' + opts['name'] + \
                   ' --scratch ' + opts['scratch'] + \
                   ' --ne ' + opts['ne'] + \
-                  ' --target-size ' + opts['target_size']
+
+    if opts['target_size'] is not None:
+        opts['cmd'] = opts['cmd'] + ' --target-size ' + opts['target_size']
 
     if not opts.get('dry', False):
         jobfile = create_slurm_job_file(opts)
