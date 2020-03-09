@@ -101,7 +101,7 @@ def antrax_hpc_train_job(classdir, opts):
     opts['cmd'] = 'antrax train ' + classdir + \
                   ' --name ' + opts['name'] + \
                   ' --scratch ' + opts['scratch'] + \
-                  ' --ne ' + opts['ne'] + \
+                  ' --ne ' + opts['ne']
 
     if opts['target_size'] is not None:
         opts['cmd'] = opts['cmd'] + ' --target-size ' + opts['target_size']
