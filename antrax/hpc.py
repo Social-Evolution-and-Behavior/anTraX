@@ -100,7 +100,7 @@ def antrax_hpc_train_job(classdir, opts):
     opts['cpus'] = opts.get('cpus', 24)
     opts['cmd'] = 'antrax train ' + classdir + \
                   ' --name ' + opts['name'] + \
-                  ' --ne ' + opts['ne']
+                  ' --ne ' + str(opts['ne'])
 
     if opts['scratch']:
         opts['cmd'] = opts['cmd'] + ' --scratch '
