@@ -100,8 +100,10 @@ def antrax_hpc_train_job(classdir, opts):
     opts['cpus'] = opts.get('cpus', 24)
     opts['cmd'] = 'antrax train ' + classdir + \
                   ' --name ' + opts['name'] + \
-                  ' --scratch ' + opts['scratch'] + \
                   ' --ne ' + opts['ne']
+
+    if opts['scratch']:
+        opts['cmd'] = opts['cmd'] + ' --scratch '
 
     if opts['target_size'] is not None:
         opts['cmd'] = opts['cmd'] + ' --target-size ' + opts['target_size']
