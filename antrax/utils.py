@@ -12,6 +12,10 @@ from datetime import datetime
 from numpy import pi
 import skvideo.io as skv
 
+
+import socket
+
+HOSTNAME = socket.gethostname()
 USER = os.getenv("USER")
 HOME = os.getenv("HOME")
 

@@ -11,6 +11,8 @@ from .matlab import *
 from .hpc import antrax_hpc_job, antrax_hpc_train_job
 from .utils import *
 
+
+
 ########################### AUX functions #########################
 
 @parser.value_converter
@@ -23,6 +25,9 @@ def parse_hpc_options(s):
     for k, v in opts.items():
         if v.isnumeric():
             opts[k] = int(v)
+
+    if 'rockefeller' in HOSTNAME:
+        opts['email'] = opts.get('email', USER + '@rockefeller.edu')
 
     return opts
 
