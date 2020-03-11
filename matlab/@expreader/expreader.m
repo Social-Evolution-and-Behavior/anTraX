@@ -174,6 +174,17 @@ classdef expreader < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             
         end
         
+        function T = read_movie_dat(er,m,flds)
+            if nargin<3
+                flds = [];
+            end
+            ti = trtime(er, er.movies_info(m).fi);
+            tf = trtime(er, er.movies_info(m).ff);
+            tt = ti:tf;
+            T  = read_dat(er,tt,flds);
+            
+        end
+        
         function T  = read_dat(er,t,flds)
             
             if nargin<2 || isempty(t) || (ischar(t) && strcmp(t,'all'))
@@ -202,7 +213,7 @@ classdef expreader < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 T = [T;Tm];
             end
 
-            if nargin>2
+            if nargin>2 && ~isempty(flds)
                 T = T(:,flds);
             end
             

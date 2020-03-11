@@ -215,6 +215,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
         
         antxy = export_xy(G,varargin)
         antxy = export_xy_noprop(G,varargin)
+        antxy = export_xy_groupids(G,varargin)
         
         function reset(G)
             % this method reset all id assigments infered from graph

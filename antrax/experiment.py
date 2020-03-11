@@ -228,17 +228,21 @@ class axExperiment:
             self.prmtrs['graph_groupby'] = 'subdir'
 
 
-
-        if self.prmtrs['graph_groupby'] == 'wholeexperiment':
+        if self.prmtrs['graph_groupby'] in ['experiment', 'wholeexperiment']:
 
             glist = [1]
             ggroups = self.movlist
 
-        elif self.prmtrs['graph_groupby'] == 'subdir':
+        elif self.prmtrs['graph_groupby'] in ['subdir', 'subdirs']:
 
             glist = [g+1 for g in range(len(self.subdirs))]
             ggroups = [list(range(int(x.split('_')[0]), int(x.split('_')[1]) + 1)) for x in self.subdirs]
             ggroups = [[x for x in g if x in self.movlist] for g in ggroups]
+
+        elif self.prmtrs['graph_groupby'] in ['movie']:
+
+            glist = [i+1 for i, m in enumerate(self.movlist)]
+            ggroups = [[m] for m in self.movlist]
 
         elif self.prmtrs['graph_groupby'] == 'custom':
 

@@ -490,7 +490,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             %xyfiles = arrayfun(@(x) [xydir,'xy_',num2str(x),'_',num2str(x),'.mat'],movlist,'UniformOutput',false);
             
             for i=1:length(xyfiles)
-                xy(i) = load([xydir,xyfiles{i}]);
+                xy(i) = load([xydir,xyfiles{i}],'XY');
                 frames{i} = tocol(Trck.er.movies_info(movlist(i)).fi:Trck.er.movies_info(movlist(i)).ff);
             end
             
@@ -590,40 +590,39 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
         function groups = get_solve_groups(Trck)
             
             
-            switch Trck.get_param('graph_groupby')
             
+            if ismember(Trck.get_param('graph_groupby'), {'experiment', 'wholeexperiment'})
                 
-                % whole experiment
-                case 'experiment'
+                groups{1} = Trck.movlist;
+                
+            elseif ismember(Trck.get_param('graph_groupby'), {'subdir', 'subdirs'})
+                
+                for i=1:length(Trck.er.subdirs)
                     
-                    groups{1} = Trck.movlist;
+                    groups{i} = Trck.er.subdirs(i).mi:Trck.er.subdirs(i).mf;
                     
-                case 'wholeexperiment'
-                    
-                    groups{1} = Trck.movlist;
+                end
+                
+            elseif ismember(Trck.get_param('graph_groupby'), {'movie'})
+                
+                
+                groups = num2cell(Trck.movlist);
+                
             
-                % by subdir
-                case 'subdir'
-                    
-                    for i=1:length(Trck.er.subdirs)
-                       
-                        groups{i} = Trck.er.subdirs(i).mi:Trck.er.subdirs(i).mf;
-                        
-                    end
-            
-                % individual
-                case 'movie'
-                    
-                    groups = num2cell(Trck.movlist);
-            
-                % custom
-                case 'custom'
-                    
-                    error('not implemented')
-                    groups = {}
+            elseif ismember(Trck.get_param('graph_groupby'), {'custom'})
+                
+                
+                error('not implemented')
+                groups = {}
+                
+            else
+                
+                error('something wrong with groupby parameter')
+                groups = {}
+                
             end
-            
-            
+ 
+                        
             for i=1:length(groups)
                
                 groups{i} = intersect(groups{i},Trck.graphlist);

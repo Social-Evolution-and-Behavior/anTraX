@@ -13,7 +13,7 @@ p = inputParser;
 addRequired(p,'trj',@(x) isa(x,'tracklet'));
 addRequired(p,'id',@ischar);
 addParameter(p,'tt','all');
-addParameter(p,'classdir',[Trck.classdir,'classifier']);
+addParameter(p,'classdir',[Trck.trackingdir,'classifier']);
 
 % parse inputs
 parse(p,trj,varargin{:});
