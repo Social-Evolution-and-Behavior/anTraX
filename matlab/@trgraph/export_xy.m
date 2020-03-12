@@ -140,8 +140,10 @@ for i=1:G.NIDs
             end
         end
         
-        xy(interpmask,1) = interp1(allix(~nanmask),xy(~nanmask,1),allix(interpmask));
-        xy(interpmask,2) = interp1(allix(~nanmask),xy(~nanmask,2),allix(interpmask));
+        if nnz(interpmask)>0
+            xy(interpmask,1) = interp1(allix(~nanmask),xy(~nanmask,1),allix(interpmask));
+            xy(interpmask,2) = interp1(allix(~nanmask),xy(~nanmask,2),allix(interpmask));
+        end
     end
     
     if ~p.Results.only_tracklet_table

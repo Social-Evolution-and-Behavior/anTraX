@@ -1,4 +1,4 @@
-classdef ffreader < handle
+classdef ffreader < handle & matlab.mixin.SetGet
     
     properties
         
@@ -13,6 +13,20 @@ classdef ffreader < handle
         buf_sz = 2
         
         max_frame_gap = 10;
+        
+    end
+    
+    
+    properties (Dependent)
+        
+        NumberOfFrames
+        FrameRate
+        Duration
+        Name
+        CurrentTime
+        Height
+        Width
+        
         
     end
     
@@ -159,6 +173,51 @@ classdef ffreader < handle
             
         end
         
+    end
+    
+    methods
+        
+        
+        function n = get.NumberOfFrames(vr)
+            
+            n = vr.info.nframes;
+            
+        end
+        
+        function n = get.FrameRate(vr)
+            
+            n = vr.info.fps;
+            
+        end
+        
+        function n = get.Duration(vr)
+            
+            n = vr.info.duration;
+            
+        end
+        
+        function n = get.Width(vr)
+            
+            n = vr.info.width;
+            
+        end
+        
+        function n = get.Height(vr)
+            
+            n = vr.info.height;
+            
+        end
+
+        function n = get.Name(vr)
+            
+            
+            n = vr.file;
+                        
+        end
+        
+      
+         
+              
     end
     
     

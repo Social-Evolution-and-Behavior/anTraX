@@ -17,13 +17,18 @@ addParameter(p,'linewidth',3,@isnumeric);
 addParameter(p,'mark_blobs',false,@islogical);
 addParameter(p,'tail',true,@islogical);
 addParameter(p,'tail_length',5,@isnumeric);
-addParameter(p,'mask',Trck.TrackingMask,@isnumeric);
+addParameter(p,'mask',true,@isnumeric);
 addParameter(p,'bgcorrect',true,@islogical);
+addParameter(p,'bgcorrect_mask',[],@isnumeric);
 addParameter(p,'text','',@ischar);
 addParameter(p,'crop',false,@islogical);
+addParameter(p,'size',[1000,1000],@isnumeric);
 addParameter(p,'markblobs',false,@islogical);
 addParameter(p,'xy_smooth_window',10,@isnumeric);
 addParameter(p,'labelsize',24,@isnumeric);
+addParameter(p,'labeloffset',24,@isnumeric);
+addParameter(p,'f0',0,@isnumeric);
+addParameter(p,'report',100,@isnumeric);
 
 addParameter(p,'outfile',[Trck.trackingdir,Trck.expname,'_annotated.avi'],@ischar);
 
@@ -76,15 +81,30 @@ end
 
 % mask
 [~,~,BGW] = Trck.get_bg(ti);
-msk = p.Results.mask;
+
+if isfield(Trck.Masks,'video')
+    msk = Trck.Masks.video;
+elseif Trck.get_param('geometry_multi_colony')
+    error('need to be implemented')
+else
+    msk = Trck.Masks.roi;
+end
+
 msk3 = single(msk);
+
+if isempty(p.Results.bgcorrect_mask)
+    bgcorrect_mask = ones(size(msk3));
+else
+    bgcorrect_mask = double(p.Results.bgcorrect_mask>0);
+end
+
 
 % open video file
 vw = VideoWriter(p.Results.outfile);
 vw.FrameRate = Trck.er.framerate*p.Results.speedup/p.Results.downsample;
 open(vw)
 
-z = 15*rand(Trck.NIDs,2) - 60;
+z = p.Results.labeloffset*rand(Trck.NIDs,2)/2 - repmat([-p.Results.labeloffset,p.Results.labeloffset],Trck.NIDs,1);
 
 if p.Results.crop
     
@@ -94,24 +114,23 @@ if p.Results.crop
     wout = 2000;
     hout = 1500;
     
-    if Trck.get_param('geometry_multi_colony')
-        bbox = squarebbox(Trck.Masks.colony(:,:,cix)>0,10);
-    else
-        bbox = squarebbox(Trck.TrackingMask(:,:,1)>0,10);
-    end
+    bbox = squarebbox(msk(:,:,1)>0,10);
 
     BGW = imcrop(BGW,bbox);
     a = size(BGW,1);
-    BGW = imresize(BGW, [1000,1000]);
+    BGW = imresize(BGW, p.Results.size);
+    
+    bgcorrect_mask = imcrop(bgcorrect_mask,bbox);
+    bgcorrect_mask = imresize(bgcorrect_mask, p.Results.size);
     
     if ~isempty(msk3)
         msk3 = imcrop(msk3,bbox);
-        msk3 = imresize(msk3, [1000,1000]);
+        msk3 = imresize(msk3, p.Results.size);
     end
     
-    scale = scale * a/1000;
+    scale = scale * a/p.Results.size(1);
     
-    bbox2 = bbox * 1000/a;
+    bbox2 = bbox * p.Results.size(1)/a;
     
 else
     bbox = [0,0];
@@ -121,9 +140,17 @@ end
 outline = repmat(imdilate(msk3(:,:,1)>0,ones(10)) &  imerode(msk3(:,:,1),ones(2))==0,[1,1,3]);
 
 % loop over frames
-for f=ti.f:p.Results.downsample:tf.f
+fs = ti.f:p.Results.downsample:tf.f;
+cnt = 1;
+for f=fs
     
+    
+    cnt = cnt+1;
     ix = f-f0+1;
+    
+    if ~mod(cnt-1,p.Results.report)
+        report('I',['Processing frame ',num2str(cnt),'/',num2str(length(fs))]);
+    end
     
     tail={};
     clrs=[];
@@ -162,13 +189,18 @@ for f=ti.f:p.Results.downsample:tf.f
     
     if p.Results.crop
         I = imcrop(I,bbox);
-        I = imresize(I, [1000,1000]);
+        I = imresize(I, p.Results.size);
     end
     
     if p.Results.bgcorrect
         
-        I = I - BGW + 1;
-        %I = 0.9*I./BGW;
+        
+        %corrected = I - BGW + 1;
+        corrected = 0.9*I./BGW;
+        
+        I = corrected.*bgcorrect_mask + I.*(1-bgcorrect_mask);
+        
+        
         
     end
     
@@ -182,7 +214,7 @@ for f=ti.f:p.Results.downsample:tf.f
     
     I = imlincomb(0.5,I0,0.5,I);
     
-    if ~isempty(p.Results.mask)
+    if p.Results.mask
         I = msk3.*I + (1-msk3);
     end
     
@@ -198,12 +230,27 @@ for f=ti.f:p.Results.downsample:tf.f
     % text
     switch p.Results.text
         
+        
+        
         case 'frame'
-            txt = num2str(f);
-            I = insertText(I,[20,20],txt,'FontSize',24,'BoxColor',...
+            txtloc =  [20,size(I,1)-100];
+            fontsize = 48 * p.Results.size(1)/1000;
+            txt = num2str(f-f0);
+            
+            I = insertText(I,txtloc,txt,'FontSize',fontsize,'BoxColor',...
         'white','BoxOpacity',0.4,'TextColor',[0.1,0.7,0.2]);
 
-        
+        case 'time'
+            txtloc =  [20,size(I,1)-100*p.Results.size(1)/1000];
+            fontsize = 48 * p.Results.size(1)/1000;
+            
+            day = (f-f0)/Trck.er.fps/24/3600;
+            txt = datestr(day,13);
+            
+            I = insertText(I,txtloc,txt,'FontSize',fontsize,'BoxColor',...
+        'white','BoxOpacity',0.4,'TextColor',[0.1,0.7,0.2]);
+            
+            
     end
     
     %I = imcrop(I,2*rect);
