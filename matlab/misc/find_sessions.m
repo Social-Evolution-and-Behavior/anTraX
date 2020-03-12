@@ -70,7 +70,7 @@ for i=1:length(ds)
     pdir = [d,filesep,'parameters'];
     file = [pdir,filesep,'Trck.mat'];
     
-    t(i) = datenum(getfield(dir(file),'date'));
+    t(i) = getfield(dir(file),'datenum');
 end
 end
 
