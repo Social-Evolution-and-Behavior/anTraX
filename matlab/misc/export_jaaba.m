@@ -31,14 +31,16 @@ for m=p.Results.movlist
         ext = strsplit(movfile,'.');
         ext = ext{end};
   
-        if ismember(ext,{'avi','mov'})
-            system(['ln -s "',movfile,'" "',mjdir,'movie.',ext,'"']); 
-        else
-            outfile = [mjdir,filesep,'movie.mov'];
-            if ~exist(outfile,'file')
-                system(['ffmpeg -i "',movfile,'" -vcodec copy "',mjdir,'movie.mov','"']); 
-            end
-        end
+        system(['ln -s "',movfile,'" "',mjdir,'movie.',ext,'"']); 
+        
+%         if ismember(ext,{'avi','mov'})
+%             system(['ln -s "',movfile,'" "',mjdir,'movie.',ext,'"']); 
+%         else
+%             outfile = [mjdir,filesep,'movie.mov'];
+%             if ~exist(outfile,'file')
+%                 system(['ffmpeg -i "',movfile,'" -vcodec copy "',mjdir,'movie.mov','"']); 
+%             end
+%         end
     
     end
   
