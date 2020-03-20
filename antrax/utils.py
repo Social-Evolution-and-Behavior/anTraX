@@ -184,3 +184,15 @@ def classes_from_examplesdir(examplesdir):
     classes = [x for x in classes if os.listdir(join(examplesdir, x))]
 
     return classes
+
+
+def get_segments(x):
+
+    ix = np.diff(x).nonzero()[0]
+    start = np.concatenate(([0], ix + 1))
+    end = np.concatenate((ix + 1, [x.shape[0]]))
+    value = np.array([x[ixx] for ixx in start])
+
+    return start, end, value
+
+

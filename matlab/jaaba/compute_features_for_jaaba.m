@@ -117,8 +117,9 @@ feature_units.antrax_dangle_to_median = parseunits('rad/s');
 for i=1:length(trx)
    
     d = scale*sqrt((allx - trx(i).x).^2 + (ally - trx(i).y).^2);
-    features.antrax_nants_in_blob{i} = sum(d<0.001,2);
-    features.antrax_frac_in_blob{i} = mean(d<0.001,2);
+    features.antrax_nants_in_blob{i} = sum(d<0.001,1);
+    features.antrax_frac_in_blob{i} = mean(d<0.001,1);
+    
 end
 
 feature_units.antrax_nants_in_blob = parseunits('unit');

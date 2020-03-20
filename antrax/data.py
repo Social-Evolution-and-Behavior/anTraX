@@ -218,9 +218,54 @@ class axAntData:
     
             head_r_ant_angle = to_angle(box_r_ant_angle - box_head_angle, per=np.pi)
             head_l_ant_angle = to_angle(box_l_ant_angle - box_head_angle, per=np.pi)
+            rl_ant_angle = to_angle(box_l_ant_angle - box_r_ant_angle, per=np.pi)
             self.data[ant, 'r_ant_angle'] =  head_r_ant_angle
             self.data[ant, 'l_ant_angle'] =  head_l_ant_angle
             self.data[ant, 'antpower'] = (head_r_ant_angle.diff()**2 + head_l_ant_angle.diff()**2).rolling(51, center=True).mean()
+            self.data[ant, 'antcoherence'] = (rl_ant_angle.diff() ** 2).rolling(51, center=True).mean()
+
+    def set_jaaba(self, behaviors=None):
+
+        jdir = self.ex.sessiondir + '/jaaba/'
+
+        scorefiles = glob(jdir + '/scores_*.csv')
+        bs = [s.split('.csv')[0].split('scores_')[-1].split('_')[0] for s in scorefiles]
+        bs = set(bs)
+
+        if behaviors is not None:
+            behaviors = [b for b in bs if b in behaviors]
+        else:
+            behaviors = bs
+
+        # init
+        for b in behaviors:
+
+            for ant in self.antlist:
+                self.data[ant, 'scores_' + b] = None
+
+        # assign
+        for m in self.movlist:
+
+            fi = self.ex.movies_info.iloc[m - 1]['fi']
+            ff = self.ex.movies_info.iloc[m - 1]['ff']
+
+            for b in behaviors:
+
+                sf = jdir + 'scores_' + b + '_' + str(m) + '.csv'
+
+                try:
+                    scores = pd.read_csv(sf)
+                except:
+                    continue
+
+
+                scores['frame'] = np.arange(fi, ff + 1)
+                scores = scores.set_index('frame')
+
+                for ant in self.antlist:
+
+                    self.data.loc[fi:ff, idx[ant, 'scores_' + b]] = scores[ant].values.copy()
+
 
     
     def get_features(self, n=25, cols=['v','antpower']):
