@@ -13,7 +13,8 @@ nav:
 - Graph propagation: propagation.md
 - Validating the tracking results: validation.md
 - Analyzing tracking results: analysis.md
-- Using DeepLabCut for analyzing individual behavior: dlc.md
+- Using DeepLabCut to pose-track individuals: dlc.md
+- Using JAABA for behavioral classification: jaaba.md
 - Using anTraX on HPC environment: hpc.md
 - Tips and best practices: tips.md
 - Release notes: release.md
