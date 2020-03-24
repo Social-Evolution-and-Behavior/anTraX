@@ -9,10 +9,32 @@ T.ff = T.to * Trck.er.fps;
 T.fi(T.fi==0) = 1;
 T.ff(T.ff==0) = 1;
 
+behaviors = {};
+behaviors1 = J.x.behaviors.names;
+for i=1:length(behaviors1)
+    if ~strcmp(behaviors1{i}(1:3),'No_')
+        behaviors{end+1} = behaviors1{i};
+    end
+end
 
-
-labeled_ids = unique(T.id);
 exps = unique(T.experiment);
+
+
+L.t0s = {};
+L.t1s = {};
+L.names = {};
+L.flies = [];
+L.off = [];
+L.timelinetimestamp = cell(1,0);
+L.timestamp = {};
+L.imp_t0s = {};
+L.imp_t1s = {};
+
+for i=1:numel(J.x.expDirNames)
+    labels(i) = L;
+end
+    
+
 
 for ie = 1:length(exps)
     
@@ -29,25 +51,16 @@ for ie = 1:length(exps)
         continue
     end
     
-    Te = T(strcmp(T.experiment,exp),:);
+    Te = T(strcmp(T.experiment,exp),:);    
     
-    labels(expi).t0s = {};
-    labels(expi).t1s = {};
-    labels(expi).names = {};
-    labels(expi).flies = [];
-    labels(expi).off = [];
-    labels(expi).timelinetimestamp = {};
-    labels(expi).timestamp = {};
-    labels(expi).imp_t0s = {};
-    labels(expi).imp_t1s = {};
-    
+    labeled_ids = unique(Te.id);
     
     for i = 1:length(labeled_ids)
         
         id = labeled_ids{i};
         idi = find(strcmp(id,Trck.usedIDs));
         
-        Ti = T(strcmp(Te.id,id),:);
+        Ti = Te(strcmp(Te.id,id),:);
         
         labels(expi).flies(i,1) =  idi;
         labels(expi).off(i) =  0;
@@ -57,7 +70,10 @@ for ie = 1:length(exps)
         labels(expi).t1s{i} = [];
         labels(expi).names{i} = {};
         
-
+        for b=1:length(behaviors)
+            labels(expi).timelinetimestamp{i}.(behaviors{b}) = now;
+        end
+        
         for j=1:size(Ti,1)
             
             labels(expi).t0s{i}(j) = Ti.fi(j);

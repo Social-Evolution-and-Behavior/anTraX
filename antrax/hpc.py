@@ -182,7 +182,7 @@ def antrax_hpc_job(ex, step, opts):
         opts['cpus'] = opts.get('cpus', 4)
         opts['cmd'] = 'antrax solve ' + ex.expdir + \
             ' --session ' + ex.session + \
-            ' --g $SLURM_ARRAY_TASK_ID' + \
+            ' --glist $SLURM_ARRAY_TASK_ID' + \
             ' --mcr'
 
     elif step == 'dlc':

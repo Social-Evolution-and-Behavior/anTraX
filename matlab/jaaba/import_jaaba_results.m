@@ -23,9 +23,13 @@ for m = Trck.movlist
     
 end
 
+behaviors = unique(behaviors);
 
+report('I',['Import JAABA results from ',num2str(length(behaviors)),' behaviors']);
 
 for m = Trck.movlist
+    
+    report('I',['Working on movie ',num2str(m)]);
     
     mjdir = [jdir,Trck.expname,'_',num2str(m)];
     

@@ -26,7 +26,7 @@ for m=p.Results.movlist
     % copy/link video
     if p.Results.movie
     
-        movfile = Trck.er.movfile(1); 
+        movfile = Trck.er.movfile(m); 
         
         ext = strsplit(movfile,'.');
         ext = ext{end};
