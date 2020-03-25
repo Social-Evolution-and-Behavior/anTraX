@@ -20,7 +20,9 @@ dilatepropag = strel('disk',ceil(dilaterad),0);
 
 % dilate prev and current frames
 combined = imdilate(Trck.prevfrm.BW_2|Trck.currfrm.BW_2,dilatepropag);
+combined = bwconvhull(combined,'objects');
 combined = combined & Trck.Masks.roi(:,:,1);
+
 %combined = applyMasktoIm(combined,Trck.Masks.roi);
 Trck.currfrm.LinkingClusters = combined; 
 
