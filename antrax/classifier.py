@@ -68,6 +68,7 @@ class axClassifier:
                  use_min_conf=True,
                  examplesdir=None,
                  target_size=64,
+                 crop_size=None,
                  scale=1,
                  loaded=False,
                  model=None,
@@ -91,6 +92,7 @@ class axClassifier:
             self.prmtrs['min_conf_short'] = 1 - 0.02 * consv_factor
             self.prmtrs['background'] = background
             self.prmtrs['target_size'] = target_size
+            self.prmtrs['crop_size'] = crop_size
             self.prmtrs['scale'] = scale
             self.prmtrs['loss'] = loss
             self.prmtrs['optimizer'] = optimizer
@@ -151,6 +153,13 @@ class axClassifier:
             msk = msk[:, :, :, None]
             msk = np.tile(msk, [1, 1, 1, 3])
             self.images[msk] = 0
+
+        # crop images
+        if self.prmtrs['crop_size'] is not None and self.images.shape[1] > self.prmtrs['crop_size']:
+
+            a = np.floor((self.images.shape[1] - self.prmtrs['crop_size'])/2).astype('int')
+
+            self.images = self.images[:, a:(a+self.prmtrs['crop_size']), a:(a+self.prmtrs['crop_size']), :]
 
         # resize images
         if self.images.shape[1] != self.prmtrs['target_size'] or self.prmtrs['scale'] != 1:
@@ -222,7 +231,7 @@ class axClassifier:
 
         return label, score, best_frame
 
-    def predict_images_file(self, imagefile, outfile=None, usepassed=False):
+    def predict_images_file(self, imagefile, outfile=None, usepassed=False, report=False):
 
         scores = []
         labels = []
@@ -240,7 +249,25 @@ class axClassifier:
 
         f = h5py.File(join(self.imagedir, imagefile), 'r')
 
+
+        ntracklets = len(f)
+
+        print('         ...' + str(ntracklets) + ' tracklets to classify in movie' )
+
+        cnt = 0
+
+        if report:
+            printProgressBar(0, ntracklets, prefix='Progress:', suffix='Complete', length=50)
+
         for tracklet in f.keys():
+
+
+            cnt += cnt
+
+            if report:
+                printProgressBar(cnt, ntracklets, prefix='Progress:', suffix='Complete', length=50)
+
+
 
             self.images = f[tracklet][()]
 
@@ -275,7 +302,7 @@ class axClassifier:
             for (n, l, p, b) in zip(names, labels, scores, best_frames):
                 writer.writerow([n, l, p, b])
 
-    def predict_experiment(self, expdir, session=None, movlist='all', outdir=None, usepassed=False):
+    def predict_experiment(self, expdir, session=None, movlist='all', outdir=None, usepassed=False, report=None):
 
         if type(expdir) == axExperiment:
             if session is not None and not expdir.session == session:
@@ -302,11 +329,14 @@ class axClassifier:
                 movlist = [int(m) for m in movlist.split(',')]
             self.imagefiles = [f for f in self.imagefiles if movieindex[self.imagefiles.index(f)] in movlist]
 
+        if report is None:
+            report = len(self.imagefiles)==1
+
         for f in self.imagefiles:
             m = int(f.rstrip('.mat').split('_')[1])
             ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
             print(ts + ' -I- Classifying tracklets of movie ' + str(m))
-            self.predict_images_file(f, usepassed=usepassed)
+            self.predict_images_file(f, usepassed=usepassed, report=report)
 
         ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
         print(ts + ' -G- Done!')

@@ -191,22 +191,27 @@ def solve(explist, *, glist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc
         Q.stop_workers()
 
 
-def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None,
+def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None, crop_size=None,
           hpc=False, hpc_options: parse_hpc_options={}):
+
+
+    if target_size is not None:
+        target_size = int(target_size)
+
+    if crop_size is not None:
+        crop_size = int(crop_size)
+
 
     if hpc:
 
         hpc_options['scratch'] = scratch
         hpc_options['target_size'] = target_size
+        hpc_options['crop_size'] = crop_size
         hpc_options['name'] = name
         hpc_options['ne'] = ne
         antrax_hpc_train_job(classdir, opts=hpc_options)
 
         return
-
-
-    if target_size is not None:
-        target_size = int(target_size)
 
     classfile = join(classdir, name + '.h5')
     examplesdir = join(classdir, 'examples')
@@ -219,14 +224,14 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=5
             f = glob(examplesdir + '/*/*.png')[0]
             target_size = max(imread(f).shape)
 
-        c = axClassifier(name, nclasses=n, target_size=target_size)
+        c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size)
 
     c.train(examplesdir, from_scratch=scratch, ne=ne)
     c.save(classfile)
 
 
 def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options={},
-             nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None):
+             nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False):
 
     explist = parse_explist(explist, session)
 
@@ -251,7 +256,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False
         else:
             if from_expdir:
                 c = axClassifier.load(classifier)
-            c.predict_experiment(e, movlist=movlist)
+            c.predict_experiment(e, movlist=movlist, report=report)
 
 
 def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' '):

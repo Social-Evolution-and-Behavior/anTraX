@@ -40,3 +40,11 @@ else
     Trck.labels = labels;
 
 end
+
+fns = fieldnames(Trck.labels);
+for i = 1:length(fns)
+   
+    Trck.labels.(fns{i}) = unique(Trck.labels.(fns{i}));
+    
+end
+
