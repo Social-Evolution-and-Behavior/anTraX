@@ -98,7 +98,7 @@ if Trck.get_param('segmentation_local_z_scaling')
     [~,~,BGW] = Trck.get_bg(m);
     A = rgb2gray(BGW);
     w = median(A(Trck.TrackingMask(:,:,1)>0));
-    ZS = BGW/w;
+    ZS = w./BGW;
 else
     ZS = [];
 end

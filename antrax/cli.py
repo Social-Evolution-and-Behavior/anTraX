@@ -278,6 +278,20 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
+def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' '):
+
+
+    explist = parse_explist(explist, session)
+
+    for e in explist:
+        if hpc:
+            hpc_options['movlist'] = movlist
+            antrax_hpc_job(e, 'export_jaaba', opts=hpc_options)
+        else:
+            pass
+
+
+
 def main():
 
     function_list = {
@@ -286,6 +300,7 @@ def main():
         'merge-trainset': merge_trainset,
         'graph-explorer': graph_explorer,
         'export-dlc-trainset': export_dlc,
+        'export-jaaba': export_jaaba,
         'validate': validate,
         'track': track,
         'train': train,

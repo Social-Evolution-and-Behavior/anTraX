@@ -9,6 +9,8 @@ if nargin<4
 end
 
 
+NC = numel(Trck.labels.tagcolors);
+
 if nargin<3 || isempty(shape)
     
     NC = length(Trck.tagcolors);
@@ -56,10 +58,16 @@ end
 
 idorder=cell(1,Trck.NIDs);
 for i=1:Trck.NIDs
+    
+    ii = ceil(i/NC);
+    jj = rem(i,NC)+1;
+    
     ax(i) = subplot('Position',[axis_x(i),axis_y(i),axis_w,axis_h]);
+    
     idorder{i}=Trck.usedIDs{i};
+    
     if annotate
-        annotation('ellipse',[tag1x(i),tag1y(i),tagsize,tagsize],'Color','none','FaceColor',tagrgb(NC-i+1,:))
-        annotation('ellipse',[tag2x(i),tag2y(i),tagsize,tagsize],'Color','none','FaceColor',tagrgb(j,:))
+        annotation('ellipse',[tag1x(i),tag1y(i),tagsize,tagsize],'Color','none','FaceColor',tagrgb(ii,:))
+        annotation('ellipse',[tag2x(i),tag2y(i),tagsize,tagsize],'Color','none','FaceColor',tagrgb(jj,:))
     end
 end

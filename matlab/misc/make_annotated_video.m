@@ -2,7 +2,7 @@ function make_annotated_video(Trck, varargin)
 
 p = inputParser;
 
-colors = distinguishable_colors(Trck.NIDs,{'w','k','y'});
+colors = distinguishable_colors(Trck.NIDs,{'w','y'});
 
 addRequired(p,'Trck',@(x) isa(x,'trhandles'));
 addParameter(p,'fi',1);
