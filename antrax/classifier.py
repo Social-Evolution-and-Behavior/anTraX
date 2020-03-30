@@ -22,7 +22,9 @@ from .experiment import *
 from .utils import *
 from .models import new_model
 
-AMBIG_CLASSES = ['Unknown', '??', 'MultiAnt']
+
+AMBIG_CLASSES = ['Unknown', '??', 'MultiAnt','Multi','multi']
+MULTI_CLASSES = ['MultiAnt','Multi','multi']
 NONANT_CLASSES = ['NoAnt', 'FOOD', 'Larva']
 
 
@@ -186,7 +188,9 @@ class axClassifier:
         # non-ant label is only assigned if all images were recognized as such. Otherwise, ignore images with non-ant labels for tracklet classification
         y_index = y.argmax(axis=1)
         y_txt = [self.classes[ix] for ix in y_index]
+
         y_noant = [lab in self.labels['noant_labels'] for lab in y_txt]
+        y_multi = [lab in MULTI_CLASSES for lab in y_txt]
         y_ambig = [lab in self.labels['other_labels'] for lab in y_txt]
         y_ants = [lab in self.labels['ant_labels'] for lab in y_txt]
 
@@ -195,13 +199,17 @@ class axClassifier:
             lab = max(y_txt, key=y_txt.count)
             return lab, 0, -1
 
-        if all(y_ambig):
+        # if there are multi labels, return multi
+        if any(y_multi):
+            y_txt = [l for l in y_txt if l in MULTI_CLASSES]
             lab = max(y_txt, key=y_txt.count)
             return lab, 0, -1
 
-        if not any(y_ants):
-            lab = 'Unknown'
+        # if there are no ant labels, return ambig label
+        if all(y_ambig) or not any(y_ants):
+            lab = max(y_txt, key=y_txt.count)
             return lab, 0, -1
+
 
         ant_cols = [lab in self.labels['ant_labels'] for lab in self.classes]
         ant_cols = [i for i, x in enumerate(ant_cols) if x]
