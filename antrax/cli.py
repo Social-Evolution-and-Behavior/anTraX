@@ -27,7 +27,7 @@ def parse_hpc_options(s):
             opts[k] = int(v)
 
     if 'rockefeller' in HOSTNAME:
-        opts['email'] = opts.get('email', USER + '@rockefeller.edu')
+        opts['email'] = opts.get('email', USER + '@mail.rockefeller.edu')
 
     return opts
 

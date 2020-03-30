@@ -262,9 +262,10 @@ class axClassifier:
         for tracklet in f.keys():
 
 
-            cnt += cnt
+            cnt += 1
 
             if report:
+                #print(cnt)
                 printProgressBar(cnt, ntracklets, prefix='Progress:', suffix='Complete', length=50)
 
 
@@ -495,6 +496,10 @@ class axClassifier:
 
         if 'MultiAnt' in classes:
             cw[FL.class_indices['MultiAnt']] = multi_weight * cw[FL.class_indices['MultiAnt']]
+
+        if 'Multi' in classes:
+            cw[FL.class_indices['Multi']] = multi_weight * cw[FL.class_indices['Multi']]
+
 
         # compile model
         self.compile_model()

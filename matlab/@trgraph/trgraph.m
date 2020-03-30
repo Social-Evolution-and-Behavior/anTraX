@@ -148,7 +148,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
         function [passed,singles] = get_singles(G,criteria)
             
             if nargin<2
-                criteria = {'minarea','maxarea','OneLink'};
+                criteria = {'minarea','maxarea','OneLink','label'};
             end
             
             if isempty(G.trjs)
@@ -165,6 +165,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
             rarea = tocol([G.trjs.nanmeanrarea]);
             nparents = indegree(G.G);
             nchildren = outdegree(G.G);
+            aids = {G.trjs.propID};
             
             passed = true(size(G.trjs));
             
@@ -178,6 +179,10 @@ classdef trgraph < handle & matlab.mixin.SetGet
             
             if ismember('OneLink',criteria)
                 passed = passed & (nchildren<=1) & (nparents<=1);
+            end
+            
+            if ismember('multi',criteria)
+                passed = passed & ~ismember(aids,{'multi','Multi','MultiAnt'});
             end
             
             singles = G.trjs(passed);

@@ -15,7 +15,6 @@ if isempty(G.node_fi)
     G.node_fi = [G.trjs.fi];
     G.node_ff = [G.trjs.ff];
     G.node_noant = ismember({G.trjs.propID},G.Trck.labels.noant_labels);
-    
 end
 
 
