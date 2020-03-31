@@ -191,7 +191,7 @@ def solve(explist, *, glist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc
         Q.stop_workers()
 
 
-def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=50, verbose=1, target_size=None, crop_size=None,
+def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.5, verbose=1, target_size=None, crop_size=None,
           hpc=False, hpc_options: parse_hpc_options={}):
 
 
@@ -207,8 +207,11 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=5
         hpc_options['scratch'] = scratch
         hpc_options['target_size'] = target_size
         hpc_options['crop_size'] = crop_size
+        hpc_options['multi_weight'] = multi_weight
+        hpc_options['unknown_weight'] = unknown_weight
         hpc_options['name'] = name
         hpc_options['ne'] = ne
+
         antrax_hpc_train_job(classdir, opts=hpc_options)
 
         return
@@ -226,7 +229,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=5
 
         c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size)
 
-    c.train(examplesdir, from_scratch=scratch, ne=ne)
+    c.train(examplesdir, from_scratch=scratch, ne=ne, multi_weight=multi_weight, unknown_weight=unknown_weight)
     c.save(classfile)
 
 

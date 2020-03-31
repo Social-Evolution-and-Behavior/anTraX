@@ -100,7 +100,11 @@ def antrax_hpc_train_job(classdir, opts):
     opts['cpus'] = opts.get('cpus', 24)
     opts['cmd'] = 'antrax train ' + classdir + \
                   ' --name ' + opts['name'] + \
-                  ' --ne ' + str(opts['ne'])
+                  ' --ne ' + str(opts['ne']) + \
+                  ' --target-size ' + str(opts['target_size']) + \
+                  ' --crop-size ' + str(opts['crop_size']) + \
+                  ' --unknown-weight ' + str(opts['unknown_weight']) + \
+                  ' --multi-weight ' + str(opts['multi_weight'])
 
     if opts['scratch']:
         opts['cmd'] = opts['cmd'] + ' --scratch '
