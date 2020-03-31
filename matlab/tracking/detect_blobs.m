@@ -77,7 +77,7 @@ end
 BW = im2bw(ZGRY,p.Results.SegmentationThreshold);
 
 % filter out small blobs
-BW = bwareaopen(BW,Trck.get_param('segmentation_MinimumBlobArea'),Trck.hblobs.ants.Connectivity);
+BW = bwareaopen(BW,round(Trck.get_param('segmentation_MinimumBlobArea')/2),Trck.hblobs.ants.Connectivity);
 BW2=BW;
 
 % image closing
@@ -89,6 +89,8 @@ end
 if Trck.get_param('segmentation_ImOpenning')
     BW2 = imopen(BW2,Trck.get_param('segmentation_ImOpenningStrel'));
 end
+
+BW2 = bwareaopen(BW2,Trck.get_param('segmentation_MinimumBlobArea'),Trck.hblobs.ants.Connectivity);
 
 % apply mask again
 BW2 = BW2 & logical(mask(:,:,1));

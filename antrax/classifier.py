@@ -175,7 +175,7 @@ class axClassifier:
 
         self.images = self.images.astype('float32')
 
-    def predict_images(self):
+    def predict_images(self, debug=False):
 
         if tf.shape(self.images.shape)[0] == 0:
             return 'Unknown', 0, -1
@@ -452,7 +452,7 @@ class axClassifier:
 
         return error
 
-    def train(self, examplesdir, from_scratch=False, ne=5, unknown_weight=20, multi_weight=0.5, verbose=1):
+    def train(self, examplesdir, from_scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, verbose=1):
 
         if isinstance(examplesdir, list):
             rm_after = True
@@ -479,7 +479,7 @@ class axClassifier:
                                     width_shift_range=10,
                                     height_shift_range=10,
                                     shear_range=5,
-                                    rotation_range=10,
+                                    rotation_range=15,
                                     zoom_range=0.1,
                                     brightness_range=(0.9, 1.1),
                                     channel_shift_range=0,
@@ -508,6 +508,11 @@ class axClassifier:
         if 'Multi' in classes:
             cw[FL.class_indices['Multi']] = multi_weight * cw[FL.class_indices['Multi']]
 
+
+        print('')
+        print(str(multi_weight))
+        print(cw)
+        print('')
 
         # compile model
         self.compile_model()
