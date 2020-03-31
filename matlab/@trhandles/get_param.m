@@ -13,7 +13,7 @@ switch pname
     case 'linking_flow_cutoff'
         
         c = Trck.get_param('linking_flow_cutoff_coeff');
-        ant_size = Trck.get_param('thrsh_meanarea');
+        ant_size = Trck.get_param('thrsh_meanareamin');
         scale =  Trck.get_param('geometry_rscale');
         
         p = c * ant_size/scale^2;
