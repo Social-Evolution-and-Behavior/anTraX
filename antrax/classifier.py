@@ -200,7 +200,7 @@ class axClassifier:
             return lab, 0, -1
 
         # if there are multi labels, return multi
-        if (any(y_multi) and not any(y_ants)) or np.mean(y_multi)>0.2:
+        if (any(y_multi) and not any(y_ants)) or np.mean(y_multi)>0.25:
             y_txt = [l for l in y_txt if l in MULTI_CLASSES]
             lab = max(y_txt, key=y_txt.count)
             return lab, 0, -1
