@@ -2,7 +2,7 @@ function solve_single_graph(expdir,varargin)
 
 p = inputParser;
 addRequired(p,'expdir',@(x) (ischar(x) && isfolder(x)) || isa(x,'trhandles'));
-addOptional(p,'g',[]);
+addOptional(p,'g',[],@(x) isnumeric(x)||ischar(x));
 addParameter(p,'movlist',[],@(x) isnumeric(x));
 addParameter(p,'colony','')
 addParameter(p,'batchinfo',[]);
@@ -28,10 +28,16 @@ if ~isempty(p.Results.g)
    
     groups = Trck.get_solve_groups();
     
-    if p.Results.g>length(groups)
+    g = p.Results.g;
+    
+    if ischar(g)
+        g = str2double(g);
+    end
+
+    if g>length(groups)
         error('g is larger than number of groups')
     else
-        movlist = groups{p.Results.g};
+        movlist = groups{g};
         report('I', ['solving graph from movies',num2str(movlist)])
     end
     
