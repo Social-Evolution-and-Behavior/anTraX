@@ -100,17 +100,22 @@ def antrax_hpc_train_job(classdir, opts):
     opts['cpus'] = opts.get('cpus', 24)
     opts['cmd'] = 'antrax train ' + classdir + \
                   ' --name ' + opts['name'] + \
-                  ' --ne ' + str(opts['ne']) + \
-                  ' --target-size ' + str(opts['target_size']) + \
-                  ' --crop-size ' + str(opts['crop_size']) + \
-                  ' --unknown-weight ' + str(opts['unknown_weight']) + \
-                  ' --multi-weight ' + str(opts['multi_weight'])
+                  ' --ne ' + str(opts['ne']) 
 
     if opts['scratch']:
         opts['cmd'] = opts['cmd'] + ' --scratch '
 
     if opts['target_size'] is not None:
-        opts['cmd'] = opts['cmd'] + ' --target-size ' + opts['target_size']
+        opts['cmd'] = opts['cmd'] + ' --target-size ' + str(opts['target_size'])
+
+    if opts['crop_size'] is not None:
+        opts['cmd'] = opts['cmd'] + ' --crop-size ' + str(opts['crop_size'])
+
+    if opts['unknown_weight'] is not None:
+        opts['cmd'] = opts['cmd'] + ' --unknown-weight ' + str(opts['unknown_weight'])
+
+    if opts['multi_weight'] is not None:
+        opts['cmd'] = opts['cmd'] + ' --multi-weight ' + str(opts['multi_weight'])
 
     if not opts.get('dry', False):
         jobfile = create_slurm_job_file(opts)
@@ -190,6 +195,8 @@ def antrax_hpc_job(ex, step, opts):
             ' --mcr'
 
         if opts['c'] is not None:
+            opts['jobname'] = 'slv:' + ex.expname + ':' + str(opts['c'])
+            opts['filename'] = 'slv_' + str(opts['c'])
             opts['cmd'] += ' --clist ' + str(opts['c'])
 
     elif step == 'dlc':
