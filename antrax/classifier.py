@@ -530,13 +530,13 @@ class axClassifier:
         cw = class_weight.compute_class_weight('balanced', np.unique(FL.classes), FL.classes)
 
         if 'Unknown' in classes:
-            cw[FL.class_indices['Unknown']] = unknown_weight * cw[FL.class_indices['Unknown']]
+            cw[FL.class_indices['Unknown']] = self.prmtrs['unknown_weight'] * cw[FL.class_indices['Unknown']]
 
         if 'MultiAnt' in classes:
-            cw[FL.class_indices['MultiAnt']] = multi_weight * cw[FL.class_indices['MultiAnt']]
+            cw[FL.class_indices['MultiAnt']] = self.prmtrs['multi_weight'] * cw[FL.class_indices['MultiAnt']]
 
         if 'Multi' in classes:
-            cw[FL.class_indices['Multi']] = multi_weight * cw[FL.class_indices['Multi']]
+            cw[FL.class_indices['Multi']] = self.prmtrs['multi_weight'] * cw[FL.class_indices['Multi']]
 
 
         # compile model

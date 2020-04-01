@@ -15,6 +15,23 @@ from .utils import *
 
 ########################### AUX functions #########################
 
+
+@parser.value_converter
+def to_int(arg):
+
+    if arg is not None:
+        return int(arg)
+    else:
+        return None
+
+@parser.value_converter
+def to_float(arg):
+
+    if arg is not None:
+        return float(arg)
+    else:
+        return None
+
 @parser.value_converter
 def parse_hpc_options(s):
 
@@ -208,15 +225,8 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
         Q.stop_workers()
 
 
-def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.5, verbose=1, target_size=None, crop_size=None,
-          hpc=False, hpc_options: parse_hpc_options={}):
-
-
-    if target_size is not None:
-        target_size = int(target_size)
-
-    if crop_size is not None:
-        crop_size = int(crop_size)
+def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight: to_float=None, multi_weight: to_float=None,
+          target_size: to_int=None, crop_size: to_int=None, hpc=False, hpc_options: parse_hpc_options={}):
 
 
     if hpc:
