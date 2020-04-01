@@ -34,9 +34,14 @@ if Trck.get_param('geometry_multi_colony')
         
     elseif ~ismember(colony,Trck.colony_labels)
         
-        report('E',['Unknown colony identifier ', colony])
-        return
-    
+        try
+            colony = str2num(colony);
+            colony = Trck.colony_labels{colony};
+        catch
+            report('E',['Unknown colony identifier ', colony])
+            return
+        end
+
     end
 
 end
