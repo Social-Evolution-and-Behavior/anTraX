@@ -52,6 +52,7 @@ class axExperiment:
         self.subdirs = self.get_subdirs()
         self.movlist = self.get_movlist()
         self.glist, self.ggroups = self.get_glist()
+        self.clist = self.prmtrs['geometry_colony_labels']
 
 
         if 'tagged' in self.prmtrs:

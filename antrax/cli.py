@@ -163,7 +163,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, o
         Q.stop_workers()
 
 
-def solve(explist, *, glist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
+def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
           session=None):
 
     explist = parse_explist(explist, session)
@@ -171,18 +171,35 @@ def solve(explist, *, glist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc
     if hpc:
 
         for e in explist:
+
             hpc_options['classifier'] = classifier
             hpc_options['glist'] = glist if glist is not None else e.glist
-            antrax_hpc_job(e, 'solve', opts=hpc_options)
+
+            if e.prmtrs['geometry_multi_colony']:
+                eclist = clist if clist is not None else e.clist
+                for c in eclist:
+                    hpc_options['c'] = c
+                    antrax_hpc_job(e, 'solve', opts=hpc_options)
+            else:
+                hpc_options['c'] = None
+                antrax_hpc_job(e, 'solve', opts=hpc_options)
 
     else:
 
         Q = MatlabQueue(nw=nw, mcr=mcr)
 
         for e in explist:
+
             eglist = glist if glist is not None else e.glist
-            for g in eglist:
-                Q.put(('solve_single_graph', e, g))
+            eclist = clist if clist is not None else e.clist
+
+            if e.prmtrs['geometry_multi_colony']:
+                for c in eclist:
+                    for g in eglist:
+                        Q.put(('solve_single_graph', e, g, c))
+            else:
+                for g in eglist:
+                    Q.put(('solve_single_graph', e, g, None))
 
         # wait for tasks to complete
         Q.join()

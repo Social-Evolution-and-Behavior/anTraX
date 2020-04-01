@@ -16,12 +16,29 @@ Trck = trhandles.load(expdir,p.Results.trackingdirname);
 
 colony = p.Results.colony;
 
-if Trck.get_param('geometry_multi_colony') && isempty(colony)
-    report('E','Colony argument is miising for multi colony experiment')
-    return
-elseif Trck.get_param('geometry_multi_colony') && ~ismember(colony,Trck.colony_labels)
-    report('E','Unknown colony identifier')
-    return
+if Trck.get_param('geometry_multi_colony')
+    
+    if isempty(colony)
+        
+        report('E','Colony argument is missing for multi colony experiment')
+        return
+        
+    elseif isnumeric(colony)
+        
+        try
+            colony = Trck.colony_labels{colony};
+        catch
+            report('E','Bad colony number')
+            return
+        end
+        
+    elseif ~ismember(colony,Trck.colony_labels)
+        
+        report('E','Unknown colony identifier')
+        return
+    
+    end
+
 end
 
 if ~isempty(p.Results.g)

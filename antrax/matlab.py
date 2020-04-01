@@ -85,23 +85,30 @@ def start_matlab():
     return eng
 
 
-def solve_single_graph(ex, g, mcr=ANTRAX_USE_MCR):
+def solve_single_graph(ex, g, c, mcr=ANTRAX_USE_MCR):
 
-    report('I', 'Start ID propagation of graph ' + str(g) + ' in ' + ex.expname)
+    if c is None:
+        report('I', 'Start ID propagation of graph ' + str(g) + ' in ' + ex.expname)
+    else:
+        report('I', 'Start ID propagation of colony ' + str(c) + ' graph ' + str(g) + ' in ' + ex.expname)
 
-    diaryfile = join(ex.logsdir, 'solve_' + str(g) + '.log')
+    if c is None:
+        diaryfile = join(ex.logsdir, 'solve_matlab_' + str(g) + '.log')
+    else:
+        diaryfile = join(ex.logsdir, 'solve_matlab_' + str(g) + '_c_' + str(c) + '.log')
+
 
     if mcr:
 
         with open(diaryfile, 'w') as diary:
-            run_mcr_function('solve_single_graph', [ex.expdir, g, 'trackingdirname', ex.session], diary=diary)
+            run_mcr_function('solve_single_graph', [ex.expdir, g, 'trackingdirname', ex.session, 'colony', c], diary=diary)
 
     else:
 
         out = io.StringIO()
         eng = start_matlab()
         try:
-            eng.solve_single_graph(ex.expdir, g, 'trackingdirname', ex.session,
+            eng.solve_single_graph(ex.expdir, g, 'trackingdirname', ex.session, 'colony', c,
                                    nargout=0, stdout=out, stderr=out)
         except:
             raise
@@ -112,14 +119,17 @@ def solve_single_graph(ex, g, mcr=ANTRAX_USE_MCR):
 
         eng.quit()
 
-    report('I', 'Finished propagation in graph ' + str(g) + ' in ' + ex.expname)
+    if c is None:
+        report('I', 'Finished propagation of graph ' + str(g) + ' in ' + ex.expname)
+    else:
+        report('I', 'Finished propagation of colony ' + str(c) + ' graph ' + str(g) + ' in ' + ex.expname)
 
 
 def track_single_movie(ex, m, mcr=ANTRAX_USE_MCR):
 
     report('I', 'Start tracking of movie ' + str(m) + ' in ' + ex.expname)
 
-    diaryfile = join(ex.logsdir, 'track_' + str(m) + '.log')
+    diaryfile = join(ex.logsdir, 'track_matlab_' + str(m) + '.log')
 
     if mcr:
 

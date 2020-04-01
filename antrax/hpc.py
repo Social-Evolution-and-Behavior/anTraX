@@ -189,6 +189,9 @@ def antrax_hpc_job(ex, step, opts):
             ' --glist $SLURM_ARRAY_TASK_ID' + \
             ' --mcr'
 
+        if opts['c'] is not None:
+            opts['cmd'] += ' --clist ' + str(opts['c'])
+
     elif step == 'dlc':
 
         opts['jobname'] = 'dlc:' + ex.expname
