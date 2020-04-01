@@ -246,7 +246,9 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
 
         c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size)
 
-    c.train(examplesdir, from_scratch=scratch, ne=ne, multi_weight=multi_weight, unknown_weight=unknown_weight)
+    c.train(examplesdir, from_scratch=scratch, ne=ne, multi_weight=multi_weight, unknown_weight=unknown_weight,
+                target_size=target_size, crop_size=crop_size)
+
     c.save(classfile)
 
 
