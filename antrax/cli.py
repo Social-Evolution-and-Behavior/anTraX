@@ -244,7 +244,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
             f = glob(examplesdir + '/*/*.png')[0]
             target_size = max(imread(f).shape)
 
-        c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size)
+        c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size, unknown_weight=unknown_weight, multi_weight=multi_weight)
 
     c.train(examplesdir, from_scratch=scratch, ne=ne, multi_weight=multi_weight, unknown_weight=unknown_weight,
                 target_size=target_size, crop_size=crop_size)

@@ -56,6 +56,15 @@ class axClassifier:
         if c.classes is not None:
             c.trained = True
 
+        if 'unknown_weight' not in c.prmtrs:
+            c.prmtrs['unknown_weight'] = 20
+
+        if 'multi_weight' not in c.prmtrs:
+            c.prmtrs['multi_weight'] = 0.1
+
+        if 'crop_size' not in c.prmtrs:
+            c.prmtrs['crop_size'] = None
+
         return c
 
     def __init__(self,
@@ -71,6 +80,8 @@ class axClassifier:
                  examplesdir=None,
                  target_size=64,
                  crop_size=None,
+                 unknown_weight=20,
+                 multi_weight=0.1,
                  scale=1,
                  loaded=False,
                  model=None,
@@ -95,6 +106,8 @@ class axClassifier:
             self.prmtrs['background'] = background
             self.prmtrs['target_size'] = target_size
             self.prmtrs['crop_size'] = crop_size
+            self.prmtrs['unknown_weight'] = unknown_weight
+            self.prmtrs['multi_weight'] = multi_weight
             self.prmtrs['scale'] = scale
             self.prmtrs['loss'] = loss
             self.prmtrs['optimizer'] = optimizer
@@ -452,7 +465,7 @@ class axClassifier:
 
         return error
 
-    def train(self, examplesdir, from_scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, verbose=1, target_size=None, crop_size=None):
+    def train(self, examplesdir, from_scratch=False, ne=5, unknown_weight=None, multi_weight=None, verbose=1, target_size=None, crop_size=None):
 
         if isinstance(examplesdir, list):
             rm_after = True
@@ -482,7 +495,13 @@ class axClassifier:
             print('User asked, starting training from scratch')
             self.reset_model()
 
-            
+        if unknown_weight is not None:
+            self.prmtrs['unknown_weight'] = unknown_weight
+
+        if multi_weight is not None:
+            self.prmtrs['multi_weight'] = multi_weight
+
+
         # create data generators
         prepfun = None if self.prmtrs['scale'] == 1 else scale_and_crop
 
