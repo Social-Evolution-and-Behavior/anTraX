@@ -428,7 +428,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 
                 for i=1:Trck.Ncolonies
                     c = Trck.colony_labels{i};
-                    [XY.(c),frames] = Trck.loadxy(movlist,c,varargin);
+                    [XY.(c),frames] = Trck.loadxy('movlist',p.Results.movlist,'colony',c, 'type', p.Results.type);
                 end
                 return 
                 

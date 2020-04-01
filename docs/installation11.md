@@ -1,11 +1,11 @@
 
 ### Requirements
 
-anTraX works natively on machines running Linux or OSX operating system. It benefits significantly from a multicore system. It is recommended to have at least 2GB of RAM per used core, and a similar sized swap. Computational GPU will speedup the classification phase considerabley. 
+anTraX works natively on machines running Linux or OSX operating system. It benefits significantly from a multicore system. It is recommended to have at least 2GB of RAM per used core, and a similar sized swap. Computational GPU will speedup the classification phase considerably. 
 
 ### Python
 
-anTraX requires Python version 3.6 or above. It is hughly recommended to install and use anTraX inside a virtual environemnt, using conda or any other environment manager. 
+anTraX requires Python version 3.6 or above. It is highly recommended to install and use anTraX inside a virtual environment, using conda or any other environment manager. 
 
 ### MATLAB
 
@@ -26,7 +26,7 @@ brew install ffmpeg
 ```
 ### Clone the repository
 
-Change into your favorite place to install code packages, then clone the anTraX repositpry:
+Change into your favorite place to install code packages, then clone the anTraX repository:
 
 ```console
 git clone http://github.com/Social-Evolution-and-Behavior/anTraX.git
