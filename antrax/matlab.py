@@ -156,6 +156,37 @@ def track_single_movie(ex, m, mcr=ANTRAX_USE_MCR):
     report('I', 'Finished tracking of movie ' + str(m) + ' in ' + ex.expname)
 
 
+def pair_search(ex, m, mcr=ANTRAX_USE_MCR):
+
+    report('I', 'Running pair search for movie ' + str(m) + ' in ' + ex.expname)
+
+    diaryfile = join(ex.logsdir, 'pair_search_matlab_' + str(m) + '.log')
+
+    if mcr:
+
+        with open(diaryfile, 'w') as diary:
+            run_mcr_function('pair_search_single_movie', [ex.expdir, m, 'trackingdirname', ex.session], diary=diary)
+
+    else:
+
+        out = io.StringIO()
+        eng = start_matlab()
+        try:
+
+            eng.pair_search_single_movie(ex.expdir, m, 'trackingdirname', ex.session,
+                                   nargout=0, stdout=out, stderr=out)
+        except:
+            raise
+        finally:
+            with open(diaryfile, 'w') as diary:
+                out.seek(0)
+                shutil.copyfileobj(out, diary)
+
+        eng.quit()
+
+    report('I', 'Finished pair search for movie ' + str(m) + ' in ' + ex.expname)
+
+
 def link_across_movies(ex, mcr=ANTRAX_USE_MCR):
 
     report('I', 'Running cross movie link function for ' + ex.expname)

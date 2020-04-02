@@ -149,6 +149,31 @@ def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, ant
     create_trainset(ex, dlcdir, n=nimages, antlist=antlist, movlist=movlist, vid=video)
 
 
+def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={}, session=None):
+
+    explist = parse_explist(explist, session)
+
+    if hpc:
+        for e in explist:
+            hpc_options['movlist'] = movlist
+            antrax_hpc_job(e, 'pair_search', opts=hpc_options)
+    else:
+
+        Q = MatlabQueue(nw=nw, mcr=mcr)
+
+        for e in explist:
+            movlist1 = e.movlist if movlist is None else movlist
+            for m in movlist1:
+                Q.put(('pair_search', e, m))
+
+            # wait for tasks to complete
+
+        Q.join()
+
+        # close
+        Q.stop_workers()
+
+
 def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
           session=None):
 
@@ -329,6 +354,7 @@ def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, hpc=Fals
 
 
 
+
 def main():
 
     function_list = {
@@ -343,7 +369,8 @@ def main():
         'train': train,
         'classify': classify,
         'solve': solve,
-        'dlc': dlc
+        'dlc': dlc,
+        'pair-search': pair_search
     }
 
     run(function_list)

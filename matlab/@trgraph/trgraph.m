@@ -387,6 +387,18 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 skip_pairs_search = false;
             end
             
+            if numel(G.movlist)>1
+                GS = G.split;
+                
+                parfor (g=1:length(GS), 6)
+                   
+                    get_bottleneck_pairs(G,skip_pairs_search);
+                    
+                end
+                
+            end
+            
+            
             maxdepth=G.Trck.get_param('graph_pairs_maxdepth');
             
             if ~isempty(G.named_pairs) && (maxdepth==G.pairs_search_depth || skip_pairs_search)
