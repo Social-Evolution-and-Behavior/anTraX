@@ -151,7 +151,8 @@ class axClassifier:
         # save classifier params
         with h5py.File(modelfile, 'a') as f:
             f.create_dataset('prmtrs', data=json.dumps(self.prmtrs))
-            f.create_dataset('classes', (len(self.classes), 1), 'S10', [np.string_(x) for x in self.classes])
+            if self.classes is not None:
+                f.create_dataset('classes', (len(self.classes), 1), 'S10', [np.string_(x) for x in self.classes])
 
     def prepare_images(self):
 
