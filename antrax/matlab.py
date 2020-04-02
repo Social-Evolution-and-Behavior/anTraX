@@ -89,12 +89,10 @@ def solve_single_graph(ex, g, c, mcr=ANTRAX_USE_MCR):
 
     if c is None:
         report('I', 'Start ID propagation of graph ' + str(g) + ' in ' + ex.expname)
+        diaryfile = join(ex.logsdir, 'solve_matlab_' + str(g) + '.log')
+        c = ''
     else:
         report('I', 'Start ID propagation of colony ' + str(c) + ' graph ' + str(g) + ' in ' + ex.expname)
-
-    if c is None:
-        diaryfile = join(ex.logsdir, 'solve_matlab_' + str(g) + '.log')
-    else:
         diaryfile = join(ex.logsdir, 'solve_matlab_' + str(g) + '_c_' + str(c) + '.log')
 
 

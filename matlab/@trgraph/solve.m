@@ -4,14 +4,16 @@ if nargin<2
     skip_pairs_search = false;
 end
 
-report('I','Some preperations..')
+report('I','Loading ids')
 G.load_ids;
 G.usedIDs = G.Trck.usedIDs;
 G.NIDs = length(G.usedIDs);
 
+report('I','Finding single ant nodes')
 G.node_single = G.get_singles;
 
-if isempty(G.node_fi)    
+if isempty(G.node_fi)  
+    report('I','Some preperations')
     G.node_fi = [G.trjs.fi];
     G.node_ff = [G.trjs.ff];
     G.node_noant = ismember({G.trjs.propID},G.Trck.labels.noant_labels);

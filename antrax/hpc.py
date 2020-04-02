@@ -115,7 +115,6 @@ def antrax_hpc_train_job(classdir, opts):
         print('')
 
 
-
 def antrax_hpc_job(ex, step, opts):
 
     # if "missing" is set, get list of videos with missing output

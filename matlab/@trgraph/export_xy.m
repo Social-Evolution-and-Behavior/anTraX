@@ -5,7 +5,7 @@ p = inputParser;
 addRequired(p,'G',@(x) isa(x,'trgraph'));
 addParameter(p,'extrafields',{});
 addParameter(p,'csv',true);
-addParameter(p,'interpolate',true);
+addParameter(p,'interpolate',false);
 addParameter(p,'interpolate_maxd',0.01);
 addParameter(p,'interpolate_maxf',300);
 addParameter(p,'only_tracklet_table',false,@islogical);
@@ -162,7 +162,8 @@ end
 
 
 % write trackelt table
-file = [wdir,'tracklets_table_',num2str(min(G.movlist)),'_',num2str(max(G.movlist)),'.csv'];
+
+file = [fileparts(G.xyfile),filesep,'tracklets_table_',num2str(min(G.movlist)),'_',num2str(max(G.movlist)),'.csv'];
 writetable(tracklet_table, file);
 
 % write cvs

@@ -60,7 +60,7 @@ if ~isempty(p.Results.g)
         error('g is larger than number of groups')
     else
         movlist = groups{g};
-        report('I', ['solving graph from movies',num2str(movlist)])
+        report('I', ['solving graph from movies ',num2str(movlist(1)), '-',num2str(movlist(end))])
     end
     
 else

@@ -138,6 +138,7 @@ prmtrs.background_framelist = [];
 %% Graph solving
 
 prmtrs.graph_groupby = 'subdirs';
+prmtrs.graph_groupby_every = 12;
 
 prmtrs.graph_apply_temporal_window = true;
 prmtrs.graph_apply_manual_cfg = true;

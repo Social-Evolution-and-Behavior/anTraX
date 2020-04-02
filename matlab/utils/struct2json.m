@@ -21,7 +21,7 @@ if isa(v,'function_handle')
     v = func2str(v);
 end
 str = jsonencode(v);
-fprintf(fid,['\t','"',flds{i},'":',str,'\n']);
+fprintf(fid,['\t','"',flds{end},'":',str,'\n']);
 
 fprintf(fid, '}\n');
 

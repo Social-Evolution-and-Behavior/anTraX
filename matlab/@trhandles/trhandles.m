@@ -518,14 +518,14 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                     for c = 1:length(Trck.colony_labels)
                         
                         G = Trck.loaddata(m,c);
-                        export_xy(G,varargin);
+                        export_xy(G,varargin{:});
                         
                     end
                     
                 else
                     
                     G = Trck.loaddata(m);
-                    export_xy(G,varargin);
+                    export_xy(G,varargin{:});
                 
                 end
                 
@@ -636,6 +636,24 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 
                 groups = num2cell(Trck.movlist);
                 
+                
+            elseif ismember(Trck.get_param('graph_groupby'), {'every'})
+                
+                
+                e = Trck.get_param('graph_groupby_every');
+                
+                nm = numel(Trck.movlist);
+                ng = ceil(nm/e);
+                
+                for i=1:ng
+                   
+                    mi = (i-1)*e+1;
+                    mf = min([i*e, nm]);
+                    midx = mi:mf;
+                    groups{i} = Trck.movlist(midx);
+                    
+                end
+                
             
             elseif ismember(Trck.get_param('graph_groupby'), {'custom'})
                 
@@ -656,6 +674,9 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 groups{i} = intersect(groups{i},Trck.graphlist);
                 
             end
+            
+            groups = groups(cellfun(@numel,groups)>0);
+            
             
         end
         
