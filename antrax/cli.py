@@ -156,7 +156,7 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=Fa
     if hpc:
         for e in explist:
             hpc_options['movlist'] = movlist
-            antrax_hpc_job(e, 'pair_search', opts=hpc_options)
+            antrax_hpc_job(e, 'pair-search', opts=hpc_options)
     else:
 
         Q = MatlabQueue(nw=nw, mcr=mcr)
@@ -164,7 +164,7 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=Fa
         for e in explist:
             movlist1 = e.movlist if movlist is None else movlist
             for m in movlist1:
-                Q.put(('pair-search', e, m))
+                Q.put(('pair_search', e, m))
 
             # wait for tasks to complete
 
