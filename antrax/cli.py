@@ -226,16 +226,28 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
 
 
 def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight: to_float=None, multi_weight: to_float=None,
-          target_size: to_int=None, crop_size: to_int=None, hflip=False, hpc=False, hpc_options: parse_hpc_options={}):
+          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=False, hpc_options: parse_hpc_options={}):
+
+
+    classfile = join(classdir, name + '.h5')
+    examplesdir = join(classdir, 'examples')
+
+
+    if scratch or not isfile(classfile):
+
+        n = len(glob(examplesdir + '/*'))
+        if target_size is None:
+            f = glob(examplesdir + '/*/*.png')[0]
+            target_size = max(imread(f).shape)
+
+        c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size, hsymmetry=hsymmetry,
+                         unknown_weight=unknown_weight, multi_weight=multi_weight)
+
+        c.save(classfile)
 
 
     if hpc:
 
-        hpc_options['scratch'] = scratch
-        hpc_options['target_size'] = target_size
-        hpc_options['crop_size'] = crop_size
-        hpc_options['multi_weight'] = multi_weight
-        hpc_options['unknown_weight'] = unknown_weight
         hpc_options['name'] = name
         hpc_options['ne'] = ne
 
@@ -243,23 +255,11 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight: 
 
         return
 
-    classfile = join(classdir, name + '.h5')
-    examplesdir = join(classdir, 'examples')
-
-    if isfile(classfile):
-        c = axClassifier.load(classfile)
     else:
-        n = len(glob(examplesdir + '/*'))
-        if target_size is None:
-            f = glob(examplesdir + '/*/*.png')[0]
-            target_size = max(imread(f).shape)
 
-        c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size, unknown_weight=unknown_weight, multi_weight=multi_weight)
-
-    c.train(examplesdir, from_scratch=scratch, ne=ne, multi_weight=multi_weight, unknown_weight=unknown_weight,
-                target_size=target_size, crop_size=crop_size, hflip=hflip)
-
-    c.save(classfile)
+        c = axClassifier.load(classfile)
+        c.train(examplesdir, ne=ne)
+        c.save(classfile)
 
 
 def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options={},

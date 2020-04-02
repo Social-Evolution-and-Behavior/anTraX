@@ -65,6 +65,9 @@ class axClassifier:
         if 'crop_size' not in c.prmtrs:
             c.prmtrs['crop_size'] = None
 
+        if 'hsymmetry' not in c.prmtrs:
+            c.prmtrs['hsymmetry'] = True
+
         return c
 
     def __init__(self,
@@ -86,6 +89,7 @@ class axClassifier:
                  loaded=False,
                  model=None,
                  prmtrs=None,
+                 hsymmetry=False,
                  classes=None):
 
         if loaded:
@@ -112,6 +116,7 @@ class axClassifier:
             self.prmtrs['loss'] = loss
             self.prmtrs['optimizer'] = optimizer
             self.prmtrs['metrics'] = metrics
+            self.prmtrs['hsymmetry'] = hsymmetry
 
             self.reset_model()
             self.classes = None
@@ -386,7 +391,7 @@ class axClassifier:
                                       rotation_range=0,
                                       zoom_range=0,
                                       channel_shift_range=0,
-                                      horizontal_flip=True,
+                                      horizontal_flip=self.prmtrs['hsymmetry'],
                                       vertical_flip=True)
 
         FL = DG.flow_from_directory(examplesdir,
@@ -465,7 +470,7 @@ class axClassifier:
 
         return error
 
-    def train(self, examplesdir, from_scratch=False, ne=5, unknown_weight=None, multi_weight=None, verbose=1, target_size=None, crop_size=None, hflip=False):
+    def train(self, examplesdir, ne=5, verbose=1):
 
         if isinstance(examplesdir, list):
             rm_after = True
@@ -481,14 +486,22 @@ class axClassifier:
             print('-E- Class list in example dir does not match classifier. Use --from-scratch to train a new model')
             return
 
+        '''
         if (from_scratch or not self.trained) and target_size is not None:
             self.prmtrs['target_size'] = target_size
 
         if (from_scratch or not self.trained) and crop_size is not None:
             self.prmtrs['crop_size'] = crop_size
 
+        if (from_scratch or not self.trained) and hsymmetry is not None:
+            self.prmtrs['hsymmetry'] = hsymmetry
+
         if (not from_scratch and self.trained) and ((target_size is not None) or (crop_size is not None)):
             print('-E- Can not set target_size/crop_size for trained model. Use --from-scratch.')
+            return
+
+        if (not from_scratch and self.trained) and hsymmetry is not None:
+            print('-E- Can not set horizontal symmetry for trained model. Use --from-scratch.')
             return
 
         if from_scratch or not self.trained:
@@ -500,7 +513,7 @@ class axClassifier:
 
         if multi_weight is not None:
             self.prmtrs['multi_weight'] = multi_weight
-
+        '''
 
         # create data generators
         prepfun = None if self.prmtrs['scale'] == 1 else scale_and_crop
@@ -513,7 +526,7 @@ class axClassifier:
                                     zoom_range=0.1,
                                     brightness_range=(0.9, 1.1),
                                     channel_shift_range=0,
-                                    horizontal_flip=hflip,
+                                    horizontal_flip=self.prmtrs['hsymmetry'],
                                     vertical_flip=True)
 
         FL = DG.flow_from_directory(examplesdir,

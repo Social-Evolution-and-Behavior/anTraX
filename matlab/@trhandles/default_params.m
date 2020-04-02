@@ -5,6 +5,8 @@ prmtrs = struct('null',[]);
 
 
 prmtrs.tagged = false;
+prmtrs.tagging_type = 'individually-tagged';
+prmtrs.symmetric_tags = false;
 
 %% tracking run options
 
