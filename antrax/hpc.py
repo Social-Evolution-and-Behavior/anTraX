@@ -149,6 +149,17 @@ def antrax_hpc_job(ex, step, opts):
             ' --movlist $SLURM_ARRAY_TASK_ID' + \
             ' --mcr'
 
+    if step == 'pair-search':
+
+        opts['jobname'] = 'prs:' + ex.expname
+        opts['filename'] = 'pair_search'
+        opts['taskarray'] = movlist
+        opts['cpus'] = opts.get('cpus', 2)
+        opts['cmd'] = 'antrax pair-search ' + ex.expdir + \
+                  ' --session ' + ex.session + \
+                  ' --movlist $SLURM_ARRAY_TASK_ID' + \
+                  ' --mcr'
+
     elif step == 'post':
 
         opts['jobname'] = 'pst:' + ex.expname
