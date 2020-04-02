@@ -23,8 +23,8 @@ from .utils import *
 from .models import new_model
 
 
-AMBIG_CLASSES = ['Unknown', '??', 'MultiAnt','Multi','multi']
-MULTI_CLASSES = ['MultiAnt','Multi','multi']
+AMBIG_CLASSES = ['Unknown', '??', 'MultiAnt', 'Multi', 'multi']
+MULTI_CLASSES = ['MultiAnt', 'Multi', 'multi']
 NONANT_CLASSES = ['NoAnt', 'FOOD', 'Larva']
 
 

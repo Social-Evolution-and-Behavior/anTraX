@@ -225,7 +225,7 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
         Q.stop_workers()
 
 
-def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight: to_float=None, multi_weight: to_float=None,
+def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1,
           target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=False, hpc_options: parse_hpc_options={}):
 
 
