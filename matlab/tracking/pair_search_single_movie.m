@@ -25,6 +25,16 @@ G.node_fi = [G.trjs.fi];
 G.node_ff = [G.trjs.ff];
 G.node_noant = ismember({G.trjs.propID},G.Trck.labels.noant_labels);
 
+G.named_pairs = [];
+
 G.get_bottleneck_pairs(false);
+
+npairs = size(G.named_pairs,1);
+
+report('I',['Found ', num2str(npairs),' pairs'])
+
+report('I','Saving')
 G.save;
+report('G','Finished!')
+
 

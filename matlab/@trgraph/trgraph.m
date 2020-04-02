@@ -11,7 +11,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
         node_ff
         node_single
         node_noant
-        
+        named_pairs
         filesuffix = ''
         
     end
@@ -35,7 +35,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
         finalized
         E
         isopen
-        named_pairs
+        
         pairs_search_depth = 0
         
         datafile
@@ -387,17 +387,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 skip_pairs_search = false;
             end
             
-            if numel(G.movlist)>1
-                GS = G.split;
-                
-                parfor (g=1:length(GS), 6)
-                   
-                    get_bottleneck_pairs(G,skip_pairs_search);
-                    
-                end
-                
-            end
-            
+                  
             
             maxdepth=G.Trck.get_param('graph_pairs_maxdepth');
             
