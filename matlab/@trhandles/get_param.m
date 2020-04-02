@@ -41,7 +41,7 @@ switch pname
         
         %p = round(p0*(scale0/scale1)^2);
     case 'sqsz'
-        sqsz = 2.5*sqrt(Trck.get_param('thrsh_meanareamax'))/Trck.get_param('geometry_rscale');
+        sqsz = 2*sqrt(Trck.get_param('thrsh_meanareamax'))/Trck.get_param('geometry_rscale');
         p = 2*round(sqsz/2);
         
     case 'single_video_post_commands'

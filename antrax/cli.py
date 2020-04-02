@@ -226,7 +226,7 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
 
 
 def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight: to_float=None, multi_weight: to_float=None,
-          target_size: to_int=None, crop_size: to_int=None, hpc=False, hpc_options: parse_hpc_options={}):
+          target_size: to_int=None, crop_size: to_int=None, hflip=False, hpc=False, hpc_options: parse_hpc_options={}):
 
 
     if hpc:
@@ -257,7 +257,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight: 
         c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size, unknown_weight=unknown_weight, multi_weight=multi_weight)
 
     c.train(examplesdir, from_scratch=scratch, ne=ne, multi_weight=multi_weight, unknown_weight=unknown_weight,
-                target_size=target_size, crop_size=crop_size)
+                target_size=target_size, crop_size=crop_size, hflip=hflip)
 
     c.save(classfile)
 

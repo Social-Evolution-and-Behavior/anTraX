@@ -508,6 +508,30 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             frames = cat(1,frames{:});
             
         end
+        
+        function export_xy(Trck,varargin)
+            
+            for m = Trck.movlist
+                
+                if Trck.get_param('geometry_multi_colony')
+                    
+                    for c = 1:length(Trck.colony_labels)
+                        
+                        G = Trck.loaddata(m,c);
+                        export_xy(G,varargin);
+                        
+                    end
+                    
+                else
+                    
+                    G = Trck.loaddata(m);
+                    export_xy(G,varargin);
+                
+                end
+                
+            end
+            
+        end
              
         function [G,movlist] = loaddata(Trck,movlist,colony)
             

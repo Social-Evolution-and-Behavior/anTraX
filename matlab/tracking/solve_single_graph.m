@@ -82,7 +82,7 @@ G = Trck.loaddata(movlist,colony);
 solve(G);
 report('I','Extracting xy data')
 save(G);
-export_xy(G);
+export_xy(G,'interpolate',false);
 report('G','Done')
 
 

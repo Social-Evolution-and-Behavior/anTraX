@@ -465,7 +465,7 @@ class axClassifier:
 
         return error
 
-    def train(self, examplesdir, from_scratch=False, ne=5, unknown_weight=None, multi_weight=None, verbose=1, target_size=None, crop_size=None):
+    def train(self, examplesdir, from_scratch=False, ne=5, unknown_weight=None, multi_weight=None, verbose=1, target_size=None, crop_size=None, hflip=False):
 
         if isinstance(examplesdir, list):
             rm_after = True
@@ -513,7 +513,7 @@ class axClassifier:
                                     zoom_range=0.1,
                                     brightness_range=(0.9, 1.1),
                                     channel_shift_range=0,
-                                    horizontal_flip=True,
+                                    horizontal_flip=hflip,
                                     vertical_flip=True)
 
         FL = DG.flow_from_directory(examplesdir,
