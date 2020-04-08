@@ -1,8 +1,8 @@
 ![trails](images/trails.png)
 
-# **anTraX** -  tracking color tagged ants
+# **anTraX** -  tracking color tagged insects
 
-anTraX is a software for video tracking ants and other small animals thay are marked with a unique pattern of color dots. It was designed for behavioral experiment using the Clonal Raider Ant [*Ooceraea biroi*](https://en.m.wikipedia.org/wiki/Ooceraea_biroi), but can be used for any other model system. anTraX is a **brute force** type tracking algorithm, which was designed to handle high throuput long duration experiments (many colonies over many days). Therefore, it will require considerable computational resources. 
+anTraX is a software for video tracking ants and other small animals that are marked with a unique pattern of color dots. It was designed for behavioral experiment using the Clonal Raider Ant [*Ooceraea biroi*](https://en.m.wikipedia.org/wiki/Ooceraea_biroi), but can be used for any other model system. anTraX is a **brute force** type tracking algorithm, prioritizing accuracy over speed, therefore requiring considerable computational resources. . It was designed to handle high throuput long duration experiments (many colonies over many days), and benefits from running on computer clusters.
 
 The software was designed and written by Jonathan Saragosti and Asaf Gal of the [Laboratory of Social Evolution and Behavior](https://www.rockefeller.edu/research/2280-kronauer-laboratory/) in the Rockefeller University, and is distributed under the [GPLv3](https://github.com/Social-Evolution-and-Behavior/CATT/blob/master/LICENSE) licence.
 

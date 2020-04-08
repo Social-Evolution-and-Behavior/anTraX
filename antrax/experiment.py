@@ -3,14 +3,17 @@ import numpy as np
 from os.path import isfile, isdir, join, splitext
 import os
 from glob import glob
+import matplotlib.image as mpimg
 import json
 import pandas as pd
 from pymatreader import read_mat
 import csv
 import h5py
+import skvideo.io
 
 from .utils import *
 from .analysis_functions import *
+
 from .data import *
 
 class axExperiment:
@@ -159,12 +162,19 @@ class axExperiment:
     
     def movfile(self, m):
         
-        return vidfile(m)
+        return self.vidfile(m)
     
     def datfile(self, m):
         d = join(self.viddir, self.movies_info.subdir.values[self.movies_info['index']==m][0])
         f = join(d, self.movies_info.datfile.values[self.movies_info['index']==m][0])
         return f
+
+    def get_frame(self, m):
+
+        vidfile = self.vidfile(m)
+        frame = skvideo.io.vread(vidfile, num_frames=1)
+        return np.squeeze(frame)
+
     
     def get_dat(self, flds=None, movlist=None):
         
@@ -177,8 +187,6 @@ class axExperiment:
         dat = dat.rename(columns={'% framenum':'framenum'})
         dat = dat.set_index('framenum')
         return dat
-            
-         
 
     def get_prmtrs(self):
 
@@ -221,6 +229,14 @@ class axExperiment:
             del self.labels['nonant_labels']
 
         return self.labels
+
+    def get_bg(self):
+
+        bgfile = join(self.paramsdir, 'backgrounds/background.png')
+        bg = mpimg.imread(bgfile)
+
+        return bg
+
 
     def get_glist(self):
 

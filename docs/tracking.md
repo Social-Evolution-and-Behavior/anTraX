@@ -8,13 +8,13 @@ Once the session is configured, the next step will be to run the blob tracking o
 antrax track <experiments> [OPTIONS]
 ```
 
-The `experiments` argument can be either a full path to an experimental directory, a full path to a text file with a list of experimental directories (all of which will run in parallel), or a full path to a folder that contains one or more experimental directories (all of which will run in parallel).
+The `experiments` argument can be either a full path to an experimental directory, a full path to a text file with a list of experimental directories (all of which will run in parallel), or a full path to a folder that contains one or more experimental directories (all of which will run in parallel). Note that each of the experiments needs to be configures separately before running the batch job. 
 
 The track command accepts the following options:
 
 `--nw <number of workers>`
 
-anTraX will parallelize the traking by video. By default, it will use two MATLAB workers. Depending on your machine power, this can be changed by using this option. 
+anTraX will parallelize the tracking jobs by video. By default, it will use two MATLAB workers. Depending on your machine power, this can be changed by using this option. 
 
 `--movlist <list of movie indices>`
 
@@ -26,5 +26,5 @@ If your experiment contains more than one configured session, anTraX will run on
 
 ### Checking job progress
 
-Depending on the number and length of video files, tracking jobs can be very long. anTraX will print a report to terminal when a task (tracking of single video) starts/ends. Logs for each task can be found in the experimental directory, under `session/logs/`.
+Depending on the number and length of video files, tracking jobs can be very long. anTraX will print a report to terminal when a task (tracking of single video) starts/ends. Logs for each task can be found in the experimental directory, under `session/logs/`. Note that depending on your machine settings, the log file might not be updated in real time.
 

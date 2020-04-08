@@ -16,8 +16,9 @@ addParameter(p,'downsample',1,@isnumeric);
 addParameter(p,'linewidth',3,@isnumeric);
 addParameter(p,'mark_blobs',false,@islogical);
 addParameter(p,'tail',true,@islogical);
+addParameter(p,'dmax',[],@isnumeric);
 addParameter(p,'tail_length',5,@isnumeric);
-addParameter(p,'mask',true,@isnumeric);
+addParameter(p,'mask',true,@(x) isnumeric(x) || islogical(x));
 addParameter(p,'bgcorrect',true,@islogical);
 addParameter(p,'bgcorrect_mask',[],@isnumeric);
 addParameter(p,'text','',@ischar);
@@ -165,12 +166,16 @@ for f=fs
         
         taili = XY.(id)(i0:ix,1:2)/scale - repmat(bbox2(1:2),[ix-i0+1,1]);
         ok = ~isnan(taili(:,1));
+        
+        
+        
         [sqlen,~,sqstart,sqend] = divide2seq(ok,true);
         for k=1:length(sqstart)
             if sqlen(k)<2
                 continue
             end
            tailk=taili(sqstart(k):sqend(k),:); 
+                      
            tail{end+1} = reshape(tailk',1,[]);
            clrs(end+1,:) = colors(j,:);
         end
@@ -185,6 +190,8 @@ for f=fs
     frame = Trck.read_frame(f);
     if p.Results.markblobs
         detect_blobs(Trck);
+        ab = Trck.currfrm.antblob;
+        S = regionprops(ab.LABEL,Trck.currfrm.grayIm,'ConvexHull');
     end
     I = im2single(frame);
     
@@ -206,6 +213,15 @@ for f=fs
     end
     
     I0 = I;
+    
+    if p.Results.markblobs
+        ch = {};
+        for i=1:length(S)
+            ch{i} = reshape(S(i).ConvexHull',1,[]);
+        end
+        
+        I = insertShape(I,'Polygon',ch,'Color',[0.8,0.22,0.5],'LineWidth',4);
+    end
     
     
     % draw tails

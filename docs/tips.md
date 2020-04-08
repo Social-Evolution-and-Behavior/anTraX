@@ -1,4 +1,4 @@
-### Marking ants
+### Marking insects
 
 * Choose colors that are easily separated in RGB space. As a rule of thumb, colors that are easily separated by a human eye in the video will result in better tracking (surprise!). The color set Blue, Green, Orange, Pink and Yellow usually results in good accuracy.
 

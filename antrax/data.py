@@ -13,6 +13,7 @@ from .analysis_functions import *
 
 idx = pd.IndexSlice
 
+
 class axAntData:
     
     def __init__(self, ex, movlist=None, antlist=None, dlc=False, dlcproject=None):
@@ -44,7 +45,7 @@ class axAntData:
 
             # convert to dataframe
             dfs = []
-            for ant in antdata.keys():
+            for ant in self.antlist:
                 cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or')], names=['ant', 'feature'])
                 dfs.append(pd.DataFrame(antdata[ant], columns=cols))
             df = pd.concat(dfs, axis=1)
@@ -61,7 +62,7 @@ class axAntData:
         for ant in self.antlist:
             dx = self.data[ant]['x'].diff()
             dy = self.data[ant]['y'].diff()
-            self.data[(ant,'v')] = np.sqrt(dx**2 + dy**2)
+            self.data[(ant, 'v')] = np.sqrt(dx**2 + dy**2)
             
     def get_image(self, ant, f):
         
@@ -81,39 +82,36 @@ class axAntData:
 
         # return image
             
-    def set_nest(self, window=None, thresh = (0.5, 0.005)):
+    def set_nest(self, window=None, thresh=(0.5, 0.005)):
         
         idx = pd.IndexSlice
         
         # nest is defined as the median location of all ants (interpolate over missing values)
         
-        self.data[('nest','x')] = self.data.loc[:,idx[:,'x']].interpolate(limit_area='inside').median(axis=1)
-        self.data[('nest','y')] = self.data.loc[:,idx[:,'y']].interpolate(limit_area='inside').median(axis=1)
+        self.data[('nest', 'x')] = self.data.loc[:, idx[:, 'x']].interpolate(limit_area='inside').median(axis=1)
+        self.data[('nest', 'y')] = self.data.loc[:, idx[:, 'y']].interpolate(limit_area='inside').median(axis=1)
         
         # median smoothing for consistency
         
         if window is not None:
             
-            self.data[('nest','x')] = self.data[('nest','x')].rolling(window, center=True).median()
-            self.data[('nest','y')] = self.data[('nest','y')].rolling(window, center=True).median()
-        
-        
+            self.data[('nest', 'x')] = self.data[('nest', 'x')].rolling(window, center=True).median()
+            self.data[('nest', 'y')] = self.data[('nest', 'y')].rolling(window, center=True).median()
+
         for ant in self.antlist:
             dx = self.data[ant]['x'] - self.data['nest']['x']
             dy = self.data[ant]['y'] - self.data['nest']['y']
-            self.data[(ant,'dnest')] = np.sqrt(dx**2 + dy**2)
+            self.data[(ant, 'dnest')] = np.sqrt(dx**2 + dy**2)
             
         for ant in self.antlist:
-            self.data[(ant,'outside')] = self.data[(ant,'dnest')] > thresh[1]
+            self.data[(ant, 'outside')] = self.data[(ant, 'dnest')] > thresh[1]
             
-        self.data[('nest','valid')] =  self.data.loc[:,idx[:,'outside']].mean(axis=1) <= thresh[0]
+        self.data[('nest', 'valid')] = self.data.loc[:, idx[:, 'outside']].mean(axis=1) <= thresh[0]
         
     def set_on_edge(self, dthresh = 0.002):
         
         pass
-        
-        
-    
+
     def set_interacting(self, dthresh=0.002):
         
         idx = pd.IndexSlice
@@ -140,8 +138,7 @@ class axAntData:
         for ant in self.antlist:
                 
             self.data[(ant,'stop')] = v[ant] < vthresh
-            
-    
+
     def set_kinematics(self, dt=0.1):
         
         fps = self.ex.movies_info['fps'][0]
@@ -152,18 +149,15 @@ class axAntData:
             self.data[(ant,'curvature')] = df['curvature']
             self.data[(ant,'acceleration')] = df['a']
             self.data[(ant,'normal_acceleration')] = df['an']
-            
-    
+
     def set_trdata(self, fields=None):
         
         for m in self.movlist:
             
             trdata = read_mat(join(self.ex.trackletdir,'trdata_' + str(m) + '.mat')) 
-            
-            
+
     def set_dlc(self, dlcproject=None):
-        
-        
+
         if dlcproject is None:
             
             dlcproject = self.ex.get_dlc_project()
@@ -204,7 +198,6 @@ class axAntData:
                     self.data = self.data.combine_first(ant_dlcdata)
                     
         self.data = self.data.reindex(columns=sorted(self.data.columns))
-        
     
     def set_antpower(self, window=51):
         
@@ -265,6 +258,8 @@ class axAntData:
                 for ant in self.antlist:
 
                     self.data.loc[fi:ff, idx[ant, 'scores_' + b]] = scores[ant].values.copy()
+
+        self.data = self.data.reindex(columns=sorted(self.data.columns))
 
 
     

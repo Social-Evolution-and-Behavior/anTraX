@@ -2,7 +2,7 @@
 
 In this step we will classify each tracklet that was marked as possible single ant tracklet. Each of these tracklet will be assigned as either:
 
-* An ant ID from the list of possible IDs
+* An ID from the list of possible IDs
 * A non-ant tracklet, wither as a general category or a specific one if such exist in the classifier.
 * A multi ant tracklet
 * An ambigious tracklet ('Unknown') in case the classifier couldn't make a decision.  
@@ -37,7 +37,7 @@ antrax merge-trainset <source-classdir> <dest-classdir>
 
 This will merge all the examples from the source classifier directory (usually `expdir/session/classifier`) into the destination classifier directory. It is recommended to keep multi-experiment classifiers seperate from any specific experimental directory to avoid confusion.
 
-**Important:** the user is responsible for making sure the lists of  labels match when merging trainsets. Otherwise, problems might occur.
+**Important:** the user is responsible for making sure the lists of labels match when merging trainsets. Otherwise, problems might occur.
 
 ### Training the classifier
 
@@ -59,13 +59,38 @@ By default, anTraX will load a pretrained classifier if exists in the `classdir`
 
 Number of training epochs to run. Default is 5.
 
+`--hsymmetry`
+
+Use this flag if your tagging is symmetrical to horizontal flips (this is used in the dataset augmentation process). This option can be used either for a new classifier, or together with the `--scratch` options.
+
 `--target-size <size>`
 
-The side length (in pixels) of the input image to the classifier (anTraX always use square images for classification). This option will only take effect if a new classifier is trained. By default, the size will be that of the first image read from the trainset. All other images will be resized to the target-size. 
+The side length (in pixels) of the input image to the classifier (anTraX always use square images for classification). This option will only take effect if a new classifier is trained. By default, the size will be that of the first image read from the trainset. All other images will be resized to the target-size. This option can be used either for a new classifier, or together with the `--scratch` options.
 
 `--name <name>`
 
-Use a custom name for the classifier.
+Use a custom name for the classifier. 
+
+`--arch <arch-name>`
+
+If you want to use a non-default architecture for the CNN (see next section for options). Acceptable values are `small|large|wide|MobileNetV2|custom`. In case `custom` is chosen, you will need to also include the `modelfile` option. It is highly recommended to start with the default architecture, and explore different ones only for complex problems. This option can be used either for a new classifier, or together with the `--scratch` options.
+
+`--modelfile <jsonfile>`
+
+A path to a json file containing a CNN model [serialized by keras](https://www.tensorflow.org/guide/keras/save_and_serialize). Note that only the model architecture is loaded, not a trained model. The number of classes in the model must match the number of classes in your tracking problem. This option can be used only together with `--arch custom'.
+
+
+### anTraX-supplied CNN architectures
+
+anTraX defines a few possible CNN architectures. To see a complete specification of the architectures, look at the [models.py](https://github.com/Social-Evolution-and-Behavior/anTraX/blob/master/antrax/models.py) file in the anTraX repository.
+
+* **small**: This is the default architecture, which we have found to give the best tradeoff between accuracy, training time and number of examples needed. It has 3 convolutional layers.  
+
+* **wide**: Also a 3-layered model, but with wider layeres and hence slower to train.
+
+* **large**: A 4-layered model.
+
+* **MobileNetV2**: A pre-trained [MobileNetV2](https://arxiv.org/abs/1801.04381) model. 
 
 
 ### Classifying tracklets
@@ -83,7 +108,7 @@ The classify command accepts the following options:
 `--classifier <path-to-classifier file>`
 
 Explicit path to a classifier (`.h5` file created by the train process). By default, anTraX will use the classifier file that exist in the default location in the experimental directory `expdir/session/classifier/classifier.h5`. If it doesn't exist, an erorr will be raised.
- 
+
 `--movlist <list of movie indices>`
 
 By default, anTraX will track all movies in the experiment. This can be changed by using this option. Example for valid inputs incluse: `4`, `3,5,6`, `1-5,7`.

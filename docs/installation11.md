@@ -1,7 +1,7 @@
 
 ### Requirements
 
-anTraX works natively on machines running Linux or OSX operating system. It benefits significantly from a multicore system. It is recommended to have at least 2GB of RAM per used core, and a similar sized swap. Computational GPU will speedup the classification phase considerably. 
+anTraX works natively on machines running Linux or OSX operating system. It will benefit significantly from a multicore system. It is recommended to have at least 2GB of RAM per used core, and a similar sized swap. Computational GPU will speedup the classification phase considerably. 
 
 ### Python
 
@@ -9,9 +9,9 @@ anTraX requires Python version 3.6 or above. It is highly recommended to install
 
 ### MATLAB
 
-anTraX required MATLAB 2019a or above. If you have a licensed MATLAB installed on your machine, you are good to go. Otherwise, install the freely available [MATLAB Runtime](https://www.mathworks.com/products/compiler/matlab-runtime.html) for version 2019a.
+anTraX required MATLAB 2019a or above. If you have a licensed MATLAB installed on your machine, you are good to go. Otherwise, binaries compiled with MATLAB 2019a are also supplied. To run the binaries, install the freely available [MATLAB Runtime](https://www.mathworks.com/products/compiler/matlab-runtime.html) for version 2019a.
 
-### Other dependencies 
+### Other system dependencies 
 
 On Ubuntu:
 
@@ -51,7 +51,7 @@ If you are using a full MATLAB installation, add these lines to your `~/.bash_pr
 
 ```bash
 export ANTRAX_PATH=<full path to anTraX repository>
-export ANTRAX_USE_MCR=0
+export ANTRAX_USE_MCR=False
 ```
 
 Otherwise, if you are using MCR, add these lines:
@@ -59,7 +59,7 @@ Otherwise, if you are using MCR, add these lines:
 ```bash
 export ANTRAX_MCR=<full path to MCR installation>
 export ANTRAX_PATH=<full path to anTraX repository>
-export ANTRAX_USE_MCR=1
+export ANTRAX_USE_MCR=True
 ```
 
 For the changes to take effect, run:
@@ -68,6 +68,8 @@ source ~/.bash_profile
 ```
 
 ### Add anTraX to your MATLAB path
+
+anTraX can be used without oppening an interactive matlab session, by using the command line interface. This is the recommended way of running anTraX. However, it can also be run interactively within a MATLAB session, which is useful if you want to make code changes, or if you are a MATLAB user who would like to analyze tracking results with MATLAB.
 
 If you intend to use anTraX within an interactive MATLAB session (requires an active license), add the repository to your search path. In the MATLAB command line:
 

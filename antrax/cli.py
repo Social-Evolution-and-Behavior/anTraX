@@ -250,13 +250,12 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
         Q.stop_workers()
 
 
-def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1,
+def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, arch='small', modelfile=None,
           target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=False, hpc_options: parse_hpc_options={}):
 
 
     classfile = join(classdir, name + '.h5')
     examplesdir = join(classdir, 'examples')
-
 
     if scratch or not isfile(classfile):
 
@@ -266,7 +265,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
             target_size = max(imread(f).shape)
 
         c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size, hsymmetry=hsymmetry,
-                         unknown_weight=unknown_weight, multi_weight=multi_weight)
+                         unknown_weight=unknown_weight, multi_weight=multi_weight, modeltype=arch, json=modelfile)
 
         c.save(classfile)
 

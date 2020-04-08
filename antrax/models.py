@@ -32,9 +32,13 @@ def new_model(prmtrs):
 
         model = small(prmtrs['nclasses'], prmtrs['target_size'])
 
-    elif prmtrs['modeltype'] == 'medium':
+    elif prmtrs['modeltype'] == 'wide':
 
-        model = medium(prmtrs['nclasses'], prmtrs['target_size'])
+        model = wide(prmtrs['nclasses'], prmtrs['target_size'])
+
+    elif prmtrs['modeltype'] == 'large':
+
+        model = large(prmtrs['nclasses'], prmtrs['target_size'])
 
     else:
 
@@ -66,7 +70,7 @@ def MobileNetV2(nclasses, target_size):
     return model
 
 
-def medium(nClasses, target_size):
+def wide(nClasses, target_size):
 
     model = Sequential()
     model.add(Convolution2D(128, (3, 3), activation='relu', input_shape=(target_size, target_size, 3)))
@@ -98,6 +102,40 @@ def medium(nClasses, target_size):
 def small(nClasses, target_size):
 
     model = Sequential()
+    model.add(Convolution2D(64, (3, 3), activation='relu', input_shape=(target_size, target_size, 3)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.25))
+
+    # model.add(Convolution2D(64, (3, 3), activation='relu'))
+    model.add(Convolution2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.25))
+
+    # model.add(Convolution2D(64, (3, 3), activation='relu'))
+    model.add(Convolution2D(256, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.25))
+
+    model.add(Flatten())
+    model.add(BatchNormalization())
+    # model.add(Dense(64, activation='softmax'))
+    model.add(Dropout(0.25))
+    model.add(Dense(nClasses, activation='softmax'))
+
+    return model
+
+
+def large(nClasses, target_size):
+
+    model = Sequential()
+    model.add(Convolution2D(64, (3, 3), activation='relu', input_shape=(target_size, target_size, 3)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.25))
+
     model.add(Convolution2D(64, (3, 3), activation='relu', input_shape=(target_size, target_size, 3)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(BatchNormalization())

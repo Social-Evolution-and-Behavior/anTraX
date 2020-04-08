@@ -74,6 +74,7 @@ class axClassifier:
                  name,
                  nclasses,
                  modeltype='small',
+                 json=None,
                  loss='categorical_crossentropy',
                  optimizer='adam',
                  metrics=['accuracy'],
@@ -103,6 +104,7 @@ class axClassifier:
             self.prmtrs['name'] = name
             self.prmtrs['nclasses'] = nclasses
             self.prmtrs['modeltype'] = modeltype
+            self.prmtrs['json'] = json
             self.prmtrs['use_min_conf'] = use_min_conf
             self.prmtrs['consv_factor'] = consv_factor
             self.prmtrs['min_conf'] = 1 - 0.2 * consv_factor
@@ -229,7 +231,6 @@ class axClassifier:
             lab = max(y_txt, key=y_txt.count)
             return lab, 0, -1
 
-
         ant_cols = [lab in self.labels['ant_labels'] for lab in self.classes]
         ant_cols = [i for i, x in enumerate(ant_cols) if x]
 
@@ -276,7 +277,6 @@ class axClassifier:
 
         f = h5py.File(join(self.imagedir, imagefile), 'r')
 
-
         ntracklets = len(f)
 
         print('         ...' + str(ntracklets) + ' tracklets to classify in movie' )
@@ -292,10 +292,7 @@ class axClassifier:
             cnt += 1
 
             if report:
-                #print(cnt)
                 printProgressBar(cnt, ntracklets, prefix='Progress:', suffix='Complete', length=50)
-
-
 
             self.images = f[tracklet][()]
 
@@ -413,20 +410,12 @@ class axClassifier:
         a = [len(c) for c in classes]
         ordered_classes = [x for _, x in sorted(zip(a, classes))]
 
-        # c1 = [c for c in self.classes if c in self.labels['ant_labels']]
-        # c2 = [c for c in self.classes if c in self.labels['nonant_labels']]
-        # c3 = [c for c in self.classes if c in self.labels['other_labels']]
-
-        # ordered_classes = c1 + c2 + c3
-
         cm = confusion_matrix(correct_labels,
                               predict_labels,
                               labels=ordered_classes)
         cmdf = pd.DataFrame(cm,
                             columns=ordered_classes,
                             index=ordered_classes)
-
-        #cmdf.to_csv(os.path.join(self.modeldir, "conf_mat.csv"))
 
         report = classification_report(y, y_pred, target_names=classes)
 
@@ -436,38 +425,6 @@ class axClassifier:
         print(cmdf)
         print('Classification Report')
         print(report)
-
-        #with open(os.path.join(self.modeldir, "report.txt"), 'w') as f:
-        #    f.write("%s" % report)
-
-        # np.savetxt(os.path.join(self.modeldir, "conf_mat.txt"),cm, fmt='%5d',delimiter=" ")
-
-        # filenames = test_generator.filenames
-
-        # wrong_filenames = [fn for i,fn in enumerate(filenames) if y_pred[i]==y[i]]
-
-        # with open(os.path.join(self.modeldir, "wrong.txt"),'w') as f:
-        #     for item in wrong_filenames:
-        #         f.write("%s\n" % item)
-
-        # results = pd.DataFrame({"Filename": filenames,
-        #                         "Class":[self.classes[k] for k in y],
-        #                         "Prediction":[self.classes[k] for k in y_pred]})
-
-        # results.to_csv(os.path.join(self.modeldir, "results.csv"), index=False)
-
-        #fig = plt.figure()
-        #plt.matshow(cm)
-        #plt.title('Confusion matrix')
-        #plt.colorbar()
-        #plt.ylabel('True Label')
-        #plt.xlabel('Predicated Label')
-        #plt.savefig(os.path.join(self.modeldir, "conf_matrix.jpg"))
-
-
-
-        # score = self.model.evaluate_generator(FL, steps=5000)
-        # print('validation score  is ' + str(score))
 
         return error
 
@@ -486,35 +443,6 @@ class axClassifier:
 
             print('-E- Class list in example dir does not match classifier. Use --from-scratch to train a new model')
             return
-
-        '''
-        if (from_scratch or not self.trained) and target_size is not None:
-            self.prmtrs['target_size'] = target_size
-
-        if (from_scratch or not self.trained) and crop_size is not None:
-            self.prmtrs['crop_size'] = crop_size
-
-        if (from_scratch or not self.trained) and hsymmetry is not None:
-            self.prmtrs['hsymmetry'] = hsymmetry
-
-        if (not from_scratch and self.trained) and ((target_size is not None) or (crop_size is not None)):
-            print('-E- Can not set target_size/crop_size for trained model. Use --from-scratch.')
-            return
-
-        if (not from_scratch and self.trained) and hsymmetry is not None:
-            print('-E- Can not set horizontal symmetry for trained model. Use --from-scratch.')
-            return
-
-        if from_scratch or not self.trained:
-            print('User asked, starting training from scratch')
-            self.reset_model()
-
-        if unknown_weight is not None:
-            self.prmtrs['unknown_weight'] = unknown_weight
-
-        if multi_weight is not None:
-            self.prmtrs['multi_weight'] = multi_weight
-        '''
 
         # create data generators
         prepfun = None if self.prmtrs['scale'] == 1 else scale_and_crop
@@ -552,7 +480,6 @@ class axClassifier:
         if 'Multi' in classes:
             cw[FL.class_indices['Multi']] = self.prmtrs['multi_weight'] * cw[FL.class_indices['Multi']]
 
-
         # compile model
         self.compile_model()
 
@@ -570,6 +497,11 @@ class axClassifier:
         # cleanup
         if rm_after:
             shutil.rmtree(examplesdir)
+
+
+def crop_image():
+
+    pass
 
 
 def scale_and_crop(im, scale):

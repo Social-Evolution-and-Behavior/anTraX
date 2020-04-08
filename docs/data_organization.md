@@ -1,10 +1,10 @@
 ### The experiment directory
 
-The input and output of anTraX are organized in an  "experiment directory" (a.k.a. `expdir`). Under this directory, the program expect to find a subdirectory named `videos`, containing the input files. While running anTraX, a subdirectory for each tracking session will be created in the experimental directory, which will store the parameters and results for that session.
+The input and output of anTraX are organized in an  "experiment directory" (a.k.a. `expdir`). Under this directory, the program expect to find a subdirectory named `videos`, containing the input files. While running anTraX, a subdirectory for each tracking session will be created under the experimental directory and will store the parameters and results for that session.
 
 ### Video files
 
-The input files are a sequence of raw videos, of the same animal group, recorded sequentially and under the same conditions. anTraX can process any file format and video encoding readable by ffmpeg, however, all videos are expected to have the same file format, codec, frame size and framerate. Moreover, all videos must have the same base name, followed by a file index suffix seperated with a `_` character. 
+The input files are a sequence of raw videos, of the same animal group, recorded sequentially and under the same conditions. anTraX can process any [file format and video encoding readable by ffmpeg](http://www.ffmpeg.org/general.html#Supported-File-Formats_002c-Codecs-or-Features), however, all videos are expected to have the same file format, codec, frame size and framerate. Moreover, all videos must have the same base name, followed by a file index suffix seperated with a `_` character. 
 Optionally, for convinience, the videos can be organized into subdirectories. This can be a useful way to seperate  some meaningful partition of the experiment such as periods of consecutive recording, change in experimental conditions or feeding events, or just to partition a very long experiment.  The subdirectories should indicate the indexes of the videos stored in them. For example, subdirectory named "1_24" will contain videos 1 to 24.
 
 ![expdir structure](/images/expdir_structure.png "structure of the experimental directory")

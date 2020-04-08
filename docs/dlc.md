@@ -70,6 +70,10 @@ By default, anTraX will process all movies in the experiment. This can be change
 
 If your experiment contains more than one configured session, anTraX will run on the last configured one. Use this option to choose a session explicitly.
 
+`--hpc`
+
+Use this flag to run on a slurm computer cluster environemnt.
+
 ### Loading and analyzing postural data
 
 The DeepLabCut pose tracking results can be loaded using the anTraX python interface:

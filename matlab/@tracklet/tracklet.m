@@ -34,6 +34,9 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
         
         datachanged = false
         imageschanged = false
+        
+        injectID
+        injectScore
  
     end
     
@@ -1159,7 +1162,9 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
         end
         
         function id = get.propID(trj)
-            if ~isempty(trj.manualID)
+            if ~isempty(trj.injectID)
+                id = trj.injectID;
+            elseif ~isempty(trj.manualID)
                 id = trj.manualID;
             elseif ~isempty(trj.autoID)
                 id = trj.autoID;
@@ -1169,7 +1174,9 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
         end
         
         function sc = get.propScore(trj)
-            if ~isempty(trj.manualID)
+            if ~isempty(trj.injectID)
+                sc = trj.injectScore;
+            elseif ~isempty(trj.manualID)
                 sc = inf;
             elseif ~isempty(trj.autoID)
                 sc = trj.ID.score;

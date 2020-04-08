@@ -79,19 +79,24 @@ if G.Trck.get_param('graph_apply_manual_cfg') && exist([G.Trck.paramsdir,'prop.c
         end
         
         node = find(strcmp(tracklet,G.Nodes.Name));
-        idix = strcmp(cmd.id{i},G.usedIDs);
-        if ~any(idix)
-            continue
-            
-        end
         
         switch cmd.command{i}
             
             case 'assign'
+                idix = strcmp(cmd.value{i},G.usedIDs);
+                if ~any(idix)
+                    continue
+                end
                 assign(G,node,idix);
-                G.aux.cfg_src_nodes = [G.aux.cfg_src_nodes;node];
+                G.aux.cfg_src_nodes = unique([G.aux.cfg_src_nodes;node]);
             case 'eliminate'
+                idix = strcmp(cmd.value{i},G.usedIDs);
+                if ~any(idix)
+                    continue
+                end
                 eliminate(G,node,find(idix));
+            case 'single'
+                G.node_single(node) = strcmp(cmd.value{i},'1');
             otherwise
                 error('wrong command')
         end

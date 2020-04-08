@@ -102,7 +102,6 @@ def antrax_hpc_train_job(classdir, opts):
                   ' --name ' + opts['name'] + \
                   ' --ne ' + str(opts['ne'])
 
-
     if not opts.get('dry', False):
         jobfile = create_slurm_job_file(opts)
         jid = submit_slurm_job_file(jobfile)

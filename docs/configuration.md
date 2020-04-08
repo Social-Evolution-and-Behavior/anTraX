@@ -1,10 +1,10 @@
 ### What is a session?
 
-A tracking *session* is a run of the algorithm with a set of settings and parameters. In the typical case, you will only create one session per experiment. However, sometime it is usefull to play around with a different parameter set without overwriting existing results, or track different parts of the experiment with different parameters sets. In these cases, multiple sessions should be created. The session, together with its parameters ancd results, is stored as a subdirectory of the experimental directory and is named by the session identifier name.
+A tracking *session* is a run of the algorithm with a set of settings and parameters. In the typical case, you will only create one session per experiment. However, sometime it is usefull to play around with a different parameter set without overwriting existing results, or track different parts of the experiment with different parameter sets. In these cases, multiple sessions should be created. The session, together with its parameters and results, is stored as a subdirectory of the experimental directory and is named by the session identifier name.
 
 ### Launch the anTraX app
 
-To create and configure a tracking session, simply launch the anTraX app by entering the command into a bash terminal (don't forget to activate your virtual/conda environment if using one):
+To create and configure a tracking session, simply launch the anTraX app by entering the command into a bash terminal (don't forget to activate your virtual/conda environment if are using one):
 
 ```console
 antrax configure [expdir]
@@ -17,7 +17,7 @@ Any configuration changes are saved on-the-fly. When finished, just exit the app
 
 ### Create/load a tracking session
 
-If the experiment contains a previously  configured session, it will automatically load. Otherwise, you will be promped to create a new one. Once a session is loaded/created, the configuration workflow will appear as tabs in the application window.
+If the experiment contains a previously  configured session, it will automatically load. Otherwise, you will be prompted to create a new one. Once a session is loaded/created, the configuration workflow will appear as tabs in the application window (see images below).
 
 You can move between sessions, or create new ones, by using the options in the `Session` menu.
 
@@ -57,7 +57,7 @@ When done, enter the Length/Diameter of the feature om mm  in the box, and finis
 
 The ***ROI Mask*** is used to define the regions of the image in which tracking is performed. 
 
-To set a mask, start by either a white mask ("track everywhere") by pressing the ***Reset to White*** or a black mask ("track nowhere") by pressing the ***Reset to Black***. Then, add and remove regions by selecting a tool from the dropdown and drawing on the image. Adjust by dragging the anchor points. When don,e double click the tool. You can repeat this process untill the ROI is ready.
+To set a mask, start by either a white mask ("track everywhere") by pressing the ***Reset to White*** or a black mask ("track nowhere") by pressing the ***Reset to Black***. Then, add and remove regions by selecting a tool from the dropdown and drawing on the image. Adjust by dragging the anchor points. When done double click the tool. You can repeat this process untill the ROI is ready.
 
 The ROI mask is saved as png files in the directory: `expdir/session/parameters/masks/`.
 
@@ -104,9 +104,9 @@ The display of the segmented frame can be configured usng the checkboxes below t
 
 ![Image segmentation](images/segmentation.png)
 
-### Tune single ant size range
+### Tune single individual size range
 
-anTrax uses the size of individual ant for filtering possible single ant tracklets for classification, and also for calibrating the linking algorithm. The single ant size is defined by the possible size range, which is adjusted in the ***single ant*** tab. For tunning these range parameters, the blobs detected in the displayed frames are marked with green outlines if they are in the single ant range, with red if they are larger, and with pink if they are smaller. It is recommended to scan a decent number of frames throughout the experiment to look for neear-threshold cases. Note that the range doesnt need to perfectly classify blobs, but to capture the possible size range for single ants.
+anTrax uses the size of individual ant for filtering possible single ant tracklets for classification, and also for calibrating the linking algorithm. The single ant size is defined by the possible size range, which is adjusted in the ***single ant*** tab. For tunning these range parameters, the blobs detected in the displayed frames are marked with green outlines if they are in the single ant range, with red if they are larger, and with pink if they are smaller. It is recommended to scan a decent number of frames throughout the experiment to look for neear-threshold cases. Note that the range doesn't need to perfectly classify blobs, but to capture the possible size range for single ants. If your experiment contains individuals with variable size, choose the range to capture all the individuals, even at the 'price' of classifying some multi-animal blobs as single-animal.
 
 ![Single ant size range](images/single_ants.png)
 
@@ -139,7 +139,7 @@ The list of labels must match the the one the classifier is trained with (read m
 
 If your experiment is a multi colony one, it is assumed the ID list is the same for all colonies in the experiment. If it is not the case, give a list that include all possible IDs, and adjust it using a config file as described [below](configuration.md#modifying-the-id-list-using-config-file).
 
-The label list is defined by the file `expdir/session/parameters/labels.csv`. Each row in the file contains two entries. The first is the label ID, and the second is the category. Three categories exist: ant_labels, noant_labels, and other_labels. The list must include the label 'Unknown' in the other_labels category. 
+The label list is defined by the file `expdir/session/parameters/labels.csv`. Each row in the file contains two entries. The first is the label ID, and the second is the category. Three categories exist: ant_labels, noant_labels, and other_labels. The list must include the label 'Unknown' in the 'other_labels' category. If the animal size variability in the experiment is considerable, and many multi-individual blobs are classified as single-animal (see discussion [above](configuration.md#tune-single-individual-size-range).), it is recommended to include also a 'Multi' class in the 'other_labels' category.  
 
 ![Labels file](images/labels.png)
 
@@ -153,7 +153,7 @@ Propation is done in parallel on movie groups. You can select how movies are gro
 
 The groups are enumerated by sequence of integers from 1 to the number of groups. This enumeration is used in the [batch run](propagation.md#propagating-ids-on-tracklet-graphs) to identify the group.
 
-The **Pairs search depth** parameter controls the graph radius over which the algorithm search for topological propagation opportunities (see the [anTraX paper]). High number might give better results, but will also slow down the algorithm. A value between 5-10 usually gives the best tradeoff.
+The **Pairs search depth** parameter controls the graph radius over which the algorithm search for topological propagation opportunities (see the [anTraX paper]). High number might give better results, but will overhead the algorithm. A value between 5-10 usually gives the best tradeoff.
 
 The **Max iteration** parameter imposes a limit on the number of total iterations the propagation algorithms performs. In most cases, the algorith, converges after a few iterations. For the rare cases where it does not, a value of 10 usually represent a good tradeoff.
 

@@ -166,7 +166,7 @@ if Trck.get_param('tracking_classifyaftertracking')
     classify_batch(Trck,'NumWorkers',2,'movlist',m,'path_to_antrax',path_to_antrax);
 end
 
-G.get_bottleneck_pairs;
+Trck.G.get_bottleneck_pairs;
 
 post_commands = Trck.get_param('single_video_post_commands');
 

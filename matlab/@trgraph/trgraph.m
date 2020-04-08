@@ -24,7 +24,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
         NIDs
         pairs
         safe_prop_mode = true
-        NumWorkers 
+        NumWorkers
     end
     
     properties (SetAccess = ?tracklet)
@@ -39,7 +39,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
         pairs_search_depth = 0
         
         datafile
-        imagesfile 
+        imagesfile
         
     end
     
@@ -148,7 +148,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
         function [passed,singles] = get_singles(G,criteria)
             
             if nargin<2
-                criteria = {'minarea','maxarea','OneLink','label'};
+                criteria = {'minarea','maxarea','OneLink','label','cfg'};
             end
             
             if isempty(G.trjs)
@@ -156,7 +156,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 return
             end
             
-                     
+            
             if ~iscell(criteria)
                 criteria={criteria};
             end
@@ -181,8 +181,43 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 passed = passed & (nchildren<=1) & (nparents<=1);
             end
             
-            if ismember('multi',criteria)
-                passed = passed & ~ismember(aids,{'multi','Multi','MultiAnt'});
+            if ismember('label',criteria)
+                passed = passed & ~tocol(ismember(aids,{'multi','Multi','MultiAnt'}));
+            end
+            
+            if ismember('cfg',criteria)
+                
+                cmd = parse_prop_config(G.Trck,'command','single');
+                cmd.node = tocol(G.nodes_from_trjs(cmd.tracklet));
+                cmd = cmd(cmd.node>0,:);
+                
+                if ~isempty(cmd)
+                    
+                    
+                    
+                    idx=[];
+                    for i=1:size(cmd,1)
+                        
+                        if ~ismember(cmd.node(i), cmd.node(1:i-1))
+                            idx = [idx,i];
+                        end
+                        
+                    end
+                    
+                    cmd = cmd(idx,:);
+                    
+                    manual_single_nodes = cmd.node(strcmp(cmd.value,'1'),:);
+                    manual_multi_nodes = cmd.node(strcmp(cmd.value,'0'),:);
+                    
+                    if ~isempty(manual_single_nodes)
+                        passed(manual_single_nodes) = true;
+                    end
+                    if ~isempty(manual_multi_nodes)
+                        passed(manual_multi_nodes) = false;
+                    end
+                    
+                end
+                
             end
             
             singles = G.trjs(passed);
@@ -207,7 +242,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
             if G.Trck.get_param('tracking_saveimages') && G.Trck.get_param('tagged')
                 passed = G.aux.frame_passed;
                 score = G.aux.frame_score;
-            
+                
                 save([G.Trck.imagedir,'frame_passed_',num2str(G.movlist),G.filesuffix,'.mat'],'-struct','passed','-v7.3');
                 save([G.Trck.imagedir,'frame_score_',num2str(G.movlist),G.filesuffix,'.mat'],'-struct','score','-v7.3');
             end
@@ -286,17 +321,17 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 dmin = G.Trck.get_param('graph_dmin');
                 
                 ccfi = cellfun(@(x) min(G.node_fi(x)),cc);
-                               
+                
                 sortix = argsort(ccfi);
                 
                 cc = cc(sortix);
                 
                 ccfi = ccfi(sortix);
                 ccff = ccff(sortix);
-
+                
                 nodei = cellfun(@(x) x(argmin(G.node_fi(x))),cc);
                 nodef = cellfun(@(x) x(argmax(G.node_ff(x))),cc);
-                                
+                
                 d  = sqrt(sum((cat(1,G.trjs(nodef(1:end-1)).xyf) - cat(1,G.trjs(nodei(2:end)).xyi)).^2,2));
                 dt =  ccfi(2:end)-ccff(1:end-1);
                 v = d./dt;
@@ -304,7 +339,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 bad = find(v>vmax);
                 
                 for j=1:length(bad)
-                   
+                    
                     
                     
                 end
@@ -320,7 +355,16 @@ classdef trgraph < handle & matlab.mixin.SetGet
         
         function nodes = nodes_from_trjs(G,trjs2look)
             % this method returns the node index of trjs
-            nodes = findnode(G.G,{trjs2look.name});
+            if isa(trjs2look,'tracklet')
+                names = {trjs2look.name};
+            elseif iscell(trjs2look)
+                names = trjs2look;
+            elseif ischar(trjs2look)
+                names = {trjs2look};
+            end
+            
+            
+            nodes = findnode(G.G,names);
             
         end
         
@@ -350,15 +394,15 @@ classdef trgraph < handle & matlab.mixin.SetGet
         end
         
         function d = node_dist(G,nodes1,nodes2)
-           % return the ninimu, distance in frames between all nodes in
-           % group1 and all nodes in group2
-           
-           fi1 = G.node_fi(nodes1);
-           ff1 = G.node_ff(nodes1);
-           fi2 = G.node_fi(nodes2);
-           ff2 = G.node_ff(nodes2);
-           
-           
+            % return the ninimu, distance in frames between all nodes in
+            % group1 and all nodes in group2
+            
+            fi1 = G.node_fi(nodes1);
+            ff1 = G.node_ff(nodes1);
+            fi2 = G.node_fi(nodes2);
+            ff2 = G.node_ff(nodes2);
+            
+            
             for i=1:length(nodes1)
                 for j=1:length(nodes2)
                     if i==j
@@ -372,7 +416,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                     else
                         d(i,j)=0;
                     end
-    
+                    
                 end
             end
             
@@ -387,7 +431,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 skip_pairs_search = false;
             end
             
-                  
+            
             
             maxdepth=G.Trck.get_param('graph_pairs_maxdepth');
             
@@ -416,7 +460,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
             
             report('I','done distance mat');
             sset = find(din>1 & ~ignore);
-                      
+            
             
             for six=1:length(sset)%,G.NumWorkers)
                 
@@ -429,12 +473,12 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 
                 %des = nearest(G.G,s,maxdepth,'Method','unweighted');
                 %des = descendents(G.G,s,maxdepth);
-                                
+                
                 for tix=1:length(des)
                     t=des(tix);
                     tt = overlapping(G,t);
                     sp = double(full(D(s,t)));
-
+                    
                     if sp==1
                         ispair = dout(s)==1 && din(t)==1;
                     else
@@ -445,7 +489,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                         ispair = all(noway1) && all(noway2) && ispair;
                     end
                     
-
+                    
                     if ispair
                         pairs{six}(end+1,:) = [s,t,sp];
                         continue
@@ -675,9 +719,9 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 GS(i).G = subgraph(G.G,ix);
                 GS(i).E = G.E(:,ix);
                 if ~isempty(G.assigned_ids)
-                GS(i).assigned_ids = G.assigned_ids(ix,:);
-                GS(i).possible_ids = G.possible_ids(ix,:);
-                GS(i).finalized = G.finalized(ix,:);
+                    GS(i).assigned_ids = G.assigned_ids(ix,:);
+                    GS(i).possible_ids = G.possible_ids(ix,:);
+                    GS(i).finalized = G.finalized(ix,:);
                 end
                 GS(i).isopen = false;
                 GS(i).named_pairs = G.named_pairs;
@@ -700,7 +744,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 GS = G;
                 return
             end
-                        
+            
             clist = [G.trjs.colony];
             cs = sort(unique(clist));
             if length(cs)==1
@@ -732,27 +776,27 @@ classdef trgraph < handle & matlab.mixin.SetGet
         
         function XY = loadxy(G)
             
-           fnames = G.xyfile;
-           
-           if ischar(fnames)
-               XY = load(fnames);
-               return
-           end
-           
-           for i=1:length(fnames)
-               xy(i) = load(fnames{i});
-           end
-           
-           XY = struct;
-           
-           for i=1:G.NIDs
-               XY(1).(G.usedIDs{i}) = cat(1,xy.(G.usedIDs{i}));
-           end
+            fnames = G.xyfile;
+            
+            if ischar(fnames)
+                XY = load(fnames);
+                return
+            end
+            
+            for i=1:length(fnames)
+                xy(i) = load(fnames{i});
+            end
+            
+            XY = struct;
+            
+            for i=1:G.NIDs
+                XY(1).(G.usedIDs{i}) = cat(1,xy.(G.usedIDs{i}));
+            end
             
             
         end
         
-        h = plot(G,ti,tf);
+        h = plot(G,varargin);
         
     end
     
@@ -782,7 +826,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
             end
             
             if isempty(colony)
-                gdir = Trck.graphdir;   
+                gdir = Trck.graphdir;
             else
                 gdir = [Trck.graphdir,colony,filesep];
             end
@@ -798,10 +842,10 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 end
                 
                 if splitted
-                
+                    
                     GS = trgraph.load_splitted(Trck,m,colony,part);
                     return
-    
+                    
                 end
                 
                 fname = [gdir,'graph_',num2str(m),'_',num2str(m),'.mat'];
@@ -811,7 +855,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 
                 [p,f,e] = fileparts(fname);
                 trjs_file = [p,filesep,f,'_trjs',e];
-
+                
                 if isempty(G.trjs) && exist(trjs_file,'file')
                     load(trjs_file,'trjs');
                     G.trjs=trjs;
@@ -822,7 +866,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 set(G.trjs,'G',G);
                 G.G.Nodes.trj = tocol(G.trjs);
                 
-                if isempty(G.E)    
+                if isempty(G.E)
                     G.trjs.set_exist;
                     G.E = cat(2,G.trjs(:).exist);
                 end
@@ -839,9 +883,9 @@ classdef trgraph < handle & matlab.mixin.SetGet
         end
         
         function GS = load_splitted(Trck,m,colony,part)
-                        
+            
             if isempty(colony)
-                gdir = Trck.graphdir;   
+                gdir = Trck.graphdir;
             else
                 gdir = [Trck.graphdir,colony,filesep];
             end
@@ -860,7 +904,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 p = part;
                 a = {['graph_',num2str(m),'_',num2str(m),'_p',num2str(part),'.mat']};
             end
-               
+            
             
             % load
             for i=1:length(p)
@@ -871,7 +915,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 
                 [p,f,e] = fileparts(fname);
                 trjs_file = [p,filesep,f,'_trjs',e];
-
+                
                 if isempty(G.trjs) && exist(trjs_file,'file')
                     load(trjs_file,'trjs');
                     G.trjs=trjs;
@@ -880,7 +924,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 end
                 set(G.trjs,'Trck',G.Trck);
                 
-                if isempty(G.E)    
+                if isempty(G.E)
                     G.trjs.set_exist;
                     G.E = cat(2,G.trjs(:).exist);
                 end

@@ -5,18 +5,18 @@ repo_url: https://github.com/Social-Evolution-and-Behavior/anTraX/
 nav:
 - Home: index.md
 - Installation: installation11.md
-- Datasets: datasets.md
-- Preparing data for tracking: data_organization.md
+- Preparing data for anTraX: data_organization.md
 - Configuring a tracking session: configuration.md
 - Run the tracking: tracking.md
 - Classifying tracklets: classification.md
 - Graph propagation: propagation.md
 - Validating the tracking results: validation.md
-- Analyzing tracking results: analysis.md
 - Using DeepLabCut to pose-track individuals: dlc.md
 - Using JAABA for behavioral classification: jaaba.md
+- Working with tracking results (python): analysis_nb.ipynb
 - Using anTraX on HPC environment: hpc.md
 - Tips and best practices: tips.md
+- Benchmark datasets: datasets.md
 - Release notes: release.md
 theme: readthedocs
 markdown_extensions:
@@ -30,3 +30,4 @@ markdown_extensions:
         permalink: false
 plugins:
     - search
+    - mkdocs-jupyter
