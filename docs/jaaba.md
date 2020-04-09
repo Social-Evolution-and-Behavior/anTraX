@@ -1,7 +1,7 @@
 
 ### The anTraX/JAABA workflow
 
-* Track an experiment using anTraX.
+* Track an experiment using anTraX. 
 * Write tracks and perfume data in JAABA-readable format.
 * Train a classifier using the JAABA interface
 * Classify the entire dataset using either the JAABA interface or anTraX interface.
