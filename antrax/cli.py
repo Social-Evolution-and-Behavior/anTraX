@@ -339,19 +339,59 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
-def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' '):
-
+def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False, hpc_options: parse_hpc_options=' '):
 
     explist = parse_explist(explist, session)
 
-    for e in explist:
-        if hpc:
+    if hpc:
+
+        for e in explist:
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'export_jaaba', opts=hpc_options)
-        else:
-            pass
+    else:
+
+        Q = MatlabQueue(nw=nw, mcr=mcr)
+
+        for e in explist:
+            movlist1 = e.movlist if movlist is None else movlist
+            for m in movlist1:
+                Q.put(('export_jaaba', e, m))
+
+        # wait for tasks to complete
+        Q.join()
+
+        # close
+        Q.stop_workers()
 
 
+def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=None, mcr=False, hpc=False, hpc_options: parse_hpc_options=' '):
+
+    explist = parse_explist(explist, session)
+
+    if jab is None:
+        print('E', 'jab file must be given as argument')
+        return
+
+    if hpc:
+
+        for e in explist:
+            hpc_options['movlist'] = movlist
+            hpc_options['jab'] = jab
+            antrax_hpc_job(e, 'export_jaaba', opts=hpc_options)
+    else:
+
+        Q = MatlabQueue(nw=nw, mcr=mcr)
+
+        for e in explist:
+            movlist1 = e.movlist if movlist is None else movlist
+            for m in movlist1:
+                Q.put(('run_jaaba', e, m, jab))
+
+        # wait for tasks to complete
+        Q.join()
+
+        # close
+        Q.stop_workers()
 
 
 def main():
@@ -363,6 +403,7 @@ def main():
         'graph-explorer': graph_explorer,
         'export-dlc-trainset': export_dlc,
         'export-jaaba': export_jaaba,
+        'run-jaaba': run_jaaba,
         'validate': validate,
         'track': track,
         'train': train,

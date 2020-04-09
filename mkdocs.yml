@@ -14,6 +14,7 @@ nav:
 - Using DeepLabCut to pose-track individuals: dlc.md
 - Using JAABA for behavioral classification: jaaba.md
 - Working with tracking results (python): analysis_nb.ipynb
+- Working with tracking results (matlab): analysis_matlab.ipynb
 - Using anTraX on HPC environment: hpc.md
 - Tips and best practices: tips.md
 - Benchmark datasets: datasets.md

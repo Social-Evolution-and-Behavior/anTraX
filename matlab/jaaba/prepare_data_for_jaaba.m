@@ -2,14 +2,25 @@ function prepare_data_for_jaaba(Trck,varargin)
 
 p = inputParser;
 
-addRequired(p,'Trck',@(x) isa(x,'trhandles'));
-addParameter(p,'movlist',Trck.movlist,@isnumeric);
+addRequired(p,'Trck',@(x) isa(x,'trhandles')||isfolder(x));
+addParameter(p,'trackingdirname',[],@ischar);
+addParameter(p,'movlist',[]);
 addParameter(p,'movie',true, @islogical);
-addParameter(p,'nw',1,@isnumeric);
-
 
 parse(p,Trck,varargin{:});
 
+if ischar(Trck) 
+    Trck = trhandles(Trck,p.Results.trackingdirname);
+end
+
+movlist = p.Results.movlist;
+if isempty(movlist)
+    movlist = Trck.movlist;
+elseif ischar(movlist)
+    movlist = str2num(movlist);
+end
+    
+    
 
 % create an empty JLabelData object 
 clear JLD
@@ -27,7 +38,6 @@ JLD.newJabFile(macguf);
 
 jaabadir = [Trck.trackingdir,'jaaba',filesep];
 expname = Trck.expname;
-movlist = p.Results.movlist;
 
 for i=1:length(movlist)
     
@@ -39,8 +49,8 @@ for i=1:length(movlist)
     end
     mkdirp([mjdir,filesep,'perframe']);
     % compute JAABA-defined perframe features
-    export_jaaba(p.Results.Trck,'movlist',m,'by','ant','movie',p.Results.movie);
-    compute_features_for_jaaba(p.Results.Trck,m);
+    export_jaaba(Trck,'movlist',m,'by','ant','movie',p.Results.movie);
+    compute_features_for_jaaba(Trck,m);
     JLD.AddExpDir(mjdir);
    
 end

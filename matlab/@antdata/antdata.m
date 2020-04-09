@@ -1,89 +1,75 @@
-classdef antdata 
+classdef antdata < handle
     
     
     properties
         
+        Trck trhandles
         expname
-        ids
+        antlist
+        movlist
         data table
         
     end
     
+    properties (Transient)
+        
+    end
     
-
+    
     methods
         
-        function ad = antdata(varargin)
+        function ad = antdata(Trck, varargin)
             
             p = inputParser;
             
-            addParameter(p,'ids',{},@iscell);
-            addParameter(p,'frames',[],@isnumeric);
-            addParameter(p,'fields',{'x','y','or','tracklet','type'},@iscell);
-            addParameter(p,'dbfile',[],@ischar);
+            addParameter(p,'antlist',Trck.usedIDs,@iscell);
+            addParameter(p,'movlist',Trck.movlist,@isnumeric);
             parse(p,varargin{:});
             
+            ad.expname = Trck.expname;
+            ad.antlist = p.Results.antlist;
+            ad.movlist = p.Results.movlist;
             
-            ad.ids = p.Results.ids;
+            ad.Trck = Trck;
             
-%             ad.data = table([],'VariableNames',{'frame'});
-%             
-%             % create the data table
-%             for i=1:length(ad.ids)
-%                 
-%                 T = table;
-%                 for j=1:length(p.Results.fields)
-%                     T.(p.Results.fields{j})=zeros(0);
-%                 end
-%                 
-%                 ad.data.(ad.ids{i}) = T;
-%             end
+            ad.load();
+            
+            
+        end
+        
+        function load(ad)
+            
+            ad.data = table;
+ 
+            for m=ad.movlist
+                
+                mdata = table;
+                
+                XY = ad.Trck.loadxy('movlist', m);
+                
+                mdata.f = tocol(ad.Trck.er.movies_info(m).fi:ad.Trck.er.movies_info(m).ff);
+                
+                for i=1:numel(ad.antlist)
+                    
+                    ant = ad.antlist{i};
+                    
+                    ant_data = table;
+                    ant_data.x = XY.(ant)(:,1);
+                    ant_data.y = XY.(ant)(:,2);
+                    ant_data.or = XY.(ant)(:,3);
+                                        
+                    mdata.(ant) = ant_data;
+                end
+                
+                ad.data = cat(1,ad.data, mdata);
+                
+            end
+            
             
         end
         
         
-        function add_ant(ad, id)
-           
-          
-            
-        end
-        
-%         
-%         function save(ad, filename)
-%             
-%             data = ad.data;
-%             ids = ad.ids;
-%             fields = ad.data.(ad.data.Properties.VariableNames{2}).Properties.VariableNames;
-%             
-%             wsize=65;
-%             
-%             for i=1:length(ids)
-%                 
-%                 for j=1:length(fields)
-%                     
-%                     
-%                     h5create(filename,'/
-%                     
-%                 end
-%                 
-%                 
-%             end
-%             
-%             
-%             h5create(db,'/data',[Inf wsize wsize 3],
-%             'ChunkSize',[1 wsize wsize 3],'Datatype','single', 'Deflate',9 ,'Shuffle',true);
-%             
-%             h5create(db,'/label',[Inf 1],
-%             'ChunkSize',[1 1],'Datatype','single', 'Deflate',9 ,'Shuffle',true);
-%             
-%             h5create(db,'/mean',[65 65 3]);
-%             
-%             
-%             save(filename,'data','ids','fields');
-%             
-%         end
-        
-        
+       
         
     end
     

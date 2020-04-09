@@ -21,8 +21,14 @@ Copy antrax configuration files into the JAABA directory:
 cp $ANTRAX_PATH/matlab/jaaba/*.xml $ANTRAX_JAABA_PATH/perframe/params/
 ```
 
-### Write tracks and perframe data for JAABA
+Add this variable to your bash profile file:
 
+```bash
+export ANTRAX_JAAB_PATH=<full path to JAABA repository>
+```
+Don't forget to source!
+
+### Write tracks and perframe data for JAABA
 
 
 ```console
@@ -45,6 +51,7 @@ By default, all movies will be processed, which might take some time. Change thi
 
 If your experiment contains more than one configured session, anTraX will run on the last configured one. Use this option to choose a session explicitly.
 
+*** Note: *** The `export-jaaba` ccommand does not currently support the `--mcr` or the `--hpc` options.
 
 ### The JAABA directory structure
 
@@ -55,8 +62,28 @@ anTraX will create a directory called `jaaba` under the session directory. In th
 
 ### anTraX-specific perframe features
 
+In addition to JAABA's list of perframe features (see the [JAABA original publication](https://www.nature.com/articles/nmeth.2281), supplementary material section 13  for full details), anTraX will also include an additional set of features:
 
-
+* *antrax_blob_area*: The real blob area as reported by the segmentation algorithm. 
+* *antrax_dblob_area*: The derivative of the real blob area.
+* *antrax_dist_to_wall*: Distance to closest point on the ROI perimeter.
+* *antrax_angle_to_wall*: Angle between blob orientation and ROI perimenter.
+* *antrax_ddist_to_wall*: Derivative of the distance from ROI perimeter.
+* *antrax_dangle_to_wall*: Derivative of the angle between blob orientation and ROI perimenter.
+* *antrax_dist_to_center*: Distance to the arena's center (defined as the ROI center of mass).
+* *antrax_angle_to_center*: Angle between blob orientation and thee arena's center.
+* *antrax_ddist_to_center*: Derivative of the distance to center.
+* *antrax_dangle_to_center*: Derivative of the angle to the arena's center.
+* *antrax_dist_to_openwall*: Distance to closest open point in the ROI perimeter (NaN if ROI is fully closed).
+* *antrax_angle_to_openwall*: Angle between blob orientation to closest open point in the ROI perimeter (NaN if ROI is fully closed).
+*antrax_ddist_to_openwall*: Derivative of the distance to closest open point in the ROI perimeter (NaN if ROI is fully closed).
+* *antrax_dangle_to_openwall*: Derivative of the angle between blob orientation to closest open point in the ROI perimeter (NaN if ROI is fully closed).
+* *antrax_dist_to_median*: Distance between the animal's centroid to the median location of all other animals.
+* *antrax_angle_to_median*: Angle between the blob orientation and the median location of all other animals.
+* *antrax_ddist_to_median*: Derivative of the distance between the animal's centroid to the median location of all other animals.
+* *antrax_dangle_to_median*: Derivative of the angle between the blob orientation and the median location of all other animals.
+* *antrax_nants_in_blob*: The number of individual animals in the blob.
+* *antrax_frac_in_blob*: The normalized number of individual animals in the blob. 
 
 ### Training a classifier
 
@@ -85,7 +112,7 @@ By default, all movies will be processed, which might take some time. Change thi
 
 If your experiment contains more than one configured session, anTraX will run on the last configured one. Use this option to choose a session explicitly.
 
-*** Note: *** The `run-jaaba` ccommand does not currently support the `--hpc` option to run on a computer cluster.
+*** Note: *** The `run-jaaba` ccommand does not currently support the `--mcr` or the `--hpc` options.
 
 ### Loading and analyzing JAABA scores
 

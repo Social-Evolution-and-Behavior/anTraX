@@ -72,13 +72,15 @@ class axAntData:
         if not cond.sum() == 1:
             return None
         row = ant_tracklet_table[cond]
-        if not row['single']:
+        if not row['single'].values[0]:
             return None
         
         # load tracklet images
-        images = self.ex.get_image(movlist=row['m'],tracklets=row.index.tolist())
+        tracklet = row.index.tolist()[0]
+        images = self.ex.get_images(movlist=row['m'], tracklets=[tracklet])[tracklet]
         ix = f - row['from']
-        return images[ix]
+        im = np.squeeze(images[ix])
+        return im
 
         # return image
             

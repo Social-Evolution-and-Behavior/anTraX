@@ -18,6 +18,7 @@ HOME = os.getenv("HOME")
 
 ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR') == 'True'
 ANTRAX_PATH = os.getenv('ANTRAX_PATH')
+JAABA_PATH = os.getenv('ANTRAX_JAABA_PATH')
 ANTRAX_BIN_PATH = ANTRAX_PATH + '/bin/'
 
 PLATFORM = sys.platform
@@ -152,6 +153,78 @@ def track_single_movie(ex, m, mcr=ANTRAX_USE_MCR):
         eng.quit()
 
     report('I', 'Finished tracking of movie ' + str(m) + ' in ' + ex.expname)
+
+
+def export_jaaba(ex, m, mcr=ANTRAX_USE_MCR):
+
+    report('I', 'Start export of movie ' + str(m) + ' in ' + ex.expname)
+
+    diaryfile = join(ex.logsdir, 'export_jaaba_matlab_' + str(m) + '.log')
+
+    if mcr:
+
+        with open(diaryfile, 'w') as diary:
+            run_mcr_function('prepare_data_for_jaaba', [ex.expdir, 'movlist', m, 'trackingdirname', ex.session], diary=diary)
+
+    else:
+
+        out = io.StringIO()
+        eng = start_matlab()
+        p = eng.genpath(JAABA_PATH)
+        eng.addpath(p, nargout=0)
+        p = eng.genpath(join(JAABA_PATH, 'compiled'))
+        eng.rmpath(p, nargout=0)
+
+        try:
+
+            eng.prepare_data_for_jaaba(ex.expdir, 'movlist', m, 'trackingdirname', ex.session,
+                                   nargout=0, stdout=out, stderr=out)
+        except:
+            raise
+        finally:
+            with open(diaryfile, 'w') as diary:
+                out.seek(0)
+                shutil.copyfileobj(out, diary)
+
+        eng.quit()
+
+    report('I', 'Finished exporting data from movie ' + str(m) + ' in ' + ex.expname)
+
+
+def run_jaaba(ex, m, jab, mcr=ANTRAX_USE_MCR):
+
+    report('I', 'Start JAABA run of movie ' + str(m) + ' in ' + ex.expname)
+
+    diaryfile = join(ex.logsdir, 'run_jaaba_matlab_' + str(m) + '.log')
+
+    if mcr:
+
+        with open(diaryfile, 'w') as diary:
+            run_mcr_function('run_jaaba_detect', [ex.expdir, 'movlist', m, 'trackingdirname', ex.session, 'jab', jab], diary=diary)
+
+    else:
+
+        out = io.StringIO()
+        eng = start_matlab()
+        p = eng.genpath(JAABA_PATH)
+        eng.addpath(p, nargout=0)
+        p = eng.genpath(join(JAABA_PATH, 'compiled'))
+        eng.rmpath(p, nargout=0)
+
+        try:
+
+            eng.run_jaaba_detect(ex.expdir, 'movlist', m, 'trackingdirname', ex.session, 'jab', jab,
+                                   nargout=0, stdout=out, stderr=out)
+        except:
+            raise
+        finally:
+            with open(diaryfile, 'w') as diary:
+                out.seek(0)
+                shutil.copyfileobj(out, diary)
+
+        eng.quit()
+
+    report('I', 'Finished exporting data from movie ' + str(m) + ' in ' + ex.expname)
 
 
 def pair_search(ex, m, mcr=ANTRAX_USE_MCR):
