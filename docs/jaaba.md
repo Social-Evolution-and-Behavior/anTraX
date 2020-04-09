@@ -57,7 +57,7 @@ If your experiment contains more than one configured session, anTraX will run on
 
 anTraX will create a directory called `jaaba` under the session directory. In that directory, a subdirectory for each movie in the experiment will be created (JAABA consider each movie a separate experiment, and will therefore call each of these subdirectories an experimental directory). In each of these directories, there will be a soft link to the movie, named `movie.mp4` (or `movie.avi` etc. if your video files extension is different), and a mat file called `trx.mat` containing the trajectories in JAABA-compatible format. A subdirectory called `perframe` will also be generated, and will hold the perframe data.
 
-![expdir structure](/images/jaaba_directory_structure.png "jaaba directory structure")
+![expdir structure](images/jaaba_directory_structure.png "jaaba directory structure")
 
 
 ### anTraX-specific perframe features
