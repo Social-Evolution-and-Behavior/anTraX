@@ -2,6 +2,7 @@
 
 As described in the anTraX publication, the software was benchmarked using 9 different datasets, representing a variety of use cases. All datasets, including the anTraX configuration files used to track them can be downloaded HERE.
 
+
 ### Dataset J16
 
 A clonal raider ant (*O. biroi*) with 16 ants tracked for 24 hours. This videos in this example are taken with a simple webcam, using low resolution (10 pix/mm, representing around 5x5 pixels per tag).
@@ -40,7 +41,7 @@ A colony of 10 *Temnothorax nylanderi* ants recorded for 6 hours using a webcam.
 
 A colony of 12 *Camponotous fellah* ants recorded for 6 hours using a webcam. The ants are marked with 3 tags each. Although the ants are big in this examples, their high velocity compare to the frame rate poses a challange. In addition, two ants are marked with the same color combination, but the algorithm was able to individually track them by using slight appearance variations. 
 
-![C12](/images/C12.png)
+![C12](/images/C12a.png)
 
 
 ### Dataset C32
