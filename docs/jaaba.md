@@ -1,3 +1,7 @@
+### JAABA
+
+[JAABA (the Janelia Automatic Animal Behavior Annotator)](http://jaaba.sourceforge.net/index.html) is a machine learning-based system created by the [Branson lab](https://www.janelia.org/lab/branson-lab) at HHMI Janelia Farm, which enables  to automatically compute interpretable, quantitative statistics describing video of behaving animals. In a nutshell, it uses a set of user-labeled examples to train a classifier that can spot more occurences of that behavior in new (unseen) data. JAABA works by projecting trajectory data into a high dimentional space of so-called "perframe features", in which the underlying machine learning alogorithm searches for regularities. 
+anTraX includes an option to generate these perframe features for experiments tracked in anTraX, as well as functions to run JAABA classifier from the anTraX interface, thus greatly simplifying the use of JAABA for classifying behavioral features in these experiments. 
 
 ### The anTraX/JAABA workflow
 

@@ -1,3 +1,9 @@
+### DeepLabCut
+
+[DeepLabCut](http://www.mousemotorlab.org/deeplabcut) is a popular software that uses deep neural networks  for pose-tracking animals in videos, developed by the [Mathis lab](http://www.mousemotorlab.org/) at Harvard University. 
+anTraX includes an interface to export cropped single-animal examples from tracked experiments to be labeled in the DeepLabCut interface, as well as options to run DLC trained model in the anTraX interface without the need to export cropped videos from entire experiment. This integration allows creating efficient pipelines that pose-track marked individual animals in large groups.
+
+
 ### The anTraX/DLC workflow
 
 * Track an experiment using anTraX.
