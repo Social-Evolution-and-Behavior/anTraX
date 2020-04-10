@@ -55,4 +55,4 @@ Allocate a specific number of cpus per task. The default value vary according to
 
 
 
-**Note:** The commands `export-jaaba` and `run-jaaba`  do not currently support hpc mode.
+**Note:** the commands `export-jaaba` and `run-jaaba`  do not currently support hpc mode.
