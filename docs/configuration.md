@@ -2,7 +2,7 @@
 
 A tracking *session* is a run of the algorithm with a set of settings and parameters. In the typical case, you will only create one session per experiment. However, sometime it is usefull to play around with a different parameter set without overwriting existing results, or track different parts of the experiment with different parameter sets. In these cases, multiple sessions should be created. The session, together with its parameters and results, is stored as a subdirectory of the experimental directory and is named by the session identifier name.
 
-### Launch the anTraX app
+### Launching the anTraX app
 
 To create and configure a tracking session, simply launch the anTraX app by entering the command into a bash terminal (don't forget to activate your virtual/conda environment if are using one):
 
@@ -15,19 +15,19 @@ The optional argument `expdir` is a full path to the experimental directory to b
 Any configuration changes are saved on-the-fly. When finished, just exit the app and the session will be saved. 
 
 
-### Create/load a tracking session
+### Creating/loading a tracking session
 
 If the experiment contains a previously  configured session, it will automatically load. Otherwise, you will be prompted to create a new one. Once a session is loaded/created, the configuration workflow will appear as tabs in the application window (see images below).
 
 You can move between sessions, or create new ones, by using the options in the `Session` menu.
 
-### Display video frames
+### Displaying video frames
 The anTraX application window is divided into two main parts: configuration panel on the left, and the frame viewer on the right. The configuration panel contains multiple tabs corresponding to the algorithm step. The displayed image will be augmented according to the configuration tab currently active.
 The frames in the experiment can be browsed using the selectors on the top part of the configuration panel, which will appear in most of the configuration tabs. A frame in the experimement can be defined either by its video index (the first selector) and the frame index in that video (the second selector), or by its total index in the experiment (the third selector).
 
 ![Frame display selection](images/frame_selection.png)
 
-### Create a background image
+### Creating a background image
 
 The first step in the configuration process is to generate a background image.
 
@@ -44,7 +44,7 @@ The ***Create BG*** button will start the background creation process. Depending
 The background images are saved as png files in the directory `expdir/session/parameters/background/`.
 
 
-### Set the spatial scale
+### Setting the spatial scale
 In the second tab, the spatial scale of the videos will be defined. This is required to have all the parameters and results in real world units, which is essential for  parameters to be generalized between experiments, and tracking results comparable between experiments.
 
 To set the scale, choose a feature in the image of which the dimensions are known. Choose the appropriate tool from the drop down menu (either ***Circle*** or ***Line***), press the ***Draw*** button, and adjust the tool to fit the feature.
@@ -53,7 +53,7 @@ When done, enter the Length/Diameter of the feature om mm  in the box, and finis
 
 ![Scale tab](images/scale.png)
 
-### Create an ROI mask
+### Creating an ROI mask
 
 The ***ROI Mask*** is used to define the regions of the image in which tracking is performed. 
 
@@ -63,7 +63,7 @@ The ROI mask is saved as png files in the directory: `expdir/session/parameters/
 
 ![ROI mask](images/roi-mask.png)
 
-### Multi colony experiment
+### Multi colony experiments
 
 The ***Multi Colony*** option is used to control how a mask with several disconnected ROIs should be treated. If these regions correspond to separate ant colonies. If checked, each of these regions will be treated as a separate colony, containing a full and fixed set of identified ants, and will be saved separately. Use the dropdown to control the numbering order of the ROIs, and the Assign colony labels buttons to manually assign labels to each numbered colony (avoid white spaces in the labels).
 
@@ -71,13 +71,13 @@ The colony masks are saved as png files in the directory: `expdir/session/parame
 
 ![Multi-colony experiment](images/multi-colony.png)
 
-### Open boundry ROI
+### Open boundry ROIs
 
 The ***Open Boundry*** option is used to mark parts of the ROI perimeter that are "Open" to ants getting in and out of the ROI. This is used to optimize tracking in these regions. Otherwise, the ROI is assumed to be completely closed. To mark a segment of the boundry as 'open', click 'Add' and adjust the shape, so its intersection with the ROI boundry will be the oprn region. Double-click to finish. The 'open' segment will be marked with blue thick line.
 
 ![Open boundry ROI](images/open-boundry.png)
 
-### Tune the segmentation
+### Tuning the segmentation
 
 anTrax segment a background substracted image into foreground and background, with the foreground being composed of several connected components ('blobs'). This is a multi parameter process that should be tuned for each experiment. 
 
@@ -104,14 +104,14 @@ The display of the segmented frame can be configured usng the checkboxes below t
 
 ![Image segmentation](images/segmentation.png)
 
-### Tune single individual size range
+### Tuning single individual size range
 
 anTrax uses the size of individual ant for filtering possible single ant tracklets for classification, and also for calibrating the linking algorithm. The single ant size is defined by the possible size range, which is adjusted in the ***single ant*** tab. For tunning these range parameters, the blobs detected in the displayed frames are marked with green outlines if they are in the single ant range, with red if they are larger, and with pink if they are smaller. It is recommended to scan a decent number of frames throughout the experiment to look for neear-threshold cases. Note that the range doesn't need to perfectly classify blobs, but to capture the possible size range for single ants. If your experiment contains individuals with variable size, choose the range to capture all the individuals, even at the 'price' of classifying some multi-animal blobs as single-animal.
 
 ![Single ant size range](images/single_ants.png)
 
 
-### Tune the linking
+### Tuning the linking step
 
 Linking is the process of connecting blobs from consecutive frames into tracklets. Linked blobs are assumed to represent a case where some or all of the ants that are included in the blob from the first frame also included in the blob in the second frame. A blob can be linked to zero, one or multiple blobs in the the other frame. 
 
@@ -129,7 +129,7 @@ The displayed image can be selected as the "previous frame", "current frame", or
 
 
 
-### Enter individual tags information 
+### Entering individual tags information 
 
 The **IDs** tab is used to configure the list of ant IDs used in the experiment. First, set the tagging type as either *untagged* (for experiments without color tags, i.e. no classification will be done), *group-tagged* (non individual tags, tracklet classification will be done, but no graph propagation) or *individual-tagged* (ants marked with unique IDs). 
 
@@ -145,7 +145,7 @@ The label list is defined by the file `expdir/session/parameters/labels.csv`. Ea
 
 The ***IDs*** tab is an easy way to configure the list of labels for ant marked with two color tags: First, check the boxes of the color tags used. A label list containing all possible combinations will be created. Next, trim the list to include only the actually used combinations. Also add no-ant labels as needed. 
 
-### Tune the graph propagation step
+### Tuning the graph propagation step
 
 The **Propagation** tab is used to configure the graph propagation step. 
 

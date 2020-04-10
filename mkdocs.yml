@@ -7,7 +7,7 @@ nav:
 - Installation: installation11.md
 - Preparing data for anTraX: data_organization.md
 - Configuring a tracking session: configuration.md
-- Run the tracking: tracking.md
+- Running the tracking: tracking.md
 - Classifying tracklets: classification.md
 - Graph propagation: propagation.md
 - Validating the tracking results: validation.md
