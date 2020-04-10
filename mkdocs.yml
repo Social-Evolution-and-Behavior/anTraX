@@ -11,8 +11,8 @@ nav:
 - Classifying tracklets: classification.md
 - Graph propagation: propagation.md
 - Validating the tracking results: validation.md
-- Using DeepLabCut to pose-track individuals: dlc.md
 - Using JAABA for behavioral classification: jaaba.md
+- Using DeepLabCut to pose-track individuals: dlc.md
 - Working with tracking results (python): analysis_nb.ipynb
 - Working with tracking results (matlab): analysis_matlab.ipynb
 - Using anTraX on HPC environment: hpc.md
