@@ -16,12 +16,12 @@ As computer clusters do not typically support interactive work, this will need t
 
 1. Prepare the experimental directory/ies on a PC.
 2. Configure a tracking session for each experimental directory on the PC. 
-3. Sync the experimental directories into the HPC environment. 
+3. Sync the experimental directories into the HPC environment.
 4. Run batch tracking on the HPC (see below).
 5. If you have a trained blob classifier, jump to step 7. Otherwise, sync tracking results back to the PC, and create a training set using the interactive interface. 
 6. Sync again to the HPC, and train the classifier. 
 7. Run  the `classify` and `solve` commands in batch mode on the HPC.
-8. Sync the results back to the PC.
+8. Sync the results back to your PC.
 
 It is recommended to use an incremental tool such as `rsync` to speed up data transfer. 
 
@@ -52,3 +52,7 @@ Send an email for start/end of each job.
 `cpus=<n>`
 
 Allocate a specific number of cpus per task. The default value vary according to the command (2 for tracking, 4 for classification/propagation/dlc, 12 for training).
+
+
+
+**Note:** The commands `export-jaaba` and `run-jaaba`  do not currently support hpc mode.
