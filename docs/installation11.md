@@ -7,9 +7,9 @@ anTraX works natively on machines running Linux or OSX operating system. It will
 
 anTraX requires Python version 3.6 or above. It is highly recommended to install and use anTraX inside a virtual environment, using conda or any other environment manager. 
 
-### MATLAB
+### MATLAB 
 
-anTraX required MATLAB 2019a or above. If you have a licensed MATLAB installed on your machine, you are good to go. Otherwise, binaries compiled with MATLAB 2019a are also supplied. To run the binaries, install the freely available [MATLAB Runtime](https://www.mathworks.com/products/compiler/matlab-runtime.html) for version 2019a.
+anTraX comes with binraries compiled with MATLAB 2019a. If you have MATLAB 2019a or above installed on your machine, you do not need to install the Runtime. In case you don't, please follow the instructions to install the freely available [MATLAB Runtime](https://www.mathworks.com/products/compiler/matlab-runtime.html) for version 2019a.
 
 ### Other system dependencies 
 
@@ -66,6 +66,12 @@ For the changes to take effect, run:
 ```console
 source ~/.bash_profile
 ```
+
+### MATLAB engine for python
+
+In case you have MATLAB installed (i.e. you are not using the compiled binaries), you will need to install the [MATLAB engine for python](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html). Take care to install this in the same python environment you installed anTraX to.
+
+You do not need to install MATLAB engine for python if you are using the compiled binaries!
 
 ### Add anTraX to your MATLAB path
 

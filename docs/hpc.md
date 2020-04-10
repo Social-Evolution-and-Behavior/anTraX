@@ -1,6 +1,6 @@
 ### Installation
 
-In principle, anTraX installation on an HPC environment is the same as installation on any other Linux machine. The main difference is that typically, you will not have administrator priviliges to intall system-wide packages on the HPC. Luckily, there are not many of those required by anTraX. Also install MATLAB Runtime for version 2019a.
+In principle, anTraX installation on an HPC environment is the same as installation on any other Linux machine. The main difference is that typically, you will not have administrator priviliges to intall system-wide packages on the HPC. Luckily, there are not many of those required by anTraX. Also install MATLAB Runtime for version 2019a. You **do not** need to install MATLAB engine for python.
 
 We recommend using a conda environemnt to setup anTraX on HPC, as it enables installation of several packages such as [ffmpeg](https://anaconda.org/conda-forge/ffmpeg). If some pckages are still missing and are not available in conda, work with your system administrator to find a solution.
 
