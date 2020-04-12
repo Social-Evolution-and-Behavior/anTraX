@@ -140,6 +140,7 @@ def antrax_hpc_job(ex, step, opts):
     precmd = []
 
     report('D', 'hpc job creation for step ' + step)
+    report('D', str(step=='track'))
 
     if step == 'track':
 
