@@ -180,7 +180,9 @@ def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, o
     explist = parse_explist(explist, session)
 
     if hpc:
+        report('D', '--tracking on hpc--')
         for e in explist:
+            report('D', '--tracking experiment ' + e.expname + '--')
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'track', opts=hpc_options)
