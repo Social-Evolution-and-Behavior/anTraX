@@ -153,7 +153,7 @@ def antrax_hpc_job(ex, step, opts):
             ' --movlist $SLURM_ARRAY_TASK_ID' + \
             ' --mcr'
 
-    if step == 'pair-search':
+    elif step == 'pair-search':
 
         opts['jobname'] = 'prs:' + ex.expname
         opts['filename'] = 'pair_search'
