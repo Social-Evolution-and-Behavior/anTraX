@@ -188,6 +188,8 @@ classdef trgraph < handle & matlab.mixin.SetGet
             if ismember('cfg',criteria)
                 
                 cmd = parse_prop_config(G.Trck,'command','single');
+                
+                if ~isempty(cmd)
                 cmd.node = tocol(G.nodes_from_trjs(cmd.tracklet));
                 cmd = cmd(cmd.node>0,:);
                 
@@ -217,7 +219,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                     end
                     
                 end
-                
+                end
             end
             
             singles = G.trjs(passed);

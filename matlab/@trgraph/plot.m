@@ -100,6 +100,8 @@ else
     set(h,'XData',nodex,'YData',get(h,'YData'))
 end
 
+src_nodes = find(ismember({sg_trjs.propID},G.usedIDs));
+single_nodes = find([sg_trjs.isSingle]);
 
 highlight_none()
 
@@ -111,7 +113,7 @@ m = uimenu('Text','Highlight ID');
 for i=1:length(G.usedIDs)
     mitem(i) = uimenu(m,'Text',G.usedIDs{i},'MenuSelectedFcn',{@highlight_id,i});
 end
-src_nodes = find(ismember({sg_trjs.propID},G.usedIDs));
+
 %highlight(h,src_nodes,'Marker','x','NodeColor','m')
 
 
@@ -131,7 +133,11 @@ hdt.UpdateFcn = @(obj,event_obj) GraphCursorCallback(obj,event_obj,sg,G,sg_assig
 
 
 % highligh first ID
-
+if ~isempty(p.Results.id)
+    
+    highlight_id(p.Results.id);
+    
+end
 
 % create context menu for nodes
 
@@ -142,11 +148,17 @@ hdt.UpdateFcn = @(obj,event_obj) GraphCursorCallback(obj,event_obj,sg,G,sg_assig
 
         highlight(h,sg,'LineWidth',2,'MarkerSize',p.Results.nodesize)
         
-        markers = repmat({'o'},[1,sg.numnodes]);
+        markers = repmat({'s'},[1,sg.numnodes]);
+        
+        markers(single_nodes) = {'o'};
+        
         markers(dummies2) = {'none'};
         set(h,'Marker',markers);
         
         node_colors = repmat([0.6,0.6,0.6],[sg.numnodes,1]);
+        
+        node_colors(single_nodes,:) = repmat([0.1,0.1,0.1],[length(single_nodes),1]);
+        
         edge_colors = repmat([0.6,0.6,0.6],[sg.numedges,1]);
         set(h,'NodeColor',node_colors,'EdgeColor',edge_colors);
         
