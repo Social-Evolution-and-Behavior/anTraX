@@ -57,11 +57,11 @@ report('I','    ...solve function')
 eval(['mcc -m solve_single_graph.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'solve_single_graph'])
 
 % jaaba functions
-report('I','    ...jaaba functions')
-jaabadir = getenv('ANTRAX_JAABA_PATH');
+% report('I','    ...jaaba functions')
+% jaabadir = getenv('ANTRAX_JAABA_PATH');
 
-addpath(genpath(jaabadir));
-rmpath(genpath([jaabadir,filesep,'compiled']));
+% addpath(genpath(jaabadir));
+% rmpath(genpath([jaabadir,filesep,'compiled']));
 
-eval(['mcc -m prepare_data_for_jaaba.m  -a ',srcdir,' -a ',[jaabadir,'perframe/params'],' -d ',bindir, ' -o ', prefix, 'prepare_data_for_jaaba'])
-eval(['mcc -m run_jaaba_detect.m  -a ',srcdir,' -a ',[jaabadir,'perframe/params'],' -d ',bindir, ' -o ', prefix, 'run_jaaba_detect'])
+% eval(['mcc -m prepare_data_for_jaaba.m  -a ',srcdir,' -a ',[jaabadir,'perframe/params'],' -d ',bindir, ' -o ', prefix, 'prepare_data_for_jaaba'])
+% eval(['mcc -m run_jaaba_detect.m  -a ',srcdir,' -a ',[jaabadir,'perframe/params'],' -d ',bindir, ' -o ', prefix, 'run_jaaba_detect'])

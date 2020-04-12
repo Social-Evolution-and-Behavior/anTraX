@@ -19,6 +19,7 @@ def create_slurm_job_file(opts):
     email = opts.get('email', None)
     mailtype = opts.get('mailtype', 'ALL')
     partition = opts.get('partition', None)
+    time = opts.get('time', None)
     throttle = opts.get('throttle', len(taskarray))
 
     precmd = opts.get('precmd', [])
@@ -35,6 +36,8 @@ def create_slurm_job_file(opts):
             f.writelines("#SBATCH --partition=%s\n" % partition)
         f.writelines("#SBATCH --ntasks=%d\n" % ntasks)
         f.writelines("#SBATCH --cpus-per-task=%d\n" % int(cpus))
+        if time is not None:
+            f.writelines("#SBATCH --time=%s\n" % time)
 
         if all([a in taskarray for a in range(min(taskarray), max(taskarray) + 1)]):
             f.writelines("#SBATCH --array=%d-%d%%%d\n" % (min(taskarray), max(taskarray), throttle))
