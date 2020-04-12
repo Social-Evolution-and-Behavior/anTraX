@@ -37,7 +37,7 @@ eval(['mcc -m verify_tracking.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 
 
 % compile graph explorer
 report('I','    ...graph explorer app')
-eval(['mcc -m graph_explorer.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'graph_explorer'])
+eval(['mcc -m graph_explorer_app.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'graph_explorer_app'])
 
 
 % compile the track function
