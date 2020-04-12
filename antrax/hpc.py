@@ -213,6 +213,9 @@ def antrax_hpc_job(ex, step, opts):
 
     opts['workdir'] = ex.logsdir
 
+    if ANTRAX_DEBUG_MODE:
+        print(opts)
+
     if not opts.get('dry', False):
         jobfile = create_slurm_job_file(opts)
         jid = submit_slurm_job_file(jobfile)

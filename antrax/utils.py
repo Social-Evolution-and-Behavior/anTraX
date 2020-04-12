@@ -22,6 +22,7 @@ HOME = os.getenv("HOME")
 MCR = os.getenv('MCR')
 ANTRAX = os.getenv('ANTRAX')
 
+ANTRAX_DEBUG_MODE = os.getenv("ANTRAX_DEBUG_MODE") == 'True'
 
 class ANTRAXError(Exception):
 
@@ -30,6 +31,10 @@ class ANTRAXError(Exception):
 
 
 def report(a, msg):
+
+    if a == 'D':
+        if not ANTRAX_DEBUG_MODE:
+            return
 
     a = ' -' + a + '- '
     ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
