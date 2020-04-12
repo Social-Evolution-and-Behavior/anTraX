@@ -211,6 +211,7 @@ def antrax_hpc_job(ex, step, opts):
             ' --movlist $SLURM_ARRAY_TASK_ID'
 
     else:
+        report('D', 'something wrong')
         return
 
     opts['workdir'] = ex.logsdir
