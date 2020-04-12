@@ -36,9 +36,13 @@ report('I','    ...validation app')
 eval(['mcc -m verify_tracking.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'validate_tracking'])
 
 % compile graph explorer
+report('I','    ...graph explorer app')
+eval(['mcc -m graph_explorer.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'graph_explorer'])
 
 
 % compile autoid app
+report('I','    ...autoids app')
+eval(['mcc -m verify_autoids_app.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'verify_autoids_app'])
 
 
 % compile the track function
