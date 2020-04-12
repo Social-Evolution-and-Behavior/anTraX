@@ -139,6 +139,8 @@ def antrax_hpc_job(ex, step, opts):
 
     precmd = []
 
+    report('D', 'hpc job creation')
+
     if step == 'track':
 
         opts['jobname'] = 'trk:' + ex.expname
@@ -212,6 +214,8 @@ def antrax_hpc_job(ex, step, opts):
         return
 
     opts['workdir'] = ex.logsdir
+
+    report('D', 'hpc job created')
 
     if ANTRAX_DEBUG_MODE:
         print(opts)
