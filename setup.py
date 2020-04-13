@@ -23,6 +23,7 @@ setup(name='antrax',
       include_package_data=True,
       install_requires=[
             'numpy',
+            'imageio',
             'pandas',
             'scipy',
             'clize',

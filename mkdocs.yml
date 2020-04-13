@@ -2,6 +2,7 @@ site_name: anTraX
 site_author: Asaf Gal
 copyright: '© 2020'
 repo_url: https://github.com/Social-Evolution-and-Behavior/anTraX/
+site_favicon: img/antrax_favicon1.png
 nav:
 - Home: index.md
 - Installation: installation11.md
