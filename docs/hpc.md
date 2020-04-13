@@ -53,6 +53,8 @@ Send an email for start/end of each job.
 
 Allocate a specific number of cpus per task. The default value vary according to the command (2 for tracking, 4 for classification/propagation/dlc, 12 for training).
 
+`time=<time>`
 
+Allocate time for task. Argument is a time string in the format supported by the `sbatch --time <time>` command (see [here](https://slurm.schedmd.com/sbatch.html)).
 
 **Note:** the commands `export-jaaba` and `run-jaaba`  do not currently support hpc mode.

@@ -16,7 +16,12 @@ def create_slurm_job_file(opts):
 
     ntasks = opts.get('ntasks', 1)
     cpus = opts.get('cpus', 2)
+
     email = opts.get('email', None)
+
+    if email is None and 'rockefeller' in HOSTNAME:
+        email = USER + '@mail.rockefeller.edu'
+
     mailtype = opts.get('mailtype', 'ALL')
     partition = opts.get('partition', None)
     time = opts.get('time', None)
@@ -140,7 +145,6 @@ def antrax_hpc_job(ex, step, opts):
     precmd = []
 
     report('D', 'hpc job creation for step ' + step)
-    report('D', str(step=='track'))
 
     if step == 'track':
 
@@ -223,13 +227,14 @@ def antrax_hpc_job(ex, step, opts):
     if ANTRAX_DEBUG_MODE:
         print(opts)
 
+    jobfile = create_slurm_job_file(opts)
+    print('')
+    print('jobfile created in ' + jobfile)
+
     if not opts.get('dry', False):
-        jobfile = create_slurm_job_file(opts)
         jid = submit_slurm_job_file(jobfile)
-        print('')
         print('Job number ' + str(jid) + ' was submitted')
         print('')
     else:
-        print('')
         print('Dry run, no job submitted')
         print('')
