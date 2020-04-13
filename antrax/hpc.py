@@ -229,12 +229,13 @@ def antrax_hpc_job(ex, step, opts):
 
     jobfile = create_slurm_job_file(opts)
     print('')
-    print('jobfile created in ' + jobfile)
+    print('Jobfile created in ' + jobfile)
+    print('')
 
     if not opts.get('dry', False):
         jid = submit_slurm_job_file(jobfile)
         print('Job number ' + str(jid) + ' was submitted')
         print('')
     else:
-        print('Dry run, no job submitted')
+        print('Dry run, no job submitted.')
         print('')
