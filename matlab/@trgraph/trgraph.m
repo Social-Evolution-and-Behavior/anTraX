@@ -454,6 +454,12 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 G.node_ff = [G.trjs.ff];
             end
             
+            if isempty(G.E)
+                G.trjs.set_exist;
+                G.E = cat(2, G.trjs(:).exist);
+            end
+            
+            
             din = indegree(G.G);
             dout = outdegree(G.G);
             

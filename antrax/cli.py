@@ -117,10 +117,10 @@ def merge_trainset(source, target):
             shutil.copyfile(sf, tf)
 
 
-def graph_explorer(expdir, *, session=None):
+def graph_explorer(expdir, *, m=0, session=None):
 
-    args = [expdir] if session is None else [expdir, 'session', session]
-    launch_matlab_app('graph_explorer', args)
+    args = [expdir, 'm', m] if session is None else [expdir, 'm', m, 'session', session]
+    launch_matlab_app('graph_explorer_app', args)
 
 
 def validate(expdir, *, session=None):
