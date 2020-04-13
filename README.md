@@ -1,4 +1,4 @@
-![trails](https://github.com/Social-Evolution-and-Behavior/CATT/blob/master/docs/images/trails.png)
+![trails](https://github.com/Social-Evolution-and-Behavior/anTraX/blob/master/docs/images/trails.png)
 
 # **anTraX** -  software for tracking color tagged ants
 
