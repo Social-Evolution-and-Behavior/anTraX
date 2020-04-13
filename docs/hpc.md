@@ -4,7 +4,7 @@ In principle, anTraX installation on an HPC environment is the same as installat
 
 We recommend using a conda environemnt to setup anTraX on HPC, as it enables installation of several packages such as [ffmpeg](https://anaconda.org/conda-forge/ffmpeg). If some pckages are still missing and are not available in conda, work with your system administrator to find a solution.
 
-If you plan on using DeepLabCut, install it into the python environment, and set it to 'light mode'  in  `~/.profile`:
+If you plan on using DeepLabCut, install it into the python environment, and set it to 'light mode'  in  the bash profile file:
 
 ```bash
 export DLClight=True 
