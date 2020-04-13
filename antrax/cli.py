@@ -98,6 +98,7 @@ def extract_trainset(expdir, *, session=None):
     args = [expdir] if session is None else [expdir, 'session', session]
     launch_matlab_app('verify_autoids_app', args)
 
+
 def merge_trainset(source, target):
 
     mkdir(target)
@@ -115,16 +116,19 @@ def merge_trainset(source, target):
         for sf, tf in zip(sfiles, tfiles):
             shutil.copyfile(sf, tf)
 
+
 def graph_explorer(expdir, *, session=None):
 
     args = [expdir] if session is None else [expdir, 'session', session]
     launch_matlab_app('graph_explorer', args)
+
 
 def validate(expdir, *, session=None):
     """Launch antrax configuration app"""
 
     args = [expdir] if session is None else [expdir, 'session', session]
     launch_matlab_app('verify_tracking', args)
+
 
 def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, antlist=None, nimages=100, video=False, username='anTraX'):
 
@@ -149,12 +153,14 @@ def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, ant
     create_trainset(ex, dlcdir, n=nimages, antlist=antlist, movlist=movlist, vid=video)
 
 
-def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={}, session=None):
+def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
+                session=None, dry=False):
 
     explist = parse_explist(explist, session)
 
     if hpc:
         for e in explist:
+            hpc_options['dry'] = dry
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'pair-search', opts=hpc_options)
     else:
@@ -175,7 +181,7 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=Fa
 
 
 def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
-          session=None):
+          session=None, dry=False):
 
     explist = parse_explist(explist, session)
 
@@ -183,6 +189,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, o
         report('D', '--tracking on hpc--')
         for e in explist:
             report('D', '--tracking experiment ' + e.expname + '--')
+            hpc_options['dry'] = dry
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'track', opts=hpc_options)
@@ -208,7 +215,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, o
 
 
 def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
-          session=None):
+          session=None, dry=False):
 
     explist = parse_explist(explist, session)
 
@@ -216,6 +223,7 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
 
         for e in explist:
 
+            hpc_options['dry'] = dry
             hpc_options['classifier'] = classifier
             hpc_options['glist'] = glist if glist is not None else e.glist
 
@@ -253,7 +261,8 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
 
 
 def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, arch='small', modelfile=None,
-          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=False, hpc_options: parse_hpc_options={}):
+          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=False, hpc_options: parse_hpc_options={},
+          dry=False):
 
 
     classfile = join(classdir, name + '.h5')
@@ -271,9 +280,8 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
 
         c.save(classfile)
 
-
     if hpc:
-
+        hpc_options['dry'] = dry
         hpc_options['name'] = name
         hpc_options['ne'] = ne
 
@@ -289,7 +297,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
 
 
 def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options={},
-             nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False):
+             nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False, dry=False):
 
     explist = parse_explist(explist, session)
 
@@ -308,6 +316,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False
             classifier = e.sessiondir + '/classifier/classifier.h5'
 
         if hpc:
+            hpc_options['dry'] = dry
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'classify', opts=hpc_options)
@@ -317,7 +326,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False
             c.predict_experiment(e, movlist=movlist, report=True)
 
 
-def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' '):
+def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' ', dry=False):
     """Run DeepLabCut on antrax experiment
 
      :param explist: path to experiment folder, path to file with experiment folders, path to a folder containing several experiments
@@ -332,6 +341,7 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
 
     for e in explist:
         if hpc:
+            hpc_options['dry'] = dry
             hpc_options['cfg'] = cfg
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'dlc', opts=hpc_options)
@@ -341,13 +351,15 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
-def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False, hpc_options: parse_hpc_options=' '):
+def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False,
+                 dry=False, hpc_options: parse_hpc_options=' '):
 
     explist = parse_explist(explist, session)
 
     if hpc:
 
         for e in explist:
+            hpc_options['dry'] = dry
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'export_jaaba', opts=hpc_options)
     else:
@@ -366,7 +378,8 @@ def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mc
         Q.stop_workers()
 
 
-def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=None, mcr=False, hpc=False, hpc_options: parse_hpc_options=' '):
+def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=None, mcr=False, hpc=False,
+              hpc_options: parse_hpc_options=' ', dry=False):
 
     explist = parse_explist(explist, session)
 
@@ -377,6 +390,7 @@ def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=N
     if hpc:
 
         for e in explist:
+            hpc_options['dry'] = dry
             hpc_options['movlist'] = movlist
             hpc_options['jab'] = jab
             antrax_hpc_job(e, 'export_jaaba', opts=hpc_options)
