@@ -30,12 +30,14 @@ It is recommended to use an incremental tool such as `rsync` to speed up data tr
 If you are on an HPC environment, using the SLURM workload manager, you can run each of the batch commands (`track`, `classify`, `solve` and `dlc`) using the `--hpc` flag:
 
 ```console
-antrax <command> <experiments> --hpc --hpc-options <opts>
+antrax <command> <experiments> --hpc [--dry] [--hpc-options <opts>]
 ```
 
 anTraX will then submit a SLURM job for each experiment, each containing a task for each video in the experiment. 
 
-The optional `hpc-options` argument can controlled some of the SLURM options and accepts a comma seperated list of some of the following options:
+The optional `--dry` flag will create a slurm jobfile, but will not submit it. It is useful to make changes to the sbatch options not currently supported by the anTraX interface.
+
+The optional `--hpc-options` argument can controlled some of the SLURM options and accepts a comma seperated list of some of the following options:
 
 `throttle=<throttle>`
 
