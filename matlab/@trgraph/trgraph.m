@@ -456,7 +456,12 @@ classdef trgraph < handle & matlab.mixin.SetGet
             
             din = indegree(G.G);
             dout = outdegree(G.G);
-            ignore = tocol(G.node_noant) & din<=1 & dout<=1;
+            
+            if numel(G.node_noant)==numel(din)
+                ignore = tocol(G.node_noant) & din<=1 & dout<=1;
+            else
+                ignore = false(size(din));
+            end
             
             D = distances_low_mem(G.G);
             
