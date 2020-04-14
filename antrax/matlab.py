@@ -273,13 +273,20 @@ def link_across_movies(ex, mcr=ANTRAX_USE_MCR):
 
 def launch_matlab_app(appname, args, mcr=ANTRAX_USE_MCR):
 
-    eng = start_matlab()
-    args = ['"' + a + '"' if type(a) is str else str(a) for a in args]
-    app = eval('eng.' + appname + '(' + ','.join([str(a) for a in args]) + ')')
-    while eng.isvalid(app, ):
-        sleep(0.25)
+    if mcr:
 
-    eng.quit()
+        run_mcr_function(appname, args)
+
+    else:
+
+
+        eng = start_matlab()
+        args = ['"' + a + '"' if type(a) is str else str(a) for a in args]
+        app = eval('eng.' + appname + '(' + ','.join([str(a) for a in args]) + ')')
+        while eng.isvalid(app, ):
+            sleep(0.25)
+
+        eng.quit()
 
 
 class MatlabQueue(queue.Queue):

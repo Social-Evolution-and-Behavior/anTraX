@@ -12,6 +12,9 @@ from .hpc import antrax_hpc_job, antrax_hpc_train_job
 from .utils import *
 
 
+ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR') == 'True'
+ANTRAX_HPC = os.getenv('ANTRAX_HPC') == 'True'
+
 
 ########################### AUX functions #########################
 
@@ -85,18 +88,18 @@ def parse_explist(exparg, session=None):
 ########################### Run functions ##########################
 
 
-def configure(expdir=None):
+def configure(expdir=None, *, mcr=ANTRAX_USE_MCR):
     """Launch antrax configuration app"""
 
     args = [expdir] if expdir is not None else []
-    launch_matlab_app('antrax', args)
+    launch_matlab_app('antrax', args, mcr=mcr)
 
 
-def extract_trainset(expdir, *, session=None):
+def extract_trainset(expdir, *, session=None, mcr=ANTRAX_USE_MCR):
     """Launch antrax configuration app"""
 
     args = [expdir] if session is None else [expdir, 'session', session]
-    launch_matlab_app('verify_autoids_app', args)
+    launch_matlab_app('validate_classifications', args, mcr=mcr)
 
 
 def merge_trainset(source, target):
@@ -122,17 +125,17 @@ def merge_trainset(source, target):
     report('I', 'Copied total of ' + str(totcnt) + ' images')
 
 
-def graph_explorer(expdir, *, m=0, session=None):
+def graph_explorer(expdir, *, m=0, session=None, mcr=ANTRAX_USE_MCR):
 
     args = [expdir, 'm', m] if session is None else [expdir, 'm', m, 'session', session]
-    launch_matlab_app('graph_explorer_app', args)
+    launch_matlab_app('graph_explorer_app', args, mcr=mcr)
 
 
-def validate(expdir, *, session=None):
+def validate(expdir, *, session=None, mcr=ANTRAX_USE_MCR):
     """Launch antrax configuration app"""
 
     args = [expdir] if session is None else [expdir, 'session', session]
-    launch_matlab_app('verify_tracking', args)
+    launch_matlab_app('validate_tracking', args, mcr=mcr)
 
 
 def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, antlist=None, nimages=100, video=False, username='anTraX'):
@@ -158,7 +161,7 @@ def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, ant
     create_trainset(ex, dlcdir, n=nimages, antlist=antlist, movlist=movlist, vid=video)
 
 
-def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
+def pair_search(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
                 session=None, dry=False):
 
     explist = parse_explist(explist, session)
@@ -185,7 +188,7 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=Fa
         Q.stop_workers()
 
 
-def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
+def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifier=None, onlystitch=False, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
           session=None, dry=False):
 
     explist = parse_explist(explist, session)
@@ -219,7 +222,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, o
         Q.stop_workers()
 
 
-def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
+def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
           session=None, dry=False):
 
     explist = parse_explist(explist, session)
@@ -266,7 +269,7 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
 
 
 def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, arch='small', modelfile=None,
-          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=False, hpc_options: parse_hpc_options={},
+          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
           dry=False):
 
 
@@ -314,7 +317,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
         c.save(classfile)
 
 
-def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options={},
+def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
              nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False, dry=False):
 
     explist = parse_explist(explist, session)
@@ -344,7 +347,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False
             c.predict_experiment(e, movlist=movlist, report=True)
 
 
-def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' ', dry=False):
+def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options=' ', dry=False):
     """Run DeepLabCut on antrax experiment
 
      :param explist: path to experiment folder, path to file with experiment folders, path to a folder containing several experiments
@@ -369,7 +372,7 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
-def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False,
+def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC,
                  dry=False, hpc_options: parse_hpc_options=' '):
 
     explist = parse_explist(explist, session)
@@ -396,7 +399,7 @@ def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mc
         Q.stop_workers()
 
 
-def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=None, mcr=False, hpc=False,
+def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=None, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC,
               hpc_options: parse_hpc_options=' ', dry=False):
 
     explist = parse_explist(explist, session)

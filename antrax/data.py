@@ -54,7 +54,7 @@ class axAntData:
             # convert to dataframe
             dfs = []
             for ant in self.antlist:
-                
+
                 if with_type:
                     cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or'), (ant, 'ass_type')], names=['ant', 'feature'])
                 else:

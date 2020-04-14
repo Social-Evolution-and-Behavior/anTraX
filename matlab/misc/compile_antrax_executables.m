@@ -25,15 +25,15 @@ report('I','Compiling antrax executables:')
 
 % compile the antrax main app
 report('I','    ...main antrax app')
-eval(['mcc -m antrax.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'app'])
+eval(['mcc -m antrax.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'antrax'])
 
 % compile autoids app
 report('I','    ...autoids app')
-eval(['mcc -m verify_autoids_app.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'validate_classifications'])
+eval(['mcc -m validate_classifications.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'validate_classifications'])
 
 % compile validation app
 report('I','    ...validation app')
-eval(['mcc -m verify_tracking.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'validate_tracking'])
+eval(['mcc -m validate_tracking.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'validate_tracking'])
 
 % compile graph explorer
 report('I','    ...graph explorer app')
