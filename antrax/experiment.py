@@ -70,9 +70,7 @@ class axExperiment:
             except:
                 self.antlist = []
 
-        self.slurmdir = join(expdir, 'slurm')
         try:
-            mkdir(self.slurmdir)
             mkdir(self.logsdir)
         except:
             report('W', 'Could not create directories')

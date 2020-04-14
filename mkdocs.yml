@@ -5,6 +5,7 @@ repo_url: https://github.com/Social-Evolution-and-Behavior/anTraX/
 nav:
 - Home: index.md
 - Installation: installation11.md
+- Quickstart guide: quickstart.md
 - Preparing data for anTraX: data_organization.md
 - Configuring a tracking session: configuration.md
 - Running the tracking: tracking.md
