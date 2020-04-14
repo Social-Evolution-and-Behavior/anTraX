@@ -71,9 +71,11 @@ tracklet_table = table({},[],[],[],{},[],[],[],'VariableNames',{'ant','from','to
 
 for i=1:G.NIDs
     id = G.usedIDs{i};
-    xy = nan(nframes,3);
+    xy = nan(nframes,4);
     assigned = G.assigned_ids(:,i);
     true_assigned = assigned;
+    
+    
     % soft
     if soft_assigments
         sg = get_id_subgraph(G,id);
@@ -109,8 +111,14 @@ for i=1:G.NIDs
             if sngli(j)
                 xy(trj.ti.mf:trj.tf.mf,3)=trj.ORIENT;
             end
-            if ismember('source',p.Results.extrafields)
-                xy(trj.ti.mf:trj.tf.mf,3)=src(j);
+            if src(j)
+                xy(trj.ti.mf:trj.tf.mf,4) = 1;
+            elseif trjs(j).isSingle && asgnd(j)
+                xy(trj.ti.mf:trj.tf.mf,4) = 2;
+            elseif asgnd(j)
+                xy(trj.ti.mf:trj.tf.mf,4) = 3;
+            else
+                xy(trj.ti.mf:trj.tf.mf,4) = 4;
             end
         end
         % add line to tracklet table
@@ -143,6 +151,7 @@ for i=1:G.NIDs
         if nnz(interpmask)>0
             xy(interpmask,1) = interp1(allix(~nanmask),xy(~nanmask,1),allix(interpmask));
             xy(interpmask,2) = interp1(allix(~nanmask),xy(~nanmask,2),allix(interpmask));
+            xy(interpmask,4) = 5;
         end
     end
     
@@ -173,7 +182,7 @@ fn = fieldnames(XY);
 XY = struct2table(XY);
 for i=1:length(fn)
     id = fn{i};
-    varnames{i}={[id,'_X'],[id,'_Y'],[id,'_OR']};
+    varnames{i}={[id,'_X'],[id,'_Y'],[id,'_OR'],[id,'_ass_type']};
 end
 XY = splitvars(XY,fn,'NewVariableNames',varnames);
 csvfile = [xyfile(1:end-3),'csv'];

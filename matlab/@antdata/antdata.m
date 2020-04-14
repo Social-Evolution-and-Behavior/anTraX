@@ -57,6 +57,7 @@ classdef antdata < handle
                     ant_data.x = XY.(ant)(:,1);
                     ant_data.y = XY.(ant)(:,2);
                     ant_data.or = XY.(ant)(:,3);
+                    ant_data.type = XY.(ant)(:,4);
                                         
                     mdata.(ant) = ant_data;
                 end

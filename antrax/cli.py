@@ -105,16 +105,21 @@ def merge_trainset(source, target):
     mkdir(target + '/examples')
 
     source_labels = classes_from_examplesdir(source + '/examples/')
-
+    totcnt = 0
     for sl in source_labels:
 
         mkdir(target + '/examples/' + sl)
 
         sfiles = glob(source + '/examples/' + sl + '/*.png')
         tfiles = [sf.replace(source, target) for sf in sfiles]
-
+        cnt = 0
         for sf, tf in zip(sfiles, tfiles):
             shutil.copyfile(sf, tf)
+            cnt += 1
+        totcnt += cnt
+        report('I', '...copied ' + str(cnt) + ' images for label ' + sl)
+
+    report('I', 'Copied total of ' + str(totcnt) + ' images')
 
 
 def graph_explorer(expdir, *, m=0, session=None):
@@ -265,7 +270,20 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
           dry=False):
 
 
+    if not is_classdir(classdir):
+
+        if is_expdir(classdir):
+            ex = axExperiment(classdir)
+            classdir = join(ex.sessiondir, 'classifier')
+
+    if not is_classdir(classdir):
+        report('E', 'bad classifier directory')
+        return
+
+
     classfile = join(classdir, name + '.h5')
+
+
     examplesdir = join(classdir, 'examples')
 
     if scratch or not isfile(classfile):

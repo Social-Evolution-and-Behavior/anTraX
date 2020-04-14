@@ -43,11 +43,25 @@ class axAntData:
             filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '.mat')
             antdata = read_mat(filename)
 
+            if antdata[self.antlist[0]].shape[1]==3:
+                with_type = False
+            elif antdata[self.antlist[0]].shape[1]==4:
+                with_type = True
+            else:
+                report('E', 'Something wrong with antdata structure')
+                return
+
             # convert to dataframe
             dfs = []
             for ant in self.antlist:
-                cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or')], names=['ant', 'feature'])
+                
+                if with_type:
+                    cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or'), (ant, 'ass_type')], names=['ant', 'feature'])
+                else:
+                    cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or')], names=['ant', 'feature'])
+
                 dfs.append(pd.DataFrame(antdata[ant], columns=cols))
+
             df = pd.concat(dfs, axis=1)
             df['frame'] = np.arange(self.ex.movies_info.iloc[m - 1]['fi'], self.ex.movies_info.iloc[m - 1]['ff'] + 1)
             df = df.set_index('frame')

@@ -1,6 +1,6 @@
-In this tutorial, we will track a small example dataset, included with anTraX. The dataset consists of half an hour recording of a colony of 16  *Ooceraea biroi* ants, split into 6 video files, each of  5 minutes duration. This dataset is a short segment of the longer [J16 benchmark dataset](datasets.md#dataset-j16), which is also available for dowload together with all the other benchmark datasets. 
+In this tutorial, we will track a small example dataset, included with anTraX. The dataset consists of half an hour recording of a colony of 16  *Ooceraea biroi* ants, split into 6 video files, each of  5 minutes duration. This dataset is a short segment of the longer [J16 benchmark dataset](datasets.md#dataset-j16), which is also available for dowload together with all the other benchmark datasets. Unlike these larger datasets, the JS16 dataset is appropriate to track on a laptop/desktop computer in a reasonable time.
 
-All commands are to be entered in the bash terminal of your system, in the same environment anTraX was installed into.
+All commands in the tutorial are to be entered in the bash terminal of your system, in the same environment anTraX was installed into.
 
 ### Dowload the test dataset
 

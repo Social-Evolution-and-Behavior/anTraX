@@ -96,6 +96,11 @@ def is_expdir(d):
     return len(glob(d + '/*/parameters/Trck.mat')) > 0
 
 
+def is_classdir(d):
+
+    return isdir(join(d, 'examples'))
+
+
 def parse_tracklet_name(tracklet):
     
     pass
