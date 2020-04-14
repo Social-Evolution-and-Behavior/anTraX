@@ -80,5 +80,5 @@ See [Using the graph explorer to view and debug ID assignments](propagation.md#u
 
 ### Loading and analyzing tracks
 
-To load and analyze the tracking results in python or MATLAB, see the analysis section in the documentations. 
+To load and analyze the tracking results, see the  [Working with tracking results - python](analysis_nb.ipynb) and  [Working with tracking results - matlab](analysis_matlab.ipynb) pages.
 
