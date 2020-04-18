@@ -1,26 +1,26 @@
 ### Classification workflow
 
-In this step we will classify each tracklet that was marked as possible single ant tracklet. Each of these tracklet will be assigned as either:
+In this step we will classify each tracklet that was marked as a possible single-ant tracklet. Each of these tracklets will be assigned as either:
 
 * An ID from the list of possible IDs
-* A non-ant tracklet, wither as a general category or a specific one if such exist in the classifier.
-* A multi ant tracklet
-* An ambigious tracklet ('Unknown') in case the classifier couldn't make a decision.  
+* A non-ant tracklet, either as a general category or a specific one if such exist in the classifier.
+* A multi-ant tracklet
+* An ambiguous tracklet ('Unknown') in case the classifier couldn't make a decision.  
 
-Each tracklet is classified by first classifying all blob images belonging to that tracklet, using the *blob classifier* and then weighting these classifications to produce a whole tracklet classification. The blob classifier is a trained deep convolutional network (CNN), that needs to be trained on a trainset of pre-classified blob images
+Each tracklet is classified by first classifying all blob images belonging to that tracklet, using the *blob classifier* and then weighting these classifications to produce a whole tracklet classification. The blob classifier is a trained deep convolutional network (CNN), that needs to be trained on a trainset of pre-classified blob images. 
 
 ### Creating a training set
 
-The blob classifier is a trained deep convolutional network (CNN), that needs to be trained on a trainset of pre-classified blob images. anTraX includes an interactive GUI application to prepare such a training set from a tracked experiment:
+The blob classifier is a trained deep convolutional network (CNN), that needs to be trained on a trainset of pre-classified blob images. anTraX includes an interactive GUI application to prepare such a training set from a tracked experiment. To launch the GUI, type and run in the terminal:
 
 ```console
 antrax extract-trainset <expdir> [--session <session>]
 ```
 
-The app will display blobs images from a randomly selected tracklet, as well as info about the tracklet in the textbox below. Using the buttons on the right, you can select the label appropriate for the tracklet, and either export all images to the train set (using the 'export all' button), or select a subset using the 'select frames' button (a frame selection window will open). You can move between tracklets using the 'Next' and 'Back' buttons.
+The app will display blobs images from a randomly selected tracklet, as well as info about the tracklet in the text-box below. Using the buttons on the right, you can select the label appropriate for the tracklet, and either export all images to the train set (using the ***export all*** button), or select a subset using the 'select frames' button (a frame selection window will open). You can move between tracklets using the ***Next*** and ***Back*** buttons.
 See the [tips and best practices](tips.md#training-and-classification) page regarding what are good training set examples.
 
-By default, the app will load tracklet from the first tracked movie. Tracklets from other movies can be loaded using the 'Tracklet' menu.
+By default, the app will load tracklets from the first tracked movie. Tracklets from other movies can be loaded using the ***Tracklets*** menu.
 
 ![trainset extraction](images/extract-trainset1.png)
 
@@ -29,7 +29,7 @@ By default, the app will load tracklet from the first tracked movie. Tracklets f
 
 ### Merging training sets
 
-The exported examples are saved as images in the experimental directory, under `/session/classifier/examples/id/`. When creating a classifier specific to that experiment, training can be done from that directory. However, in order to create a general classifier to be used on many experiments, it is necessary to create a trainset that contain examples from a few experiments. This can be done with the command:
+The exported examples are saved as images in the experimental directory, under `/session/classifier/examples/id/`. When creating a classifier specific to that experiment, training can be done from that directory. However, in order to create a general classifier to be used on many experiments, it is necessary to create a training set that contains examples from several experiments. This can be done with the command:
 
 ```console
 antrax merge-trainset <source-classdir> <dest-classdir>
@@ -47,13 +47,13 @@ To train the classifier, run:
 antrax train <classdir> [OPTIONS]
 ```
 
-The `classdir` argument is a full path to the directory containing the `examples` directory, and where the classifier will be saved.
+The `classdir` argument can be either a full path to the experimental directory containing the classifier, or to the directory containing the `examples` directory, and where the classifier will be saved.
 
 The train command accepts the following options:
 
 `--scratch`
 
-By default, anTraX will load a pretrained classifier if exists in the `classdir` directory, and run incremental trainnig. If the `--scratch` flag is used, it will initialize a new classifier instead. 
+By default, anTraX will load a pr-trained classifier if it exists in the `classdir` directory, and run incremental training. If the `--scratch` flag is used, it will initialize a new classifier instead. 
 
 `--ne <ne>`
 
@@ -84,9 +84,9 @@ A path to a json file containing a CNN model [serialized by keras](https://www.t
 
 anTraX defines a few possible CNN architectures. To see a complete specification of the architectures, look at the [models.py](https://github.com/Social-Evolution-and-Behavior/anTraX/blob/master/antrax/models.py) file in the anTraX repository.
 
-* **small**: This is the default architecture, which we have found to give the best tradeoff between accuracy, training time and number of examples needed. It has 3 convolutional layers.  
+* **small**: This is the default architecture, which we have found to give the best tradeoff between accuracy, training time, and number of examples needed. It has 3 convolutional layers.  
 
-* **wide**: Also a 3-layered model, but with wider layeres and hence slower to train.
+* **wide**: Also a 3-layered model, but with wider layers and hence slower to train.
 
 * **large**: A 4-layered model.
 
@@ -107,7 +107,7 @@ The classify command accepts the following options:
 
 `--classifier <path-to-classifier file>`
 
-Explicit path to a classifier (`.h5` file created by the train process). By default, anTraX will use the classifier file that exist in the default location in the experimental directory `expdir/session/classifier/classifier.h5`. If it doesn't exist, an erorr will be raised.
+Explicit path to a classifier (`.h5` file created by the train process). By default, anTraX will use the classifier file that exists in the default location in the experimental directory `expdir/session/classifier/classifier.h5`. If it doesn't exist, an error will be raised.
 
 `--movlist <list of movie indices>`
 
@@ -120,12 +120,12 @@ If your experiment contains more than one configured session, anTraX will run on
 
 ### Validating classification and retraining 
 
-Once tracklet in the experiment are classifed, the extract-trainset app can be used to validate the results and export new examples if needed. For a classified experiment, the app will display also the assigned label. If it is incorrect, or if it is unclassified (labeled 'Unknown' although it is identifiable), you can add its images to the trainset the same way as before. Don't forget to choose the correct label before exporting!
+Once the tracklets in the experiment are classified, the *extract-trainset* app can be used to validate the results and export new examples if needed. For a classified experiment, the app will display the assigned label for each displayed tracklet. If it is incorrect, or if it is unclassified (labeled 'Unknown' although it is identifiable), you can add its images to the training set the same way as before. Don't forget to choose the correct label before exporting!
 
-The 'Filter by autoID' option in the 'Tracklet' menu can be used to show only tracklets assigned with a specific label. 
+The ***Filter by autoID*** option in the ***Tracklet*** menu can be used to show only tracklets assigned with a specific label. 
 
-Optionally, you can formally evaluate the performance of the classifier by marking each classification as 'Correct', 'Wrong' or 'Should not have an ID' (if the tracklet is not identifiable). Doing that for a set of tracklet will give an estimate of the classifier performance per-tracklet and per-frame.
+Optionally, you can formally evaluate the performance of the classifier by marking each classification as ***Correct***, ***Wrong*** or ***Should not have an ID*** (if the tracklet is not identifiable). Doing that for a set of tracklets will give an estimate of the classifier performance per-tracklet and per-frame.
 
-Once the trainset has been expanded, train the classifier and rerun classification in the same way as before.
+Once the training set has been expanded, train the classifier and re-run classification in the same way as before.
 
 ![trainset extraction](images/extract-trainset2.png)

@@ -10,13 +10,20 @@ addParameter(p,'interpolate_maxd',0.01);
 addParameter(p,'interpolate_maxf',300);
 addParameter(p,'only_tracklet_table',false,@islogical);
 addParameter(p,'hdf',false);
+addParameter(p,'type','');
 parse(p,G,varargin{:});
 
 
-if ~G.Trck.get_param('tagged') 
+if ~G.Trck.get_param('tagged') || strcmp(p.Results.type,'untagged')
     export_xy_untagged(G, varargin);
+    return
+elseif strcmp(p.Results.type,'noprop')
+    export_xy_noprop(G, 'extrafields',p.Results.extrafields);
+    return
+elseif ~isempty(p.Results.type)
+    report('E','Unknown export type');
+    error('Unknown export type')
 end
-
 
 soft_assigments = G.Trck.get_param('export_use_soft');
 too_long_to_be_wrong = G.Trck.get_param('export_too_long_to_be_wrong');

@@ -118,7 +118,7 @@ def solve_single_graph(ex, g, c, mcr=ANTRAX_USE_MCR):
 
         eng.quit()
 
-    if c is None:
+    if c is None or c == '':
         report('I', 'Finished propagation of graph ' + str(g) + ' in ' + ex.expname)
     else:
         report('I', 'Finished propagation of colony ' + str(c) + ' graph ' + str(g) + ' in ' + ex.expname)

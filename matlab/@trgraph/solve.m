@@ -87,7 +87,7 @@ if G.Trck.get_param('graph_apply_manual_cfg') && exist([G.Trck.paramsdir,'prop.c
                 if ~any(idix)
                     continue
                 end
-                assign(G,node,idix);
+                assign(G,node,idix,inf);
                 G.aux.cfg_src_nodes = unique([G.aux.cfg_src_nodes;node]);
             case 'eliminate'
                 idix = strcmp(cmd.value{i},G.usedIDs);
@@ -127,7 +127,7 @@ for i=1:length(src_nodes)
     if ~rem(i,1000)
         report('I',['    ...finished ',num2str(i),'/',num2str(length(src_nodes))]);
     end
-    ni = assign(G,src_nodes(i),src_idix(i));
+    ni = assign(G,src_nodes(i),src_idix(i),src_score(i));
     n = n + ni;
 end
 
@@ -205,6 +205,8 @@ for i=1:G.NIDs
     
     
     clear cc_score
+    
+    
     for j=1:length(cc)
         
         % cc rank is
@@ -305,11 +307,11 @@ for i=1:G.NIDs
     
     
     % prune multiple src/sink nodes
-    n=0;
+    n1=0;
     for j=1:length(cc)
-        n = n + cc_prune(G,cc{j},idix);
+        n1 = n1 + cc_prune(G,cc{j},idix);
     end
-    report('I',['......pruned ',num2str(n),' nodes'])
+    report('I',['......pruned ',num2str(n1),' nodes'])
     
     
 end
@@ -320,7 +322,12 @@ end
 
 
 
-function n = assign(G,node,id)
+function n = assign(G,node,id,score)
+
+if nargin<4
+    score = nan;
+    disp('No score assignment')
+end
 
 if islogical(id)
     id = find(id);
@@ -330,11 +337,10 @@ end
 if length(id)>1
     n=0;
     for i=1:length(id)
-        n = n + assign(G,node,id(i));
+        n = n + assign(G,node,id(i),score(i));
     end
     return
 end
-
 
 n = 0;
 
@@ -342,9 +348,11 @@ n = 0;
 
 if  ~G.assigned_ids(node,id) && G.possible_ids(node,id)
     G.assigned_ids(node,id) = true;
+    G.assignment_scores(node,id) = score;
     n = n + 1;
 elseif ~G.assigned_ids(node,id) && ~G.safe_prop_mode
     G.assigned_ids(node,id) = true;
+    G.assignment_scores(node,id) = score;
     n = n + 1;
 elseif ~G.possible_ids(node,id)
     if ~isfield(G.aux,'contradictions')
@@ -368,7 +376,7 @@ end
 eliminate(G,overlapping(G,node),id);
 
 % propogate
-nprop = propagate(G,node,id);
+nprop = propagate(G,node,id,score);
 n = n + nprop;
 
 end
@@ -389,14 +397,62 @@ end
 
 function eliminate_cc(G,cc,id)
 
-% when eliminating id from cc, it runs over previous assigments
+% list of nodes in cc
 nodes = cat(1,cc{:});
-G.possible_ids(nodes,id) = false;
-G.assigned_ids(nodes,id) = false;
+
+% which of the nodes are assigned
+assigned = nodes(G.assigned_ids(nodes,id));
+
+if isempty(assigned)
+    % if it is a cc with no assignments, just make it impossible (this was
+    % done to all previously)
+    G.possible_ids(nodes,id) = false;
+    G.assigned_ids(nodes,id) = false;
+else
+    
+    % if it is a cc with assignments, just undo assignments
+    G.assigned_ids(nodes,id) = false;
+    
+    % undo elimination of overlapping nodes
+    for i=1:length(assigned)
+        olnodes{i} = overlapping(G,assigned(i));
+    end
+    
+    olnodes = cat(2,olnodes{:});
+    
+    % but not for single node which are already assigned a different id
+    olnodes = olnodes(~G.finalized(olnodes));
+    
+    G.possible_ids(olnodes,id) = true;
+    
+    % if some overlapping nodes are source nodes with the focal id, rank them by score and
+    % assign
+    srcs = intersect(G.aux.src_nodes, olnodes);
+    srcs = srcs(strcmp(id,{G.trjs.propID}));
+    scores = arrayfun(@(x) x.propScore,G.trjs(srcs));
+    
+    ix = argsort(scores,'descend');
+    scores = scores(ix);
+    srcs = srcs(ix);
+    
+    for i=1:length(srcs)
+        
+        ni = assign(G,srcs(i), id, scores(i));
+    end
+    
+    
+end
+
+
 
 end
 
-function n = propagate(G,node,id)
+function n = propagate(G,node,id,score)
+
+if nargin<4
+    score = nan;
+    disp('No score prop');
+end
 
 n = 0;
 
@@ -406,7 +462,7 @@ assigned = parents(is_assigned(G,parents,id));
 poss = parents(is_possible(G,parents,id));
 
 if isempty(assigned) && numel(poss)==1
-    n1 = assign(G,poss,id);
+    n1 = assign(G,poss,id,score);
     n = n + n1;
 end
 
@@ -416,7 +472,7 @@ assigned = children(is_assigned(G,children,id));
 poss = children(is_possible(G,children,id));
 
 if isempty(assigned) && numel(poss)==1
-    n2 = assign(G,poss,id);
+    n2 = assign(G,poss,id,score);
     n = n + n2;
 end
 
@@ -444,7 +500,8 @@ while true
     for i=1:length(assigned_nodes)
         idix = find(G.assigned_ids(assigned_nodes(i),:));
         for j=1:length(idix)
-            nij = propagate(G,assigned_nodes(i),idix(j));
+            score = G.assignment_scores(assigned_nodes(i),idix(j));
+            nij = propagate(G,assigned_nodes(i),idix(j),score);
             n = n + nij;
         end
     end
@@ -463,6 +520,8 @@ while true
     for i=1:size(G.pairs,1)
         n1 = G.pairs(i,1);
         n2 = G.pairs(i,2);
+        scores1 = G.assignment_scores(n1,:);
+        scores2 = G.assignment_scores(n2,:);
         a = G.possible_ids(n1,:) & G.possible_ids(n2,:);
         b = G.assigned_ids(n1,:) | G.assigned_ids(n2,:);
         c = find(a & b);
@@ -482,8 +541,8 @@ while true
         if isempty(c)
             continue
         end
-        n = n + assign(G,n1,c);
-        n = n + assign(G,n2,c);
+        n = n + assign(G,n1,c,scores2(c));
+        n = n + assign(G,n2,c,scores1(c));
     end
     report('I',['    ...assigned ',num2str(n),' tracklets']);
     nn = nn + n;
@@ -504,7 +563,8 @@ while true
     for i=1:length(assigned_nodes)
         idix = find(G.assigned_ids(assigned_nodes(i),:));
         for j=1:length(idix)
-            nij = propagate(G,assigned_nodes(i),idix(j));
+            score = G.assignment_scores(assigned_nodes(i),idix(j));
+            nij = propagate(G,assigned_nodes(i),idix(j), score);
             n = n + nij;
         end
     end

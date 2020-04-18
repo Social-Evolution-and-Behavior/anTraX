@@ -2,13 +2,13 @@
 
 ### Run a batch job 
 
-Once the session is configured, the next step will be to run the blob tracking on all the videos in the experiment. To start tracking, simply execute the following command in a terminal:
+Once the session is configured, the next step will be to run the blob-tracking step on all the videos in the experiment (see the anTraX publication for details). To start tracking, simply execute the following command in a terminal:
 
 ```console
 antrax track <experiments> [OPTIONS]
 ```
 
-The `experiments` argument can be either a full path to an experimental directory, a full path to a text file with a list of experimental directories (all of which will run in parallel), or a full path to a folder that contains one or more experimental directories (all of which will run in parallel). Note that each of the experiments needs to be configures separately before running the batch job. 
+The `experiments` argument can be either a full path to an experimental directory, a full path to a text file with a list of experimental directories (all of which will run in parallel), or a full path to a folder that contains one or more experimental directories (all of which will run in parallel). Note that each of the experiments needs to be configured separately before running the batch job. 
 
 The track command accepts the following options:
 

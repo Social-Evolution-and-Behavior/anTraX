@@ -15,13 +15,13 @@ anTraX comes with binraries compiled with MATLAB 2019a. If you have MATLAB 2019a
 
 anTraX uses [FFmpeg](https://www.ffmpeg.org/) to read video files.
 
-To install on Ubuntu:
+To install on Ubuntu, open a terminal and type:
 
 ```console
 sudo apt install ffmpeg
 ```
 
-To install on OSX using [homebrew](https://brew.sh/):
+To install on OSX using [homebrew](https://brew.sh/), open a terminal and type:
 
 ```console
 brew install ffmpeg
@@ -78,13 +78,13 @@ source ~/.bash_profile
 
 In case you have MATLAB installed (i.e. you are not using the compiled binaries), you will need to install the [MATLAB engine for python](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html). Take care to install this in the same python environment you installed anTraX to.
 
-You will also need to compile a mex file. In the matlab console, do:
+You will also need to compile a mex file. In the matlab console, type:
 
 ```console
 cd <path-to-anTraX>/matlab
 mex popenr.c
 ```
-If you intend to use anTraX within an interactive MATLAB session (requires an active license), add the repository to your search path. In the MATLAB console, do:
+If you intend to use anTraX within an interactive MATLAB session (requires an active license), add the repository to your search path. In the MATLAB console, type:
 
 ```console
 addpath(genpath(<path-to-anTraX>/matlab));

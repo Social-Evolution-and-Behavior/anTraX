@@ -4,7 +4,6 @@ p = inputParser;
 
 addRequired(p,'G',@(x) isa(x,'trgraph'));
 addParameter(p,'extrafields',{});
-addParameter(p,'csv',false);
 parse(p,G,varargin{:});
 
 
@@ -61,18 +60,3 @@ for i=1:G.NIDs
     end
     mat.(id) = xy;
 end
-
-% write cvs
-if p.Results.csv
-XY = loadxy(G);
-fn = fieldnames(XY);
-XY = struct2table(XY);
-for i=1:length(fn)
-    id = fn{i};
-    varnames{i}={[id,'_X'],[id,'_Y'],[id,'_OR']};
-end
-XY = splitvars(XY,fn,'NewVariableNames',varnames);
-csvfile = [xyfile(1:end-3),'csv'];
-writetable(XY,csvfile);
-end
-

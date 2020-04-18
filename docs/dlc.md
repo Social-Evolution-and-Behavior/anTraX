@@ -1,8 +1,7 @@
 ### DeepLabCut
 
 [DeepLabCut](http://www.mousemotorlab.org/deeplabcut) is a popular software that uses deep neural networks  for pose-tracking animals in videos, developed by the [Mathis lab](http://www.mousemotorlab.org/) at Harvard University. 
-anTraX includes an interface to export cropped single-animal examples from tracked experiments to be labeled in the DeepLabCut interface, as well as options to run DLC trained model in the anTraX interface without the need to export cropped videos from entire experiment. This integration allows creating efficient pipelines that pose-track marked individual animals in large groups.
-
+anTraX includes an interface to export cropped single-animal examples from tracked experiments to be labeled in the DeepLabCut interface, as well as options to run trained DLC models in the anTraX interface without the need to export cropped videos from entire experiment. This integration allows to create efficient pipelines that pose-track marked individual animals in large groups.
 
 ### The anTraX/DLC workflow
 
@@ -22,7 +21,7 @@ pip install deeplabcut
 
 ### Export single ant videos for training 
 
-To export trainng images from anTraX to DLC project, run:
+To export training images from anTraX to DLC project, run:
 
 ```console
 antrax export-dlc-trainset <expdir> <dlcdir> [OPTIONS]
@@ -75,10 +74,6 @@ By default, anTraX will process all movies in the experiment. This can be change
 `--session <session name>`
 
 If your experiment contains more than one configured session, anTraX will run on the last configured one. Use this option to choose a session explicitly.
-
-`--hpc`
-
-Use this flag to run on a slurm computer cluster environemnt.
 
 ### Loading and analyzing postural data
 
