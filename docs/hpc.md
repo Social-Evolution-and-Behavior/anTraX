@@ -59,4 +59,9 @@ Allocate a specific number of cpus per task. The default value will vary accordi
 
 Allocate time for task. Argument is a time string in the format supported by the `sbatch --time <time>` command (see [here](https://slurm.schedmd.com/sbatch.html)).
 
+`mem-per-cpu=<mem>`
+
+Allocate memory per task CPU. Argument in the format supported by the `sbatch --mem-per-cpu <mem>` command (see [here](https://slurm.schedmd.com/sbatch.html)).
+
+
 **Note:** the commands `export-jaaba` and `run-jaaba`  do not currently support hpc mode.

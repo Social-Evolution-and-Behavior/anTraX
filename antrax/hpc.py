@@ -17,6 +17,8 @@ def create_slurm_job_file(opts):
     ntasks = opts.get('ntasks', 1)
     cpus = opts.get('cpus', 2)
 
+    mem_per_cpu = opts.get('mem-per-cpu', None)
+
     email = opts.get('email', None)
 
     if email is None and 'rockefeller' in HOSTNAME:
@@ -43,6 +45,9 @@ def create_slurm_job_file(opts):
         f.writelines("#SBATCH --cpus-per-task=%d\n" % int(cpus))
         if time is not None:
             f.writelines("#SBATCH --time=%s\n" % time)
+
+        if mem_per_cpu is not None:
+            f.writelines("#SBATCH --mem-per-cpu=%s\n" % mem_per_cpu)
 
         if all([a in taskarray for a in range(min(taskarray), max(taskarray) + 1)]):
             f.writelines("#SBATCH --array=%d-%d%%%d\n" % (min(taskarray), max(taskarray), throttle))

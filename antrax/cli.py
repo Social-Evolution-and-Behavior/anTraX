@@ -162,7 +162,7 @@ def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, ant
 
 
 def pair_search(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
-                session=None, dry=False):
+                missing=False, session=None, dry=False):
 
     explist = parse_explist(explist, session)
 
@@ -170,6 +170,7 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=
         for e in explist:
             hpc_options['dry'] = dry
             hpc_options['movlist'] = movlist
+            hpc_options['missing'] = missing
             antrax_hpc_job(e, 'pair-search', opts=hpc_options)
     else:
 
@@ -189,7 +190,7 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=
 
 
 def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifier=None, onlystitch=False, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
-          session=None, dry=False):
+          missing=False, session=None, dry=False):
 
     explist = parse_explist(explist, session)
 
@@ -198,6 +199,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifie
         for e in explist:
             report('D', '--tracking experiment ' + e.expname + '--')
             hpc_options['dry'] = dry
+            hpc_options['missing'] = missing
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'track', opts=hpc_options)
@@ -223,7 +225,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifie
 
 
 def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
-          session=None, dry=False):
+          missing=False, session=None, dry=False):
 
     explist = parse_explist(explist, session)
 
@@ -233,6 +235,7 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
 
             hpc_options['dry'] = dry
             hpc_options['classifier'] = classifier
+            hpc_options['missing'] = missing
             hpc_options['glist'] = glist if glist is not None else e.glist
 
             if e.prmtrs['geometry_multi_colony']:
@@ -318,7 +321,8 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
 
 
 def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
-             nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False, dry=False):
+             nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False, dry=False,
+             missing=False):
 
     explist = parse_explist(explist, session)
 
@@ -340,6 +344,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=ANTRA
             hpc_options['dry'] = dry
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
+            hpc_options['missing'] = missing
             antrax_hpc_job(e, 'classify', opts=hpc_options)
         else:
             if from_expdir:
@@ -347,7 +352,8 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=ANTRA
             c.predict_experiment(e, movlist=movlist, report=True)
 
 
-def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options=' ', dry=False):
+def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options=' ',
+        missing=False, dry=False):
     """Run DeepLabCut on antrax experiment
 
      :param explist: path to experiment folder, path to file with experiment folders, path to a folder containing several experiments
@@ -365,6 +371,7 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_H
             hpc_options['dry'] = dry
             hpc_options['cfg'] = cfg
             hpc_options['movlist'] = movlist
+            hpc_options['missing'] = missing
             antrax_hpc_job(e, 'dlc', opts=hpc_options)
         else:
             from antrax.dlc import dlc4antrax
@@ -373,7 +380,7 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_H
 
 
 def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC,
-                 dry=False, hpc_options: parse_hpc_options=' '):
+                 missing=False, dry=False, hpc_options: parse_hpc_options=' '):
 
     explist = parse_explist(explist, session)
 
@@ -382,6 +389,7 @@ def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mc
         for e in explist:
             hpc_options['dry'] = dry
             hpc_options['movlist'] = movlist
+            hpc_options['missing'] = missing
             antrax_hpc_job(e, 'export_jaaba', opts=hpc_options)
     else:
 
@@ -400,7 +408,7 @@ def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mc
 
 
 def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=None, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC,
-              hpc_options: parse_hpc_options=' ', dry=False):
+              missing=False, hpc_options: parse_hpc_options=' ', dry=False):
 
     explist = parse_explist(explist, session)
 
@@ -413,6 +421,7 @@ def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=N
         for e in explist:
             hpc_options['dry'] = dry
             hpc_options['movlist'] = movlist
+            hpc_options['missing'] = missing
             hpc_options['jab'] = jab
             antrax_hpc_job(e, 'export_jaaba', opts=hpc_options)
     else:
