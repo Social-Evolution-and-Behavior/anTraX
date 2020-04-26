@@ -44,6 +44,7 @@ class axExperiment:
         self.logsdir = join(self.sessiondir, 'logs')
         self.prmtrs = self.get_prmtrs()
         self.movies_info = self.get_movies_info()
+        self.job_table_file = self.sessiondir + '/.antrax_job_table.csv'
 
         self.alt_expname = self.expname
 

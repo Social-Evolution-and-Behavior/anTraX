@@ -9,7 +9,7 @@ def readme():
 
 
 setup(name='antrax',
-      version='0.2-alpha',
+      version='1.0-beta',
       description='Python interface to anTraX tracking software',
       long_description=readme(),
       long_description_content_type='text/markdown',

@@ -242,7 +242,12 @@ class axClassifier:
         lix = s.argmax()
 
         frame_score = y1[:, ant_cols[lix]]
+
+        # def #1: just the sum of the frame scores for the assigned ID
         score = frame_score.sum()
+
+        # def #2:
+        # score = frame_score.sum() / y1[:, ant_cols[lix]]
 
         score = score.tolist()
         label = self.classes[ant_cols[lix]]

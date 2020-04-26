@@ -3,6 +3,15 @@
 As described in the anTraX publication, the software was benchmarked using 9 different datasets, representing a variety of possible use cases. All datasets, including the anTraX configuration files used to track them can be downloaded HERE.
 
 
+
+
+
+![datasets table 1](images/datasets_table1.png)
+
+
+![datasets table 2](images/datasets_table2.png)
+
+
 ### Dataset J16
 
 A colony of 16 clonal raider ants (*O. biroi*) tracked for 24 hours. This videos in this example are taken with a simple webcam, using low resolution (10 pix/mm, representing around 5x5 pixels per tag).

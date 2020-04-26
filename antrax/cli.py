@@ -96,13 +96,14 @@ def configure(expdir=None, *, mcr=ANTRAX_USE_MCR):
 
 
 def extract_trainset(expdir, *, session=None, mcr=ANTRAX_USE_MCR):
-    """Launch antrax configuration app"""
+    """Launch antrax trainset extraction app"""
 
     args = [expdir] if session is None else [expdir, 'session', session]
     launch_matlab_app('validate_classifications', args, mcr=mcr)
 
 
 def merge_trainset(source, target):
+    """Merge two trainsets"""
 
     mkdir(target)
     mkdir(target + '/examples')
@@ -126,19 +127,21 @@ def merge_trainset(source, target):
 
 
 def graph_explorer(expdir, *, m=0, session=None, mcr=ANTRAX_USE_MCR):
+    """Launch graph-explorer app"""
 
     args = [expdir, 'm', m] if session is None else [expdir, 'm', m, 'session', session]
     launch_matlab_app('graph_explorer_app', args, mcr=mcr)
 
 
 def validate(expdir, *, session=None, mcr=ANTRAX_USE_MCR):
-    """Launch antrax configuration app"""
+    """Launch antrax validation app"""
 
     args = [expdir] if session is None else [expdir, 'session', session]
     launch_matlab_app('validate_tracking', args, mcr=mcr)
 
 
 def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, antlist=None, nimages=100, video=False, username='anTraX'):
+    """Export trainset for DeepLabCut"""
 
     import deeplabcut as dlc
     from antrax.dlc import  create_trainset
@@ -191,6 +194,7 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=
 
 def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifier=None, onlystitch=False, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
           missing=False, session=None, dry=False):
+    """Run tracking step"""
 
     explist = parse_explist(explist, session)
 
@@ -226,6 +230,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifie
 
 def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
           missing=False, session=None, dry=False):
+    """Run propagation step"""
 
     explist = parse_explist(explist, session)
 
@@ -274,6 +279,7 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
 def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, arch='small', modelfile=None,
           target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
           dry=False):
+    """Train a blob classifier"""
 
 
     if not is_classdir(classdir):
@@ -323,6 +329,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
 def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
              nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False, dry=False,
              missing=False):
+    """Run classification step"""
 
     explist = parse_explist(explist, session)
 
@@ -354,7 +361,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=ANTRA
 
 def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options=' ',
         missing=False, dry=False):
-    """Run DeepLabCut on antrax experiment
+    """Run DeepLabCut on antrax experiments
 
      :param explist: path to experiment folder, path to file with experiment folders, path to a folder containing several experiments
      :param session: run on specific session
@@ -381,6 +388,13 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_H
 
 def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC,
                  missing=False, dry=False, hpc_options: parse_hpc_options=' '):
+    """Export data to JAABA"""
+
+    if mcr or hpc:
+        print('')
+        print('antrax does not currently support jaaba commands in MCR mode')
+        print('')
+        return
 
     explist = parse_explist(explist, session)
 
@@ -409,6 +423,13 @@ def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mc
 
 def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=None, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC,
               missing=False, hpc_options: parse_hpc_options=' ', dry=False):
+    """Run JAABA classifier on antrax experiments"""
+
+    if mcr or hpc:
+        print('')
+        print('antrax does not currently support jaaba commands in MCR mode')
+        print('')
+        return
 
     explist = parse_explist(explist, session)
 
@@ -459,4 +480,7 @@ def main():
         'pair-search': pair_search
     }
 
-    run(function_list)
+    run(function_list, description="""
+    anTraX is a software for high-throughput tracking of color tagged insects, for full documentation, see antrax.readthedocs.io
+    
+    """)

@@ -160,6 +160,7 @@ def antrax_hpc_job(ex, step, opts):
         opts['cmd'] = 'antrax track ' + ex.expdir + \
             ' --session ' + ex.session + \
             ' --movlist $SLURM_ARRAY_TASK_ID' + \
+            ' --nw 1' + \
             ' --mcr'
 
     elif step == 'pair-search':
@@ -171,6 +172,7 @@ def antrax_hpc_job(ex, step, opts):
         opts['cmd'] = 'antrax pair-search ' + ex.expdir + \
                   ' --session ' + ex.session + \
                   ' --movlist $SLURM_ARRAY_TASK_ID' + \
+                  ' --nw 1' + \
                   ' --mcr'
 
     elif step == 'post':
@@ -200,7 +202,8 @@ def antrax_hpc_job(ex, step, opts):
         opts['cpus'] = opts.get('cpus', 4)
         opts['cmd'] = 'antrax solve ' + ex.expdir + \
             ' --session ' + ex.session + \
-            ' --glist $SLURM_ARRAY_TASK_ID' + \
+            ' --glist $SLURM_ARRAY_TASK_ID ' + \
+            ' --nw 1 ' + \
             ' --mcr'
 
         if opts['c'] is not None:
