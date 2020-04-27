@@ -86,6 +86,15 @@ def start_matlab():
     return eng
 
 
+def compile_antrax_executables():
+
+    eng = start_matlab()
+    p = eng.genpath(ANTRAX_PATH + '/matlab')
+    eng.addpath(p, nargout=0)
+    eng.compile_antrax_executables(nargout=0)
+    eng.quit()
+    
+
 def solve_single_graph(ex, g, c, mcr=ANTRAX_USE_MCR):
 
     if c is None:
@@ -95,7 +104,6 @@ def solve_single_graph(ex, g, c, mcr=ANTRAX_USE_MCR):
     else:
         report('I', 'Start ID propagation of colony ' + str(c) + ' graph ' + str(g) + ' in ' + ex.expname)
         diaryfile = join(ex.logsdir, 'solve_matlab_' + str(g) + '_c_' + str(c) + '.log')
-
 
     if mcr:
 

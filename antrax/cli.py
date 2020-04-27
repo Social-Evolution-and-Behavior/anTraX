@@ -88,6 +88,12 @@ def parse_explist(exparg, session=None):
 ########################### Run functions ##########################
 
 
+def compile_antrax():
+    """Compile antrax executables"""
+
+    compile_antrax_executables()
+
+
 def configure(expdir=None, *, mcr=ANTRAX_USE_MCR):
     """Launch antrax configuration app"""
 
@@ -477,7 +483,8 @@ def main():
         'classify': classify,
         'solve': solve,
         'dlc': dlc,
-        'pair-search': pair_search
+        'pair-search': pair_search,
+        'compile': compile_antrax
     }
 
     run(function_list, description="""
