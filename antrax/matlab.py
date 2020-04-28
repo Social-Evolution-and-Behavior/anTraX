@@ -298,7 +298,6 @@ def launch_matlab_app(appname, args, mcr=ANTRAX_USE_MCR):
 
     else:
 
-
         eng = start_matlab()
         args = ['"' + a + '"' if type(a) is str else str(a) for a in args]
         app = eval('eng.' + appname + '(' + ','.join([str(a) for a in args]) + ')')

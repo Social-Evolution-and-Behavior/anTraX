@@ -75,7 +75,6 @@ To debug the tracking, manually fix an important point in the experiment, or jus
 ```console
 antrax graph-explorer <path-to-JS16> 
 ```
->  **Note:** Due to a bug, the graph-explorer app cannot be lanched from the command line in MCR (compiled) mode. As a workaround, it can be launched from the anTraX main app, by selecting it from the **Tools** menu, after loading an experiment.
 
 See [Using the graph explorer to view and debug ID assignments](propagation.md#using-the-graph-explorer-to-view-and-debug-id-assignments) for details about using the app.
 
