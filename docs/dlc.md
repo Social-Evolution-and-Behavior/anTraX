@@ -39,7 +39,7 @@ By default, anTraX will select frames from all movies in the experiment. This ca
 
 `--antlist <antlist>`
 
-By default, anTraX will select frames from all ants in the experiment. This can be changed by using this option, providing a comma seperated list of IDs. Example: `--antlist BB,GP,PO`.
+By default, anTraX will select frames from all ants in the experiment. This can be changed by using this option, providing a comma separated list of IDs. Example: `--antlist BB,GP,PO`.
 
 `--video`
 
@@ -47,7 +47,7 @@ By default, the extracted frames will be saved as images in the DeepLabCut proje
 
 `--session <session>`
 
-If your experiment contains more than one configured session, anTraX will export examples  from the last configured one. Use this option to choose a session explicitly.
+If your experiment includes more than one configured session, anTraX will export examples  from the last configured one. Use this option to choose a session explicitly.
 
 ### Train a DeepLabCut model
 
@@ -89,7 +89,7 @@ antdata.set_dlc()
 
 Note that loading pose tracking data for a full experiment might take some time if the experiment is long. Consider loading a partial dataset using the `movlist` argument for initial exploration before doing a full analysis.
 
-Refer to the example jupyter notebook for a more elaborated example.
+Refer to the example jupyter notebook for an elaborated example.
 
 
 

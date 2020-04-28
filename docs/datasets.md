@@ -1,6 +1,6 @@
 
 
-As described in the anTraX publication, the software was benchmarked using 9 different datasets, representing a variety of possible use cases. All datasets, including the anTraX configuration files used to track them can be downloaded HERE.
+As described in the anTraX publication, the software was benchmarked using 9 different datasets, representing a variety of possible use cases. All datasets, including the anTraX configuration files used to track them are [available for download](https://zenodo.org/record/3740547).
 
 
 
@@ -20,21 +20,21 @@ A colony of 16 clonal raider ants (*O. biroi*) tracked for 24 hours. This videos
 
 ### Dataset A36
 
-A colony of 36 clonal raider ant (*O. biroi*) tracked for 24 hours. The videos in this example are taken with FLIR-Flea3 12MP camera at a relatively high resolution (25 pix/mm), enabling to distinguish between more colors, and to augment the basic tracking with pose tracking using DeepLabCut (see anTraX publication).
+A colony of 36 clonal raider ants (*O. biroi*) tracked for 24 hours. The videos in this example are taken with FLIR-Flea3 12MP camera at a relatively high resolution (25 pix/mm), enabling the program to distinguish between more colors, and to augment the basic tracking with pose tracking using DeepLabCut (see anTraX publication).
 
 ![A36](images/A36.png)
 
 
 ### Dataset V25
 
-A colony of 25 clonal raider ant (*O. biroi*) tracked for 6 hours. The videos in this example are taken with a simple webcam, but using higher resolution than in dataset J16. Although the resolution is high, the image quality in this example is reduced by an acrylic cover placed between the ants and the camera. This dataset is an example for tracking an open boundry arena, where ants can leave and enter through a specific part of the boundry.
+A colony of 25 clonal raider ants (*O. biroi*) tracked for 6 hours. The videos in this example are taken with a simple webcam, but using higher resolution than in dataset J16. Although the resolution is high, the image quality in this example is reduced by an acrylic cover placed between the ants and the camera. This dataset is an example for tracking an open boundry arena, where ants can leave and enter through a specific part of the boundry.
 
 ![V25](images/V25.png)
 
 
 ### Dataset G6X16
 
-This dataset is an example for tracking multiple colonies within the same video (6 colonies of 16 *O. biroi* ants). In addition, the image quality in this exampke is reduced by the low contrast between the ants and the background, the petri dish covers, and ligh reflections from those covers.
+This dataset is an example for tracking multiple colonies within the same video (6 colonies of 16 *O. biroi* ants). In addition, the image quality in this example is reduced by the low contrast between the ants and the background, the petri dish covers, and light reflections from those covers.
 
 ![G6X16](images/G6X16.png)
 

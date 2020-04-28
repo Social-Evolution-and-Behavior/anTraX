@@ -1,4 +1,4 @@
-In this tutorial, we will track a small example dataset, included with anTraX. The dataset consists of a thirty minutes recording of a colony of 16  *Ooceraea biroi* ants, split into 6 video files, each of  5 minutes duration. This dataset is a short segment of the longer [J16 benchmark dataset](datasets.md#dataset-j16), which is also available for dowload together with all the other benchmark datasets. Unlike these larger datasets, the JS16 dataset is appropriate to track on a laptop/desktop computer in a reasonable time.
+In this tutorial, we will track a small example dataset, included with anTraX. The dataset consists of a thirty minute recording of a colony of 16  *Ooceraea biroi* ants, split into 6 video files, each of  5 minutes duration. This dataset is a short segment of the longer [J16 benchmark dataset](datasets.md#dataset-j16), which is also available for dowload together with all the other benchmark datasets. Unlike these larger datasets, the JS16 dataset is appropriate to track on a laptop/desktop computer in a reasonable time.
 
 All commands in the tutorial are to be entered in the bash terminal of your system, in the same environment anTraX was installed into.
 
@@ -28,11 +28,11 @@ The first step is the tracking. To run it, enter in the terminal:
 antrax track <path-to-JS16> --nw 3
 ```
 
-The `--nw 3` option tells anTraX to run 3 parallel tracking threads. For s full  listing of the options for the track command, refer to the [Runnning the tracking](tracking.md) section.  
+The `--nw 3` option tells anTraX to run 3 parallel tracking threads. For a full listing of the options for the track command, refer to the [Runnning the tracking](tracking.md) section.  
 
 ### Train a classifier
 
-Once tracking is complete, the next step is to train a blob classifier. The dataset includes an already trained classifier and a set of examples. But for the purpose of this example, let's run an aditional round of training with 3  epochs:
+Once tracking is complete, the next step is to train a blob classifier. The dataset includes an already trained classifier and a set of examples. But for the purpose of this example, let's run an additional round of training with 3  epochs:
 
 ```console
 antrax train <path-to-JS16>/antrax_demo/classifier --ne 3
@@ -57,7 +57,7 @@ The final step of the algorithm is running the graph propagation, or the 'solve'
 antrax solve <path-to-JS16>
 ```
 
-For full  explanation of this step and the all the command options, refer to the [Graph propagation](propagation.md) section of the documentations. 
+For a full explanation of this step and the all the command options, refer to the [Graph propagation](propagation.md) section. 
 
 #### Validate tracking
 
@@ -75,6 +75,7 @@ To debug the tracking, manually fix an important point in the experiment, or jus
 ```console
 antrax graph-explorer <path-to-JS16> 
 ```
+>  **Note:** Due to a bug, the graph-explorer app cannot be lanched from the command line in MCR (compiled) mode. As a workaround, it can be launched from the anTraX main app, by selecting it from the **Tools** menu, after loading an experiment.
 
 See [Using the graph explorer to view and debug ID assignments](propagation.md#using-the-graph-explorer-to-view-and-debug-id-assignments) for details about using the app.
 

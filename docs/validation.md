@@ -14,6 +14,6 @@ anTraX includes a graphical interface to easily validate tracking results. To la
 antrax validate <expdir> [--session <session>]
 ```
 
-The app will randomly select an assigment of an ID to a blob. The user should respond by pressing either ***Correct***, ***Incorrect***, or ***Can't say***. The text-box will display the accumulated error and its confidence interval. Use the ***Assigment*** menu to estimate the error for a specific ID, time range, or a colony (for multi-colony experiments).
+The app will randomly select an assigment of an ID to a blob. The user should respond by pressing either ***Correct***, ***Incorrect***, or ***Can't say***. The text box will display the accumulated error and its confidence interval. Use the ***Assigment*** menu to estimate the error for a specific ID, time range, or a colony (for multi-colony experiments).
 
 ![Validation app](images/validation1.png)

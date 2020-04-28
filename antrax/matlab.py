@@ -93,7 +93,18 @@ def compile_antrax_executables():
     eng.addpath(p, nargout=0)
     eng.compile_antrax_executables(nargout=0)
     eng.quit()
-    
+
+
+def compile_mex():
+
+    try:
+        eng = start_matlab()
+        eng.cd(ANTRAX_PATH + '/matlab/external/popenmatlab', nargout=0)
+        eng.mex('popenr.c', nargout=0)
+        eng.quit()
+    except:
+        print('Failed compiling mex, probably no matlab is installed')
+
 
 def solve_single_graph(ex, g, c, mcr=ANTRAX_USE_MCR):
 

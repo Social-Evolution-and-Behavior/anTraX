@@ -1,8 +1,8 @@
 ### Installation
 
-In principle, anTraX installation on an HPC environment is the same as installation on any other Linux machine. The main difference is that typically, you will not have administrator privileges to intall system-wide packages on the HPC. Luckily, there are not many of those required by anTraX. You will need to install MATLAB Runtime for version 2019a. You **do not** need to install MATLAB engine for python.
+In principle, anTraX installation on an HPC environment is the same as installation on any other Linux machine. The main difference is that typically, you will not have administrator privileges to intall system-wide packages on the HPC. Luckily, there are not many of those required by anTraX. You will also need to install MATLAB Runtime for version 2019a. You **do not** need to install MATLAB engine for python.
 
-We recommend using a conda environemnt to setup anTraX on HPC, as it enables installation of several packages such as [ffmpeg](https://anaconda.org/conda-forge/ffmpeg). If some packages are still missing and are not available in conda, work with your system administrator to find a solution.
+We recommend using a conda environemnt to setup anTraX on HPC, as it enables installation of required system packages such as [ffmpeg](https://anaconda.org/conda-forge/ffmpeg). If some packages are still missing and are not available in conda, work with your system administrator to find a solution.
 
 If you plan on using DeepLabCut, install it into the python environment, and set it to 'light mode'  in  the bash profile file:
 
@@ -37,7 +37,7 @@ anTraX will then submit a SLURM job for each experiment, each containing a task 
 
 The optional `--dry` flag will create a SLURM jobfile, but will not submit it. It is useful to make changes to the sbatch options not currently supported by the anTraX interface.
 
-The optional `--hpc-options` argument can control some of the SLURM options and accepts a comma seperated list of some of the following options:
+The optional `--hpc-options` argument can control some of the SLURM options and accepts a comma separated list of some of the following options:
 
 `throttle=<throttle>`
 

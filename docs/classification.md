@@ -11,7 +11,7 @@ Each tracklet is classified by first classifying all blob images belonging to th
 
 ### Creating a training set
 
-The blob classifier is a trained deep convolutional network (CNN), that needs to be trained on a trainset of pre-classified blob images. anTraX includes an interactive GUI application to prepare such a training set from a tracked experiment. To launch the GUI, type and run in the terminal:
+anTraX includes an interactive GUI application to prepare such a training set from a tracked experiment. To launch the GUI, type and run in the terminal:
 
 ```console
 antrax extract-trainset <expdir> [--session <session>]
@@ -35,7 +35,7 @@ The exported examples are saved as images in the experimental directory, under `
 antrax merge-trainset <source-classdir> <dest-classdir>
 ```
 
-This will merge all the examples from the source classifier directory (usually `expdir/session/classifier`) into the destination classifier directory. It is recommended to keep multi-experiment classifiers seperate from any specific experimental directory to avoid confusion.
+This will merge all the examples from the source classifier directory (usually `expdir/session/classifier`) into the destination classifier directory. It is recommended to keep multi-experiment classifiers separate from any specific experimental directory to avoid confusion.
 
 **Important:** the user is responsible for making sure the lists of labels match when merging trainsets. Otherwise, problems might occur.
 
@@ -53,7 +53,7 @@ The train command accepts the following options:
 
 `--scratch`
 
-By default, anTraX will load a pr-trained classifier if it exists in the `classdir` directory, and run incremental training. If the `--scratch` flag is used, it will initialize a new classifier instead. 
+By default, anTraX will load a pre-trained classifier if it exists in the `classdir` directory, and run incremental training. If the `--scratch` flag is used, it will initialize a new classifier instead. 
 
 `--ne <ne>`
 
@@ -84,7 +84,7 @@ A path to a json file containing a CNN model [serialized by keras](https://www.t
 
 anTraX defines a few possible CNN architectures. To see a complete specification of the architectures, look at the [models.py](https://github.com/Social-Evolution-and-Behavior/anTraX/blob/master/antrax/models.py) file in the anTraX repository.
 
-* **small**: This is the default architecture, which we have found to give the best tradeoff between accuracy, training time, and number of examples needed. It has 3 convolutional layers.  
+* **small**: This is the default architecture, which we have found to give the best trade-off between accuracy, training time, and number of examples needed. It has 3 convolutional layers.  
 
 * **wide**: Also a 3-layered model, but with wider layers and hence slower to train.
 

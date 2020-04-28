@@ -38,6 +38,8 @@ To launch:
 antrax graph-explorer <expdir> [--session]
 ```
 
+> **Note:** Due to a bug, the graph-explorer app cannot be lanched from the command line in MCR (compiled) mode. As a workaround, it can be launched from the anTraX main app, by selecting it from the **Tools** menu, after loading an experiment. 
+
 ![Graph Explorer](images/graph-explorer1.png)
 
 * To load a graph, choose a movie (and a colony if applicable) under the 'Graph' menu.

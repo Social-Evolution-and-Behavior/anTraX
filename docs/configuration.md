@@ -1,6 +1,6 @@
 ### What is a session?
 
-A tracking *session* is a run of the algorithm with a set of settings and parameters. In the typical case, you will only create one session per experiment. However, it is sometimes usefull to play around with a different parameter set without overwriting existing results, or track different parts of the experiment with different parameter sets. In these cases, multiple sessions should be created. The session, together with its parameters and results, is stored as a subdirectory of the experimental directory and is named by the session identifier name.
+A tracking *session* is a run of the algorithm with a set of settings and parameters. In the typical case, you will only create one session per experiment. However, it is sometimes useful to play around with a different parameter set without overwriting existing results, or track different parts of the experiment with different parameter sets. In these cases, multiple sessions should be created. The session, together with its parameters and results, is stored as a subdirectory of the experimental directory and is named by the session identifier name.
 
 ### Launching the anTraX app
 
@@ -10,9 +10,9 @@ To create and configure a tracking session, simply launch the anTraX app by ente
 antrax configure [expdir]
 ```
 
-The optional argument `expdir` is a full path to the experimental directory to be configured. If omitted, a directory selection dialog will appear to select the experiment. You can move between experiments by using the options in the `Experiment` menu.
+The optional argument `expdir` is a full path to the experimental directory to be configured. If omitted, a directory selection dialog box will appear to select the experiment. You can move between experiments by using the options in the `Experiment` menu.
 
-Any configuration changes are saved on-the-fly. When finished, just exit the app and the session will be saved. 
+Any configuration changes are saved on the fly. When finished, just exit the app and the session will be saved. 
 
 
 ### Creating/loading a tracking session
@@ -23,7 +23,7 @@ You can move between sessions, or create new ones, by using the options in the `
 
 ### Displaying video frames
 The anTraX application window is divided into two main parts: configuration panel on the left, and the frame viewer on the right. The configuration panel contains multiple tabs corresponding to the algorithm step. The displayed image will be augmented according to the configuration tab currently active.
-The frames in the experiment can be browsed using the selectors on the top part of the configuration panel (outlined in purple), which will appear in most of the configuration tabs. A frame in the experimement can be defined either by its video index (the ***Movie number***) and the frame index in that video (the ***Movie frame*** selector), or by its total index in the experiment (the ***Absolute frame*** selector).
+The frames in the experiment can be browsed using the selectors on the top part of the configuration panel (outlined in purple), which will appear in most of the configuration tabs. A frame in the experiment can be defined either by its video index (the ***Movie number*** selector)  and the frame index in that video (the ***Movie frame*** selector), or by its total index in the experiment (the ***Absolute frame*** selector).
 
 ![Frame display selection](images/frame_selection.png)
 
@@ -35,7 +35,7 @@ Use the ***method*** dropdown to select between the possible background computat
 
 ***One BG*** option will generate a single background to be used throughout the tracking. With this option, you can select a frame range for selecting frames (useful for cases where some parts of the experiment are more suitable for background calculation).
 
-***BG per subdir*** will generate a separate background frame for each subdirectory of videos. This option is useful for cases where there are movements between the location of the arena in the frame between recording session, or some other change in filming conditions.
+***BG per subdir*** will generate a separate background frame for each subdirectory of videos. This option is useful for cases where there are movements between the location of the arena in the frame between recording sessions, or some other change in filming conditions.
 
 The ***Create BG*** button will start the background creation process. Depending on the parameters, this might take several minutes. After the computation is done, the new background will be displayed. If several backgrounds are created, you can choose which one is displayed from the BG file dropdown menu.
 
@@ -81,7 +81,7 @@ The ***Open Boundary*** option is used to mark parts of the ROI perimeter that a
 
 After subtracting the image from the background, anTrax segments the image into foreground and background, with the foreground being composed of several connected components ('blobs'). This is a multi-parameter process that should be tuned for each experiment. 
 
-On the ***Segmentation*** tab, several of the segmentation parameter can be tuned, while displaying the results. The control parameters include:
+On the ***Segmentation*** tab, several of the segmentation parameters can be tuned, while displaying the results. The control parameters include:
 
 * ***Segmentation threshold:*** in units of gray value difference between image and background.
 	
@@ -94,7 +94,7 @@ On the ***Segmentation*** tab, several of the segmentation parameter can be tune
 * ***Opening (pixels):*** Optional morphological opening, eroding thin pixel lines.
 Min intensity (gray level). Blobs with maximum intensity lower than this value will be discarded.
 
-* ***Convex hull:*** Fill in the blob convex hull. Using in cases where there is bad contrast between parts of the ant and the background.
+* ***Convex hull:*** Fill in the blob convex hull. Useful in cases where there is bad contrast between parts of the ant and the background.
 	
 * ***Fill holes:*** Useful when very bright tags are used, that do not have good contrast with the background and appear as 'holes' in the blob.
 	
@@ -113,7 +113,7 @@ anTrax uses the size of an individual ant for filtering possible single ant trac
 
 ### Tuning the linking step
 
-Linking is the process of connecting blobs from consecutive frames into tracklets. Linked blobs are assumed to represent a case where some or all of the ants that are included in the blob from the first frame also included in the blob in the second frame. A blob can be linked to zero, one or multiple blobs in the the other frame. 
+Linking is the process of connecting blobs from consecutive frames into tracklets. Linked blobs are assumed to represent a case where some or all of the ants that are included in the blob from the first frame are also included in the blob in the second frame. A blob can be linked to zero, one, or multiple blobs in the the other frame. 
 
 As described in the paper, anTraX uses optical flow to link blobs. This is used whenever a blob has more than one possible blob to link to inside its "linking cluster".
 
@@ -141,19 +141,19 @@ The label list is defined by the file `expdir/session/parameters/labels.csv`. Ea
 
 ![Labels file](images/labels.png)
 
-The ***IDs*** tab is an easy way to configure the list of labels for cases where animals are marked with two color tags: First, check the boxes of the color tags used. A label list containing all possible combinations will be created. Next, trim the list to include only the actually used combinations. Finally, add no-ant labels as needed. 
+The ***IDs*** tab is an easy way to configure the list of labels for cases where animals are marked with two color tags. First, check the boxes of the color tags used. A label list containing all possible combinations will be created. Next, trim the list to only include the combinations actually used. Finally, add no-ant labels as needed. 
 
 ### Tuning the graph propagation step
 
 The **Propagation** tab is used to configure the graph propagation step. 
 
-Propation is done in parallel on movie groups. You can select how movies are grouped using the ***Group by*** drop down list. The ***movie*** option will processed separately. This is the fastest option, but will be less optimal near the start/end of the movie. It is appropriate for either long movies or when movies are not continious in time. The ***subdir*** option will group movies according to the subdirectory organization (see the [data organization page ](data_organization.md)). The ***experiment*** option will group all movies in the experiment together. This is the slowest option, and is recommended only for short experiement (less than 24 hours). The ***custom*** option allows the user to define custom movie groups.
+Propation is done in parallel on movie groups. You can select how movies are grouped using the ***Group by*** drop down list. The ***movie*** option will processed separately. This is the fastest option, but will be less optimal near the start/end of the movie. It is appropriate for either long movies or when movies are not continuous in time. The ***subdir*** option will group movies according to the subdirectory organization (see the [data organization page ](data_organization.md)). The ***experiment*** option will group all movies in the experiment together. This is the slowest option, and is recommended only for short experiements (less than 24 hours). The ***custom*** option allows the user to define custom movie groups.
 
-The groups are enumerated by sequence of integers from 1 to the number of groups. This enumeration is used in the [batch run](propagation.md#propagating-ids-on-tracklet-graphs) to identify the group.
+The groups are enumerated in sequence from 1 to the number of groups. This enumeration is used in the [batch run](propagation.md#propagating-ids-on-tracklet-graphs) to identify the group.
 
-The **Pairs search depth** parameter controls the graph radius over which the algorithm search for topological propagation opportunities (see the [anTraX paper]). High number might give better results, but will overhead the algorithm. A value between 5-10 usually gives the best tradeoff.
+The **Pairs search depth** parameter controls the graph radius over which the algorithm searches for topological propagation opportunities (see the [anTraX paper]). A high number might give better results, but will overhead the algorithm. A value between 5-10 usually gives the best tradeoff.
 
-The **Max iteration** parameter imposes a limit on the number of total iterations the propagation algorithms performs. In most cases, the algorithm converges after a few iterations. For the rare cases where it does not, a value of 10 usually represents a good tradeoff.
+The **Max iteration** parameter imposes a limit on the number of total iterations the propagation algorithm performs. In most cases, the algorithm converges after a few iterations. For the rare cases where it does not, a value of 10 usually represents a good tradeoff.
 
 The **Impossible speed** parameter is used to filter out cases where the algorithm assigns IDs to tracklets that represent an impossible traveling speed for an ant. Use a very conservative value here, as many times there is a lag in the movie (as a results of skipping frames in the recording) that is not captured correctly by the interval frame data. A value of at least twice the max speed is recommended. 
 
@@ -171,25 +171,25 @@ command colony id from to
 
 The time arguments `from` and `to` can be either `start` for the first frame in the experiment, `end` for the last frame in the experiment, `m` followed by a number for the first frame in a movie (e.g. `m3`), 'f' followed by a number for a specific frame in the experiment (e.g. `f4000`), or a combination of a movie and frame for a specific frame in a specific movie (e.g. `m9f1000`).
 
-To remove the id GP for colony C1 for the entire experiment:
+To remove the id GP in colony C1 for the entire experiment:
 
 ```console
 remove C1 GP start end
 ```
 
-To remove YY for colony C5 from movie 22 to the end:
+To remove YY in colony C5 from movie 22 to the end:
 
 ```console
 remove C5 YY m22 end
 ```
 
-To remove BG for all colonies for frames 20000 to 30000:
+To remove BG in all colonies for frames 20000 to 30000:
 
 ```console
 remove all BG f20000 f30000
 ```
 
-To remove PP for colony A from frame 100 in movie 4 to frame 2000 in movie 7:
+To remove PP in colony A from frame 100 in movie 4 to frame 2000 in movie 7:
 
 ```console
 remove A PP m4f100 m7f2000
