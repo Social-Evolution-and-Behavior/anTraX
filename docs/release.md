@@ -1,3 +1,7 @@
+### Release notes for version 1.0.2
+
+Some organizational changes. This is the version submitted for review.
+
 ### Release notes for version 1.0.1
 
 Bug fix with running graph-explorer in MCR mode.
