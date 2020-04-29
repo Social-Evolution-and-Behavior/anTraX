@@ -1,0 +1,33 @@
+{
+    "description": "<p>anTraX software archive. For updated version, documentations, and user manual please see&nbsp;<a href=\"https://github.com/Social-Evolution-and-Behavior/anTraX\">https://github.com/Social-Evolution-and-Behavior/anTraX</a>.</p>", 
+    "license": "GPL-3.0+", 
+    "title": "anTraX: high throughput video tracking of color-tagged insects (software)",  
+    "upload_type": "software", 
+    "keywords": [
+        "video tracking", 
+        "behavioral tracking", 
+        "collective behavior", 
+        "social behavior", 
+        "social insects", 
+        "ants", 
+        "machine vision", 
+        "machine learning"
+    ], 
+    "creators": [
+        {
+            "orcid": "0000-0003-0834-2649", 
+            "affiliation": "The Rockefeller University", 
+            "name": "Asaf Gal"
+        }, 
+        {
+            "affiliation": "The Rockefeller University", 
+            "name": "Saragosti, Jonathan"
+        }, 
+        {
+            "orcid": "0000-0002-4103-7729", 
+            "affiliation": "The Rockefeller University", 
+            "name": "Kronauer, Daniel"
+        }
+    ], 
+    "access_right": "open"
+}
