@@ -49,8 +49,8 @@ report('I','    ...stitch function')
 eval(['mcc -m link_across_movies.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'link_across_movies'])
 
 % pair search function 
-report('I','    ...pair search function')
-eval(['mcc -m pair_search_single_movie.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'pair_search_single_movie'])
+% report('I','    ...pair search function')
+% eval(['mcc -m pair_search_single_movie.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'pair_search_single_movie'])
 
 % compile the solve function
 report('I','    ...solve function')
