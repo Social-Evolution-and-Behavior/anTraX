@@ -14,7 +14,7 @@ anTraX works natively on machines running Linux or OSX operating system. It bene
 
 ## Installation and usage
 
-See online documentation at https://antrax.readthedocs.io/
+See online documentation at https://antrax.readthedocs.io/.
 Example dataset to be used in the tutorial can be found [here](https://github.com/Social-Evolution-and-Behavior/anTraX-data).
 All datasets used to benchmark anTraX are [available from the Zenodeo repository](https://zenodo.org/record/3740547).
 
