@@ -127,6 +127,17 @@ The displayed image can be selected as the "previous frame", "current frame", or
 
 ![Linking tunning tab](images/linking.png)
 
+### Classification options
+
+The **Classification** tab is used to configure how blob images are processed for classification. Note that the processing controlled by the options in this tab does not effect blob segmentation and linking.
+
+* The ***Color correction*** option applies a white-reference correction to the frame before extracting the images for classification (see the anTraX publication, appendix section 2.1). Applying color correction can help in cases of inhomogeneous lighting, that creates variation in tag colors in different regions of the image. It also help to reduce inter-experiment color variability.. However, in cases of poor contrast, color correction might actually degrade the image quality, so it is recommended to look closely at the effect of these option using on your images using the GUI before applying it.
+* Blob images are passed to the classifier after masking, using the segmentation mask generated during tracking. Sometimes, however, the optimal segmentation for tracking is not the optimal segmentation for classification. For example, in cases where some tag colors have poor contrast with the background, they are cut from the blob. The ***Blob mask dilation*** option apply a dilation operation to enlarge the blob before extracting its image for classification. Using the **Show segmentation** check box will visualize the added blob area.
+
+
+
+![Classification tab](images/BlobMaskDilation.png)
+
 ### Entering individual tags information 
 
 The **IDs** tab is used to configure the list of ant IDs used in the experiment. First, set the tagging type as either *untagged* (experiments without color tags; no classification will be done), *group-tagged* (non individual tags; tracklet classification will be done, but no graph propagation) or *individual-tagged* (ants marked with unique IDs). 
