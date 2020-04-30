@@ -69,9 +69,12 @@ prmtrs.segmentation_ImOpenningSize = 1;
 prmtrs.segmentation_ImOpenningStrel = strel('disk',prmtrs.segmentation_ImOpenningSize);
 prmtrs.segmentation_MinimumBlobArea = 21;
 
-
 prmtrs.segmentation_ColorContrastAdjust = false;
 prmtrs.segmentation_ColorContrast = [1,1,1];
+prmtrs.segmentation_color_correction_for_classification = true;
+
+prmtrs.segmentation_blob_mask_dilate = false;
+prmtrs.segmentation_blob_mask_dilate_radius = 2;
 
 % structuring element used by 'applyMasktoIm' in SegmentIm
 % prmtrs.se_graymask = strel('disk',round(10*(prmtrs.geometry_scale0/prmtrs.geometry_rscale)));

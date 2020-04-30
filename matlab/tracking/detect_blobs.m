@@ -37,6 +37,8 @@ end
 
 %% Image enhancements
 
+frame_orig = frame;
+frame_orig_single = frame_single;
 
 frame_corrected_single = frame_single./BGW;
 frame_corrected = im2uint8(frame_corrected_single);
@@ -216,11 +218,19 @@ Trck.currfrm.antblob = ab;
 sqsz = Trck.get_param('sqsz');
 
 padded_label = padarray(ab.LABEL,[sqsz/2,sqsz/2]);
-padded_frame = padarray(frame_corrected,[sqsz/2,sqsz/2]);
+if Trck.get_param('segmentation_color_correction_for_classification')
+    padded_frame = padarray(frame_corrected,[sqsz/2,sqsz/2]);
+else
+    padded_frame = padarray(frame_orig,[sqsz/2,sqsz/2]);
+end
+
 ab.images = zeros([sqsz,sqsz,3,ab.Nblob],'uint8');
 if Trck.get_param('tracking_saveimages')
     for i=1:ab.Nblob
         msk = imcrop(padded_label,[ab.DATA.CENTROID(i,1),ab.DATA.CENTROID(i,2),sqsz-1,sqsz-1])==i;
+        if Trck.get_param('segmentation_blob_mask_dilate')
+            msk = imdilate(msk,ones(Trck.get_param('segmentation_blob_mask_dilate_radius')));
+        end
         img = imcrop(padded_frame,[ab.DATA.CENTROID(i,1),ab.DATA.CENTROID(i,2),sqsz-1,sqsz-1]);
         img = applyMasktoIm(img,msk);
         ab.images(:,:,:,i) = img;

@@ -93,7 +93,9 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             
             ss = find_sessions(expdir);
             
-            if (nargin<2 && ~isempty(ss)) || isempty(trackingdirname)
+            session_given = nargin>1 && ~isempty(trackingdirname);
+            
+            if (~session_given && ~isempty(ss))
                 trackingdirname = ss{1};
             elseif nargin<2
                 trackingdirname = 'antrax';
