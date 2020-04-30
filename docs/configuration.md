@@ -136,7 +136,7 @@ The **Classification** tab is used to configure how blob images are processed fo
 
 
 
-![Classification tab](images/BlobMaskDilation.png)
+![Classification tab](images/BlobMaskDilation1.png)
 
 ### Entering individual tags information 
 
