@@ -18,4 +18,4 @@ See online documentation at https://antrax.readthedocs.io/. An example dataset t
 
 ## References
 
-Read more in our [preprint](https://www.biorxiv.org/content/10.1101/2020.04.29.068478v1).
+The anTraX preprint is now [available on bioRxiv](https://www.biorxiv.org/content/10.1101/2020.04.29.068478v1).
