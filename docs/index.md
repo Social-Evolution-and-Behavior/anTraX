@@ -8,6 +8,5 @@ The software was designed and written by Jonathan Saragosti and Asaf Gal of the 
 
 ###References
 
-anTraX: high throughput video tracking of color-tagged insects
-Asaf Gal, Jonathan Saragosti, Daniel JC Kronauer
-bioRxiv 2020.04.29.068478; doi: https://doi.org/10.1101/2020.04.29.068478
+Gal A, Saragosti J and Kronauer DJ. **anTraX: high throughput video tracking of color-tagged insects**. *bioRxiv* (2020). [doi:10.1101/2020.04.29.068478](https://www.biorxiv.org/content/10.1101/2020.04.29.068478v1)
+
