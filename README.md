@@ -1,6 +1,6 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Social-Evolution-and-Behavior/anTraX)](https://github.com/Social-Evolution-and-Behavior/anTraX/releases)
-[![Read the Docs](https://img.shields.io/readthedocs/antrax)](antrax.readthedocs.io)
+[![Read the Docs](https://img.shields.io/readthedocs/antrax)](http://antrax.readthedocs.io)
 
 ![trails](https://github.com/Social-Evolution-and-Behavior/anTraX/blob/master/docs/images/trails.png)
 
