@@ -10,7 +10,7 @@ import time
 import antrax as ax
 
 
-def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tracking=True, nw=1):
+def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tracking=False, nw=1):
 
     expname = [x for x in expdir.split('/') if len(x) > 0][-1]
 
