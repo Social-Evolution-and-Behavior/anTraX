@@ -2,7 +2,7 @@ function make_annotated_video(Trck, varargin)
 
 p = inputParser;
 
-colors = distinguishable_colors(Trck.NIDs,{'w','y'});
+colors = distinguishable_colors(Trck.NIDs,{'w'});
 
 addRequired(p,'Trck',@(x) isa(x,'trhandles'));
 addParameter(p,'fi',1);
@@ -16,20 +16,24 @@ addParameter(p,'downsample',1,@isnumeric);
 addParameter(p,'linewidth',3,@isnumeric);
 addParameter(p,'mark_blobs',false,@islogical);
 addParameter(p,'tail',true,@islogical);
-addParameter(p,'dmax',[],@isnumeric);
+addParameter(p,'interpolate_maxd',0.003,@isnumeric);
+addParameter(p,'interpolate_maxf',10,@isnumeric);
 addParameter(p,'tail_length',5,@isnumeric);
 addParameter(p,'mask',true,@(x) isnumeric(x) || islogical(x));
 addParameter(p,'bgcorrect',true,@islogical);
-addParameter(p,'bgcorrect_mask',[],@isnumeric);
+addParameter(p,'bgcorrect_mask',[]);
 addParameter(p,'text','',@ischar);
 addParameter(p,'crop',false,@islogical);
 addParameter(p,'size',[1000,1000],@isnumeric);
 addParameter(p,'markblobs',false,@islogical);
-addParameter(p,'xy_smooth_window',10,@isnumeric);
+addParameter(p,'xy_smooth_window',0,@isnumeric);
 addParameter(p,'labelsize',24,@isnumeric);
 addParameter(p,'labeloffset',24,@isnumeric);
-addParameter(p,'f0',0,@isnumeric);
+addParameter(p,'f0',-1,@isnumeric);
+addParameter(p,'flip',[],@isnumeric);
 addParameter(p,'report',100,@isnumeric);
+addParameter(p,'enhance_factor',1,@isnumeric);
+addParameter(p,'enhance_bias',0,@isnumeric);
 
 addParameter(p,'outfile',[Trck.trackingdir,Trck.expname,'_annotated.avi'],@ischar);
 
@@ -64,12 +68,26 @@ end
 % load xy
 fi = p.Results.fi;
 ff = p.Results.ff;
-ti = trtime(Trck,fi);
-tf = trtime(Trck,ff);
-t0 = trtime(Trck,ti.m,1);
-f0 = t0.f;
+if isa(fi,'trtime')
+    ti = fi;
+    tf = ff;
+else
+    ti = trtime(Trck,fi);
+    tf = trtime(Trck,ff);
+end
 
-XY0 = Trck.loadxy('movlist',ti.m:tf.m);
+fi = ti.f;
+ff = tf.f;
+
+if p.Results.f0<0
+    t0 = trtime(Trck,ti.m,1);
+    f0 = t0.f;
+else
+    f0 = p.Results.f0;
+    t0 = trtime(Trck,f0);
+end
+
+XY0 = Trck.loadxy('movlist',t0.m:tf.m);
 
 if Trck.get_param('geometry_multi_colony')
     XY0 = XY0.(colony);
@@ -77,8 +95,21 @@ end
 
 for i=1:Trck.NIDs
     id = Trck.usedIDs{i};
-    XY.(id)=XY0.(id)(fi-f0+1:ff-f0+1,:);
-    XY.(id)=movmean(XY0.(id),xy_smooth_window,1,'omitnan');
+    xy1 = XY0.(id)(fi-f0+1:ff-f0+1,:);
+    
+    % interpolate
+    xy2 = filter_jumps(xy1,0.01);
+    xy3 = interpolate_xy(xy2, p.Results.interpolate_maxd, p.Results.interpolate_maxf);
+    XY.(id) = xy3;
+    
+    % smooth
+    if p.Results.xy_smooth_window > 0
+        xy4 = movmean(xy3,xy_smooth_window,1);
+        nanmask = isnan(xy4(:,1));
+        xy4(nanmask,1:2) = xy3(nanmask,1:2);
+        XY.(id) = xy4;
+    end
+    
 end
 
 % mask
@@ -94,8 +125,11 @@ end
 
 msk3 = single(msk);
 
+
 if isempty(p.Results.bgcorrect_mask)
     bgcorrect_mask = ones(size(msk3));
+elseif ischar(p.Results.bgcorrect_mask)
+    bgcorrect_mask = double(Trck.Masks.(p.Results.bgcorrect_mask))>0;
 else
     bgcorrect_mask = double(p.Results.bgcorrect_mask>0);
 end
@@ -116,7 +150,7 @@ if p.Results.crop
     wout = 2000;
     hout = 1500;
     
-    bbox = squarebbox(msk(:,:,1)>0,10);
+    bbox = squarebbox(msk(:,:,1)>0,25);
 
     BGW = imcrop(BGW,bbox);
     a = size(BGW,1);
@@ -139,7 +173,7 @@ else
     bbox2 = [0,0];
 end
 
-outline = repmat(imdilate(msk3(:,:,1)>0,ones(10)) &  imerode(msk3(:,:,1),ones(2))==0,[1,1,3]);
+outline = repmat(imdilate(msk3(:,:,1)>0,strel('disk',10)) &  imerode(msk3(:,:,1),ones(2))==0,[1,1,3]);
 
 % loop over frames
 fs = ti.f:p.Results.downsample:tf.f;
@@ -148,13 +182,13 @@ for f=fs
     
     
     cnt = cnt+1;
-    ix = f-f0+1;
+    ix = f-fi+1;
     
     if ~mod(cnt-1,p.Results.report)
         report('I',['Processing frame ',num2str(cnt),'/',num2str(length(fs))]);
     end
     
-    tail={};
+    tail=[];
     clrs=[];
     
     for j=1:Trck.NIDs
@@ -166,18 +200,18 @@ for f=fs
         
         taili = XY.(id)(i0:ix,1:2)/scale - repmat(bbox2(1:2),[ix-i0+1,1]);
         ok = ~isnan(taili(:,1));
-        
-        
-        
+
         [sqlen,~,sqstart,sqend] = divide2seq(ok,true);
         for k=1:length(sqstart)
             if sqlen(k)<2
                 continue
             end
-           tailk=taili(sqstart(k):sqend(k),:); 
-                      
-           tail{end+1} = reshape(tailk',1,[]);
-           clrs(end+1,:) = colors(j,:);
+           tailk = taili(sqstart(k):sqend(k),:); 
+           tailk = [tailk(1:end-1,:),tailk(2:end,:)];          
+           tail = cat(1,tail,tailk);
+           clrs(end+1:end+size(tailk,1),:) = repmat(colors(j,:),[size(tailk,1),1]);
+           %tail{end+1} = round(reshape(tailk',1,[]));
+           %clrs(end+1,:) = colors(j,:);
         end
         
         %loc(j,:) = round(xy(j,:)/scale) + 25*[sin(2*pi*j/Trck.NIDs),cos(2*pi*j/Trck.NIDs)];
@@ -202,14 +236,15 @@ for f=fs
     
     if p.Results.bgcorrect
         
-        
-        %corrected = I - BGW + 1;
-        corrected = 0.9*I./BGW;
-        
+        %corrected = 0.9*I./BGW;
+        corrected = I - BGW + 1;
+        %corrected = 1.7*corrected-0.55;
+        corrected = p.Results.enhance_factor*corrected-(p.Results.enhance_factor-1)/2;
+        corrected = 0.9*corrected;
+        corrected = corrected+p.Results.enhance_bias;
+        corrected = clip(corrected,[0,1]);
         I = corrected.*bgcorrect_mask + I.*(1-bgcorrect_mask);
-        
-        
-        
+                
     end
     
     I0 = I;
@@ -226,7 +261,7 @@ for f=fs
     
     % draw tails
     if f>fi && ~isempty(tail)
-        I = insertShape(I,'Line',tail,'Color',clrs,'LineWidth',p.Results.linewidth);
+        I = insertShape(I,'Line',tail,'Color',clrs,'LineWidth',p.Results.linewidth,'SmoothEdges',true);
     end
     
     I = imlincomb(0.5,I0,0.5,I);
@@ -237,6 +272,21 @@ for f=fs
     
     if ~isempty(p.Results.mask) && p.Results.bgcorrect && p.Results.outline
         I(outline) = 0.3;
+    end
+    
+    
+    if ~isempty(p.Results.flip)
+        
+        I = flipm(I,p.Results.flip);
+        
+        if ismember(1,p.Results.flip)
+           loc(:,2) = size(I,1) - loc(:,2) + 1; 
+        end
+        
+        if ismember(2,p.Results.flip)
+           loc(:,1) = size(I,2) - loc(:,1) + 1; 
+        end
+        
     end
     
     % insert labels
@@ -251,15 +301,15 @@ for f=fs
         
         case 'frame'
             txtloc =  [20,size(I,1)-100];
-            fontsize = 48 * p.Results.size(1)/1000;
+            fontsize = 128 * p.Results.size(1)/1000;
             txt = num2str(f-f0);
             
             I = insertText(I,txtloc,txt,'FontSize',fontsize,'BoxColor',...
         'white','BoxOpacity',0.4,'TextColor',[0.1,0.7,0.2]);
 
         case 'time'
-            txtloc =  [20,size(I,1)-100*p.Results.size(1)/1000];
-            fontsize = 48 * p.Results.size(1)/1000;
+            txtloc =  [20,size(I,1)-200*p.Results.size(1)/1000];
+            fontsize = 100 * p.Results.size(1)/1000;
             
             day = (f-f0)/Trck.er.fps/24/3600;
             txt = datestr(day,13);
@@ -272,6 +322,7 @@ for f=fs
     
     %I = imcrop(I,2*rect);
     I = clip(I,[0,1]);
+    
     
     % write frame
      writeVideo(vw,I);

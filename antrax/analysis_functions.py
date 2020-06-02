@@ -2,12 +2,16 @@
 
 import numpy as np
 import pandas as pd
+from .utils import *
+
 
 idx = pd.IndexSlice
+
 
 def test():
     
     print('tested')
+
 
 def wavelet_expansion(x, n=25, maxscale=50):
 
@@ -43,6 +47,7 @@ def behavioral_features(ad, n=25, features=['velocity', 'acceleration', 'normal_
     df = df.dropna()
         
     return df
+
 
 def postural_features(ad, n=25, bodyparts=['Head','L_ant_root','R_ant_root','L_ant_tip','R_ant_tip','Neck','ThxAbd','Tail'], refpart='Neck'):
         
@@ -126,6 +131,18 @@ def tsne_mapping(df, trainsetsize=1000):
     
     return df, tsne
 
+
+def nest_untagged(X):
+    # this will calculate the nest location base on a grouped-by-frame trdata (later to be smoothed)
+
+    d = {}
+    d['medx'] = [wmed(X['x'].values, X['w'].values)]
+    d['medy'] = [wmed(X['y'].values, X['w'].values)]
+
+    if 'majax' in X:
+        d['majmax'] = [X['majax'].max()]
+
+    return pd.DataFrame.from_dict(d)
 
 
 def trajectory_kinematics(df, dt=1):

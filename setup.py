@@ -19,7 +19,7 @@ setup(name='antrax',
       license='GPL3',
       packages=['antrax'],
       #scripts=['scripts/run_antrax.py'],
-      entry_points={'console_scripts':['antrax=antrax.cli:main']},
+      entry_points={'console_scripts':['antrax=antrax.cli:main', 'antrax-temp=antrax.temp_cli:main']},
       include_package_data=True,
       install_requires=[
             'numpy',

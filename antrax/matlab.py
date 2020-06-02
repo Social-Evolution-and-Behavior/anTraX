@@ -59,18 +59,48 @@ else:
     pass
 
 
+def run_matlab_function(fun, args, diaryfile=None, mcr=ANTRAX_USE_MCR, eng=None):
+
+    close_when_done = False
+
+    if mcr:
+        with open(diaryfile, 'w') as diary:
+            run_mcr_function(fun, args, diary=diary)
+    else:
+        out = io.StringIO()
+        # start worker
+        if eng is None:
+            eng = start_matlab()
+            close_when_done = True
+
+        f = eval('eng.' + fun)
+        # run function
+        try:
+            f(*args, nargout=0, stdout=out, stderr=out)
+        except:
+            pass
+        finally:
+            with open(diaryfile, 'w') as diary:
+                out.seek(0)
+                shutil.copyfileobj(out, diary)
+
+        # close worker
+        if close_when_done:
+            eng.quit()
+
+
 def run_mcr_function(fun, args, diary=DEVNULL):
 
-    fun = 'antrax_' + MATLAB_PLATFORM + '_' + fun
-    args = [str(a) for a in args]
+    wrapper = 'antrax_' + MATLAB_PLATFORM + '_mcr_interface'
+    args = [fun] + [str(a) for a in args]
 
     if LINUX:
 
-        cmd = [ANTRAX_BIN_PATH + fun] + args
+        cmd = [ANTRAX_BIN_PATH + wrapper] + args
 
     elif MACOS:
 
-        cmd = [ANTRAX_BIN_PATH + fun + '.app/Contents/MacOS/' + fun] + args
+        cmd = [ANTRAX_BIN_PATH + wrapper + '.app/Contents/MacOS/' + wrapper] + args
 
     p = Popen(cmd, stdout=diary, stderr=diary)
 
@@ -104,74 +134,6 @@ def compile_mex():
         eng.quit()
     except:
         print('Failed compiling mex, probably no matlab is installed')
-
-
-def solve_single_graph(ex, g, c, mcr=ANTRAX_USE_MCR):
-
-    if c is None:
-        report('I', 'Start ID propagation of graph ' + str(g) + ' in ' + ex.expname)
-        diaryfile = join(ex.logsdir, 'solve_matlab_' + str(g) + '.log')
-        c = ''
-    else:
-        report('I', 'Start ID propagation of colony ' + str(c) + ' graph ' + str(g) + ' in ' + ex.expname)
-        diaryfile = join(ex.logsdir, 'solve_matlab_' + str(g) + '_c_' + str(c) + '.log')
-
-    if mcr:
-
-        with open(diaryfile, 'w') as diary:
-            run_mcr_function('solve_single_graph', [ex.expdir, g, 'trackingdirname', ex.session, 'colony', c], diary=diary)
-
-    else:
-
-        out = io.StringIO()
-        eng = start_matlab()
-        try:
-            eng.solve_single_graph(ex.expdir, g, 'trackingdirname', ex.session, 'colony', c,
-                                   nargout=0, stdout=out, stderr=out)
-        except:
-            raise
-        finally:
-            with open(diaryfile, 'w') as diary:
-                out.seek(0)
-                shutil.copyfileobj(out, diary)
-
-        eng.quit()
-
-    if c is None or c == '':
-        report('I', 'Finished propagation of graph ' + str(g) + ' in ' + ex.expname)
-    else:
-        report('I', 'Finished propagation of colony ' + str(c) + ' graph ' + str(g) + ' in ' + ex.expname)
-
-
-def track_single_movie(ex, m, mcr=ANTRAX_USE_MCR):
-
-    report('I', 'Start tracking of movie ' + str(m) + ' in ' + ex.expname)
-
-    diaryfile = join(ex.logsdir, 'track_matlab_' + str(m) + '.log')
-
-    if mcr:
-
-        with open(diaryfile, 'w') as diary:
-            run_mcr_function('track_single_movie', [ex.expdir, m, 'trackingdirname', ex.session], diary=diary)
-
-    else:
-
-        out = io.StringIO()
-        eng = start_matlab()
-        try:
-
-            eng.track_single_movie(ex.expdir, m, 'trackingdirname', ex.session,
-                                   nargout=0, stdout=out, stderr=out)
-        except:
-            raise
-        finally:
-            with open(diaryfile, 'w') as diary:
-                out.seek(0)
-                shutil.copyfileobj(out, diary)
-
-        eng.quit()
-
-    report('I', 'Finished tracking of movie ' + str(m) + ' in ' + ex.expname)
 
 
 def export_jaaba(ex, m, mcr=ANTRAX_USE_MCR):
@@ -277,19 +239,6 @@ def pair_search(ex, m, mcr=ANTRAX_USE_MCR):
     report('I', 'Finished pair search for movie ' + str(m) + ' in ' + ex.expname)
 
 
-def link_across_movies(ex, mcr=ANTRAX_USE_MCR):
-
-    report('I', 'Running cross movie link function for ' + ex.expname)
-
-    if mcr:
-        run_mcr_function('link_across_movies', [ex.expdir, 'trackingdirname', ex.session])
-    else:
-        eng = start_matlab()
-        eng.link_across_movies(ex.expdir, 'trackingdirname', ex.session, nargout=0)
-
-    report('I', 'Finished')
-
-
 def launch_matlab_app(appname, args, mcr=ANTRAX_USE_MCR):
 
     if mcr:
@@ -320,12 +269,20 @@ class MatlabQueue(queue.Queue):
 
     def worker(self):
 
+        eng = start_matlab() if not self.mcr else None
+
         while True:
-            item = self.get()
-            if item is None:
+            w = self.get()
+            if w is None:
                 break
-            eval(item[0])(*item[1:], mcr=self.mcr)
+            report('I', 'Started ' + w['str'])
+            run_matlab_function(w['fun'], w['args'], mcr=self.mcr, eng=eng, diaryfile=w['diary'])
+            report('I', 'Finished ' + w['str'])
+            #eval(item[0])(*item[1:], mcr=self.mcr)
             self.task_done()
+
+        if eng is not None:
+            eng.quit()
 
     def start_workers(self):
 

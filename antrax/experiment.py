@@ -126,6 +126,13 @@ class axExperiment:
 
         return a
 
+    def get_sessions(self):
+
+        sdirs = sorted(glob(self.expdir + '/*/parameters/Trck.mat'), key=os.path.getmtime)
+        sessions = [sd.replace(self.expdir, '').replace('parameters/Trck.mat', '').replace('/', '') for sd in sdirs]
+
+        return sessions
+
     def get_latest_session(self):
 
         sdirs = sorted(glob(self.expdir + '/*/parameters/Trck.mat'), key=os.path.getmtime)
@@ -135,12 +142,21 @@ class axExperiment:
     def get_movies_info(self):
 
         info_file = join(self.paramsdir, 'movies_info.txt')
-        movies_info = pd.read_csv(info_file,sep=' ')
+        movies_info = pd.read_csv(info_file, sep=' ')
         return movies_info
     
     def get_f(self, m, mf):
         
         return self.movies_info['fi'][m-1] + mf - 1
+
+    def get_m_mf(self, f):
+
+        cond = (self.movies_info['fi'] <= f) & (self.movies_info['ff'] >= f)
+        m = self.movies_info[cond]['index'].values[0]
+        mf = f - self.movies_info[cond]['fi'].values[0] + 1
+
+        return m, mf
+
     
     def parse_tracklet_name(self, tracklet):
         
@@ -343,7 +359,12 @@ class axExperiment:
 
         return images
 
-    def get_tracklet_table(self, movlist=None):
+    def get_tracklet_table(self, movlist=None, type=None):
+
+        if type is None or type == 'tagged':
+            sfx = ''
+        else:
+            sfx = '_' + type
 
         if movlist is None:
             movlist = self.movlist
@@ -353,12 +374,16 @@ class axExperiment:
         for m in movlist:
 
             tracklet_table_m = pd.read_csv(
-                join(self.antdatadir, 'tracklets_table_' + str(m) + '_' + str(m) + '.csv'))
+                join(self.antdatadir, 'tracklets_table_' + str(m) + '_' + str(m) + sfx + '.csv'))
 
             tracklet_table.append(tracklet_table_m)
 
         tracklet_table = pd.concat(tracklet_table, axis=0)
-        tracklet_table = tracklet_table.set_index('tracklet', drop=True)
+
+        if type == 'untagged':
+            tracklet_table = tracklet_table.set_index('index', drop=True)
+        else:
+            tracklet_table = tracklet_table.set_index('tracklet', drop=True)
 
         return tracklet_table
     

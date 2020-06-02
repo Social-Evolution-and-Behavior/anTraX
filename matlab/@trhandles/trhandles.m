@@ -251,6 +251,16 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 Trck.Masks.open_boundry_perimeter = msk;
             end
             
+            if exist([mskdir,'video.png'],'file')
+                msk = uint8(imread([mskdir,'video.png'])>0);
+                Trck.Masks.video = msk;
+            end
+            
+            if exist([mskdir,'arena.png'],'file')
+                msk = uint8(imread([mskdir,'arena.png'])>0);
+                Trck.Masks.arena = msk;
+            end
+            
             if Trck.get_param('geometry_multi_colony')
                 
                 Trck.Masks.colony_index_mask = imread([mskdir,'colony_index_mask.png']);
@@ -512,7 +522,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
         end
         
         function export_xy(Trck,varargin)
-            
+                        
             for m = Trck.movlist
                 
                 if Trck.get_param('geometry_multi_colony')
@@ -534,7 +544,30 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             end
             
         end
-             
+           
+        function export_xy_untagged(Trck,varargin)
+                        
+            for m = Trck.movlist
+                
+                if Trck.get_param('geometry_multi_colony')
+                    
+                    for c = 1:length(Trck.colony_labels)
+                        
+                        G = Trck.loaddata(m,c);
+                        export_xy_untagged(G,varargin{:});
+                        
+                    end
+                    
+                else
+                    
+                    G = Trck.loaddata(m);
+                    export_xy_untagged(G,varargin{:});
+                
+                end
+                
+            end
+            
+        end
         function [G,movlist] = loaddata(Trck,movlist,colony)
             
             if nargin==1 || isempty(movlist) || (ischar(movlist) && strcmp(movlist,'all'))
@@ -867,6 +900,10 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                     white = Trck.Backgrounds.white;
                     
                 case 'subdir'
+                    
+                    if ~isfield(Trck.Backgrounds,'subdir_bg')
+                        Trck.load_bg;
+                    end
                     
                     sd = m>=[Trck.er.subdirs.mi] & m<=[Trck.er.subdirs.mf];
                     bg = Trck.Backgrounds.subdir_bg(:,:,:,sd);

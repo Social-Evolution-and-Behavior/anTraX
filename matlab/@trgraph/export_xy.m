@@ -11,6 +11,7 @@ addParameter(p,'interpolate_maxf',300);
 addParameter(p,'only_tracklet_table',false,@islogical);
 addParameter(p,'hdf',false);
 addParameter(p,'type','');
+addParameter(p,'movlist',[]);
 parse(p,G,varargin{:});
 
 
@@ -72,7 +73,6 @@ G.node_ff = [G.trjs.ff];
 sngl = isSingle(G.trjs);
 
 onboundry = {G.trjs([G.trjs.touching_open_boundry]).name};
-
 
 tracklet_table = table({},[],[],[],{},[],[],[],'VariableNames',{'ant','from','to','m','tracklet','assigned','single','source'});
 
@@ -136,30 +136,7 @@ for i=1:G.NIDs
     
     % interpolate
     if p.Results.interpolate && ~p.Results.only_tracklet_table
-        allix = 1:size(xy,1);
-        nanmask = isnan(xy(:,1));
-        
-        interpmask = nanmask;
-        
-        [sqlen,~,sqstart,sqend] = divide2seq(nanmask);
-        
-        for k=1:length(sqlen)
-            if sqstart(k)==1 || sqend(k)==length(allix)
-                interpmask(sqstart(k):sqend(k)) = false;
-                continue
-            end
-            dt = sqlen(k);
-            dd = sqrt(sum((xy(sqend(k)+1,:) - xy(sqstart(k)-1,:)).^2));
-            if dt > p.Results.interpolate_maxf || dd > p.Results.interpolate_maxd
-                interpmask(sqstart(k):sqend(k)) = false;
-            end
-        end
-        
-        if nnz(interpmask)>0
-            xy(interpmask,1) = interp1(allix(~nanmask),xy(~nanmask,1),allix(interpmask));
-            xy(interpmask,2) = interp1(allix(~nanmask),xy(~nanmask,2),allix(interpmask));
-            xy(interpmask,4) = 5;
-        end
+        xy = interpolate_xy(xy, p.Results.interpolate_maxd, p.Results_interpolate_maxf);
     end
     
     if ~p.Results.only_tracklet_table
@@ -178,7 +155,6 @@ end
 
 
 % write trackelt table
-
 file = [fileparts(G.xyfile),filesep,'tracklets_table_',num2str(min(G.movlist)),'_',num2str(max(G.movlist)),'.csv'];
 writetable(tracklet_table, file);
 

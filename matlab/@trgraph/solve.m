@@ -1,7 +1,11 @@
-function solve(G, skip_pairs_search)
+function solve(G, skip_pairs_search, stitch_step)
 
 if nargin<2
     skip_pairs_search = false;
+end
+
+if nargin<3
+    stitch_step = false;
 end
 
 report('I','Loading ids')
@@ -25,8 +29,10 @@ if isempty(G.pairs)
 end
 
 % step 0: reset
-report('I','Resetting graph id assigments')
-reset(G);
+if ~stitch_step
+    report('I','Resetting graph id assigments')
+    reset(G);
+end
 
 % step 1: filter out non-ant tracklets
 report('I','Filtering out tracklets identified as non-ant')
@@ -61,51 +67,55 @@ if G.Trck.get_param('graph_apply_temporal_window')
     
 end
 
-
 % step 1.9: apply manual config
 G.aux.cfg_src_nodes=[];
-if G.Trck.get_param('graph_apply_manual_cfg') && exist([G.Trck.paramsdir,'prop.cfg'],'file')
-    
+if G.Trck.get_param('graph_apply_manual_cfg') && isfile([G.Trck.paramsdir,'prop.cfg'])
     
     cmd = parse_prop_config(G.Trck);
     
-    for i=1:size(cmd,1)
-        
-        
-        tracklet = cmd.tracklet{i};
-        
+    % do "single" commands
+    cmd1 = cmd(strcmp(cmd.command,'single'),:);
+    for i=1:size(cmd1,1)
+        tracklet = cmd1.tracklet{i};
         if ~ismember(tracklet,G.Nodes.Name)
             continue
         end
-        
         node = find(strcmp(tracklet,G.Nodes.Name));
-        
-        switch cmd.command{i}
-            
-            case 'assign'
-                idix = strcmp(cmd.value{i},G.usedIDs);
-                if ~any(idix)
-                    continue
-                end
-                assign(G,node,idix,inf);
-                G.aux.cfg_src_nodes = unique([G.aux.cfg_src_nodes;node]);
-            case 'eliminate'
-                idix = strcmp(cmd.value{i},G.usedIDs);
-                if ~any(idix)
-                    continue
-                end
-                eliminate(G,node,find(idix));
-            case 'single'
-                G.node_single(node) = strcmp(cmd.value{i},'1');
-            otherwise
-                error('wrong command')
-        end
-        
+        G.node_single(node) = strcmp(cmd1.value{i},'1');
     end
     
+    % do "eliminate" commands
+    cmd1 = cmd(strcmp(cmd.command,'eliminate'),:);
+    for i=1:size(cmd1,1)
+        tracklet = cmd1.tracklet{i};
+        if ~ismember(tracklet,G.Nodes.Name)
+            continue
+        end
+        node = find(strcmp(tracklet,G.Nodes.Name));
+        idix = strcmp(cmd1.value{i},G.usedIDs);
+        if ~any(idix)
+            continue
+        end
+        eliminate(G,node,find(idix));
+    end
     
+    % do "assign" commands
+    cmd1 = cmd(strcmp(cmd.command,'assign'),:);
+    for i=1:size(cmd1,1)
+        tracklet = cmd1.tracklet{i};
+        if ~ismember(tracklet,G.Nodes.Name)
+            continue
+        end
+        node = find(strcmp(tracklet,G.Nodes.Name));
+        idix = strcmp(cmd1.value{i},G.usedIDs);
+        if ~any(idix)
+            continue
+        end
+        assign(G,node,idix,inf);
+        G.aux.cfg_src_nodes = unique([G.aux.cfg_src_nodes;node]);
+    end
+        
 end
-
 
 % step 2: propagate src tracklets
 report('I','Propagating ids from src tracklets')
@@ -131,8 +141,10 @@ for i=1:length(src_nodes)
     n = n + ni;
 end
 
+
+
 propagate_all(G);
-filter_by_cc(G);
+filter_by_cc(G, stitch_step);
 
 cnt = 1;
 while true
@@ -143,7 +155,7 @@ while true
         break
     end
     
-    n = filter_by_cc(G);
+    n = filter_by_cc(G, false);
     
     if n==0
         break
@@ -168,7 +180,7 @@ end
 
 
 
-function n = filter_by_cc(G)
+function n = filter_by_cc(G, do_edges)
 
 report('I','Filtering by connected componnets')
 
@@ -191,17 +203,18 @@ for i=1:G.NIDs
     cc = conncomp(sg,'Type','weak','OutputForm','cell');
     cc = cellfun(@(x) findnode(G.G,x),cc,'UniformOutput',false);
     cc_size = cellfun(@numel,cc);
+    cc_edge = cellfun(@(x) min(G.node_fi(x))==G.ti.f ||  max(G.node_ff(x))==G.tf.f ,cc);
     
-    
-    % filter cc by size
-    min_cc_size = G.Trck.get_param('graph_min_cc_size');
-    if min_cc_size>1
-        to_filter = cc_size<min_cc_size;
-        n = n + nnz(to_filter);
-        eliminate_cc(G,cc(to_filter),idix);
-        cc = cc(~to_filter);
-        report('I',['......filtered ',num2str(nnz(to_filter)),'small cc''s'])
-    end
+%     
+%     % filter cc by size
+%     min_cc_size = G.Trck.get_param('graph_min_cc_size');
+%     if min_cc_size>1
+%         to_filter = cc_size<min_cc_size;
+%         n = n + nnz(to_filter);
+%         eliminate_cc(G,cc(to_filter),idix);
+%         cc = cc(~to_filter);
+%         report('I',['......filtered ',num2str(nnz(to_filter)),'small cc''s'])
+%     end
     
     
     clear cc_score
@@ -230,14 +243,8 @@ for i=1:G.NIDs
         
     end
     
-    
-    
-    
-    
     report('I',['......found ',num2str(length(cc)),' cc''s '])
-    
-    
-    
+        
     % filter overlapping cc
     % cc_score = cellfun(@(x) max([G.trjs(x).ff])-min([G.trjs(x).fi]+1),cc);
     no_src_node = cellfun(@(x) isempty(intersect(x,G.aux.src_nodes)) && isempty(intersect(x,G.aux.cfg_src_nodes)),cc);
@@ -245,6 +252,7 @@ for i=1:G.NIDs
     sortix = argsort(cc_score,'descend');
     cc = cc(sortix);
     cc_score = cc_score(sortix);
+    cc_edge = cc_edge(sortix);
     ccol = cc_overlapping(G,cc);
     
     to_keep = false(size(cc));
@@ -299,9 +307,15 @@ for i=1:G.NIDs
             
         end
     end
+    
+    if ~do_edges
+        to_keep = to_keep | cc_edge;
+    end
+    
     n = n + nnz(~to_keep);
     eliminate_cc(G,cc(~to_keep),idix);
     cc = cc(to_keep);
+    cc_edge = cc_edge(to_keep);
     report('I',['......filtered ',num2str(nnz(to_keep==0)),' cc''s'])
     
     

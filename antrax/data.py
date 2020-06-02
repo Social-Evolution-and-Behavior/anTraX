@@ -16,7 +16,7 @@ idx = pd.IndexSlice
 
 class axAntData:
     
-    def __init__(self, ex, movlist=None, antlist=None, dlc=False, dlcproject=None):
+    def __init__(self, ex, movlist=None, antlist=None, dlc=False, dlcproject=None, **kwargs):
 
         self.ex = ex
         self.data = None
@@ -278,7 +278,6 @@ class axAntData:
         self.data = self.data.reindex(columns=sorted(self.data.columns))
 
 
-    
     def get_features(self, n=25, cols=['v','antpower']):
         
         import pywt
@@ -300,20 +299,57 @@ class axAntData:
     def head(self):
         
         return self.data.head()
-        
+
+
 class axTrackletData:
 
-    def __init__(self, file):
+    def __init__(self, ex, movlist=None, verbose=False):
 
-        self.data = None
-        self.file = file
-        self.experiment = None
-        self.expdir = None
-        self.session = None
-        self.m = None
+        self.ex = ex
+        self.trdata = None
+        self.tracklet_table = None
+        self.movlist = movlist
 
+        if movlist is None:
+            self.movlist = ex.movlist
+        else:
+            self.movlist = movlist
 
-    def load_data(self):
+        self.load(verbose=verbose)
 
-        pass
+        self.groupByFrame = self.trdata.groupby(by='frame')
+        self.groupByTracklet = self.trdata.groupby(by='tracklet')
 
+    def load(self, verbose=False):
+
+        mdfs = []
+
+        for m in self.movlist:
+
+            if verbose:
+                report('I', 'Loading data of movie ' + str(m))
+
+            filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.mat')
+            tracklet_data = read_mat(filename)
+
+            # convert to dataframe
+
+            cols = ['tracklet', 'frame', 'x', 'y', 'orient', 'area', 'nants']
+            if 'majax' in tracklet_data:
+                cols.append('majax')
+
+            cols = pd.Index(cols)
+
+            d = {k: tracklet_data[k] for k in cols if k in tracklet_data.keys()}
+            d['x'] = tracklet_data['xy'][:, 0]
+            d['y'] = tracklet_data['xy'][:, 1]
+
+            df = pd.DataFrame(d)
+
+            df['tracklet'] = df['tracklet'].astype('int')
+            df['frame'] = df['frame'].astype('int')
+
+            mdfs.append(df)
+
+        self.trdata = pd.concat(mdfs, axis=0)
+        self.tracklet_table = self.ex.get_tracklet_table(self.movlist, type='untagged')

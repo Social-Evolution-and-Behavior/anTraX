@@ -4,6 +4,8 @@ p = inputParser;
 addRequired(p,'expdir',@(x) (ischar(x) && isfolder(x)) || isa(x,'trhandles'));
 addOptional(p,'g',[],@(x) isnumeric(x)||ischar(x));
 addParameter(p,'movlist',[],@(x) isnumeric(x));
+addParameter(p,'stitch_step',false);
+addParameter(p,'exportxy',true);
 addParameter(p,'colony','')
 addParameter(p,'batchinfo',[]);
 addParameter(p,'trackingdirname',[]);
@@ -13,6 +15,22 @@ addParameter(p,'graph_pairs_maxdepth',[]);
 parse(p,expdir,varargin{:});
 
 Trck = trhandles.load(expdir,p.Results.trackingdirname);
+
+if islogical(p.Results.exportxy)
+    exportxy = p.Results.exportxy;
+elseif isnumeric(p.Results.exportxy)
+    exportxy = p.Results.exportxy>0;
+elseif ischar(p.Results.exportxy)
+    exportxy = strcmp(p.Results.exportxy,'1');
+end
+
+if islogical(p.Results.stitch_step)
+    stitch_step = p.Results.stitch_step;
+elseif isnumeric(p.Results.stitch_step)
+    stitch_step = p.Results.stitch_step>0;
+elseif ischar(p.Results.stitch_step)
+    stitch_step = strcmp(p.Results.stitch_step,'1');
+end
 
 colony = p.Results.colony;
 
@@ -46,7 +64,7 @@ if Trck.get_param('geometry_multi_colony')
 
 end
 
-if ~isempty(p.Results.g)
+if isempty(p.Results.movlist) && ~isempty(p.Results.g)
    
     groups = Trck.get_solve_groups();
     
@@ -79,10 +97,13 @@ end
 
 G = Trck.loaddata(movlist,colony);
 
-solve(G);
+solve(G,false,stitch_step);
 report('I','Extracting xy data')
 save(G);
-export_xy(G,'interpolate',false);
+if exportxy
+    export_xy(G,'interpolate',false);
+end
+
 report('G','Done')
 
 

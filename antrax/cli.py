@@ -206,6 +206,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifie
     explist = parse_explist(explist, session)
 
     if hpc:
+
         report('D', '--tracking on hpc--')
         for e in explist:
             report('D', '--tracking experiment ' + e.expname + '--')
@@ -214,6 +215,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifie
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
             antrax_hpc_job(e, 'track', opts=hpc_options)
+
     else:
 
         Q = MatlabQueue(nw=nw, mcr=mcr)
@@ -222,14 +224,22 @@ def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifie
             for e in explist:
                 movlist1 = e.movlist if movlist is None else movlist
                 for m in movlist1:
-                    Q.put(('track_single_movie', e, m))
+                    w = {'fun': 'track_single_movie'}
+                    w['args'] = [e.expdir, m, 'trackingdirname', e.session]
+                    w['diary'] = join(e.logsdir, 'matlab_track_m_' + str(m) + '.log')
+                    w['str'] = 'track movie ' + str(m)
+                    Q.put(w)
 
             # wait for tasks to complete
             Q.join()
 
         # run cross movie link
         for e in explist:
-            Q.put(('link_across_movies', e))
+            w = {'fun': 'link_across_movies'}
+            w['args'] = [e.expdir, 'trackingdirname', e.session]
+            w['diary'] = join(e.logsdir, 'matlab_link_across_movies.log')
+            w['str'] = 'link scross movies'
+            Q.put(w)
 
         # close
         Q.stop_workers()
@@ -267,17 +277,66 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
 
             eglist = glist if glist is not None else e.glist
             eclist = clist if clist is not None else e.clist
+            emlist = [e.ggroups[g-1] for g in eglist]
+            emlist = [m for grp in emlist for m in grp]
 
             if e.prmtrs['geometry_multi_colony']:
                 for c in eclist:
+                    for m in emlist:
+                        w = {'fun': 'solve_single_movie'}
+                        w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c]
+                        w['diary'] = join(e.logsdir, 'matlab_solve_m_' + str(m) + '_c_' + str(c) + '.log')
+                        w['str'] = 'solve colony ' + str(c) + ' movie ' + str(m)
+                        Q.put(w)
+            else:
+                for m in emlist:
+                    w = {'fun': 'solve_single_movie'}
+                    w['args'] = [e.expdir, m, 'trackingdirname', e.session]
+                    w['diary'] = join(e.logsdir, 'matlab_solve_m_' + str(m) + '.log')
+                    w['str'] = 'solve movie ' + str(m)
+                    Q.put(w)
+
+            # wait for single movie tasks to complete
+            Q.join()
+
+            # stitch
+            if e.prmtrs['geometry_multi_colony']:
+                for c in eclist:
                     for g in eglist:
-                        Q.put(('solve_single_graph', e, g, c))
+                        w = {'fun': 'solve_across_movies'}
+                        w['args'] = [e.expdir, g, 'trackingdirname', e.session, 'colony', c]
+                        w['diary'] = join(e.logsdir, 'matlab_solve_g_' + str(g) + '_c_' + str(c) + '.log')
+                        w['str'] = 'solve stitch colony ' + str(c) + ' graph ' + str(g)
+                        Q.put(w)
             else:
                 for g in eglist:
-                    Q.put(('solve_single_graph', e, g, None))
+                    w = {'fun': 'solve_across_movies'}
+                    w['args'] = [e.expdir, g, 'trackingdirname', e.session]
+                    w['diary'] = join(e.logsdir, 'matlab_solve_g_' + str(g) + '.log')
+                    w['str'] = 'solve stitch graph ' + str(g)
+                    Q.put(w)
 
-        # wait for tasks to complete
-        Q.join()
+            # wait for stitch to finish
+            Q.join()
+
+            if e.prmtrs['geometry_multi_colony']:
+                for c in eclist:
+                    for m in emlist:
+                        w = {'fun': 'export_single_movie'}
+                        w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c]
+                        w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '_c_' + str(c) + '.log')
+                        w['str'] = 'export colony ' + str(c) + ' movie ' + str(m)
+                        Q.put(w)
+            else:
+                for m in emlist:
+                    w = {'fun': 'export_single_movie'}
+                    w['args'] = [e.expdir, m, 'trackingdirname', e.session]
+                    w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '.log')
+                    w['str'] = 'export movie ' + str(m)
+                    Q.put(w)
+
+            # wait for stitch to finish
+            Q.join()
 
         # close
         Q.stop_workers()
@@ -393,6 +452,31 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_H
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
+def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC):
+    """Export xy data"""
+
+    if mcr or hpc:
+        print('')
+        print('antrax does not currently support jaaba commands in MCR mode')
+        print('')
+        return
+
+    explist = parse_explist(explist, session)
+
+    Q = MatlabQueue(nw=nw, mcr=mcr)
+
+    for e in explist:
+        movlist1 = e.movlist if movlist is None else movlist
+        for m in movlist1:
+            Q.put(('export_xy', e, m))
+
+    # wait for tasks to complete
+    Q.join()
+
+    # close
+    Q.stop_workers()
+
+
 def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC,
                  missing=False, dry=False, hpc_options: parse_hpc_options=' '):
     """Export data to JAABA"""
@@ -483,6 +567,7 @@ def main():
         'train': train,
         'classify': classify,
         'solve': solve,
+        'exportxy': exportxy,
         'dlc': dlc,
         'pair-search': pair_search,
         'compile': compile_antrax

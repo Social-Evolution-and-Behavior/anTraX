@@ -98,7 +98,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
         end
         
         
-        solve(G, skip_pairs_search);
+        solve(G, skip_pairs_search, stitch_step);
         
         
         function newtrjs = new_tracklet(G,blobix)
@@ -979,6 +979,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
             G.G.Nodes = cat(1,GS.Nodes);
             G.assigned_ids = cat(1,GS.assigned_ids);
             G.possible_ids = cat(1,GS.possible_ids);
+            G.assignment_scores = cat(1,GS.assignment_scores);
             G.finalized = cat(1,GS.finalized);
             G.isopen = false;
             G.named_pairs = cat(1,GS.named_pairs);

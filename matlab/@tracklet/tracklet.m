@@ -723,27 +723,31 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
             Trck = trjs(1).Trck;
             
             trjnames = {trjs.name};
-            
-            movlist = sort(unique([trjs.m]));
+            trjmovs = [trjs.m];
+            movlist = sort(unique(trjmovs));
             
             % auto ids
             for i=1:length(movlist)
+                                
+                m = movlist(i);
+                mtrjs = trjs(trjmovs==m);
+                mtrjnames = {mtrjs.name};
                 
-                f = [Trck.labelsdir,'autoids_',num2str(movlist(i)),'.csv'];
-                if ~exist(f,'file')
+                f = [Trck.labelsdir,'autoids_',num2str(m),'.csv'];
+                if ~isfile(f)
                     continue
                 end
                 T = readtable(f);
                 
-                ix = ismember(T.tracklet,trjnames);
+                ix = ismember(T.tracklet,mtrjnames);
                 T = T(ix,:);
                 
                 if isempty(T)
                     return
                 end
                 
-                ix=cellfun(@(x) find(strcmp(x,trjnames)),T.tracklet');
-                trjs2assign = trjs(ix);
+                ix=cellfun(@(x) find(strcmp(x,mtrjnames)),T.tracklet');
+                trjs2assign = mtrjs(ix);
                 
                 for j=1:length(trjs2assign)
                     trjs2assign(j).ID(1).auto = T.label{j};
@@ -754,7 +758,7 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
             
             % manual ids
             f = [Trck.labelsdir,'manualids.csv'];
-            if exist(f,'file')
+            if isfile(f)
                 T = readtable(f);
             else
                 return
