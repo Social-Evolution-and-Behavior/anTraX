@@ -47,5 +47,5 @@ switch command
         expdir = varargin{1};
         g = str2num(varargin{2});
         solve_across_movies(expdir, g, varargin{3:end});
-                
+                        
 end

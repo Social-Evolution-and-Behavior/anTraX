@@ -4,9 +4,15 @@ addRequired(p,'Trck',@(x) isa(x,'trhandles')||isfolder(x));
 addParameter(p,'trackingdirname',[],@ischar);
 addParameter(p,'movlist',[]);
 addParameter(p,'movie',true, @islogical);
+addParameter(p,'jaaba_path',[]);
 addParameter(p,'jab',[],@ischar);
 
 parse(p,Trck,varargin{:});
+
+if ~isempty(p.Results.jaaba_path)
+    addpath(genpath(JAABA_PATH));
+    rmpath(genpath([JAABA_PATH,'/compiled']));
+end
 
 
 if ischar(Trck) 

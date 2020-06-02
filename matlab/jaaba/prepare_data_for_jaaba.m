@@ -5,9 +5,15 @@ p = inputParser;
 addRequired(p,'Trck',@(x) isa(x,'trhandles')||isfolder(x));
 addParameter(p,'trackingdirname',[],@ischar);
 addParameter(p,'movlist',[]);
+addParameter(p,'jaaba_path',[]);
 addParameter(p,'movie',true, @islogical);
 
 parse(p,Trck,varargin{:});
+
+if ~isempty(p.Results.jaaba_path)
+    addpath(genpath(JAABA_PATH));
+    rmpath(genpath([JAABA_PATH,'/compiled']));
+end
 
 if ischar(Trck) 
     Trck = trhandles(Trck,p.Results.trackingdirname);

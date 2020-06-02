@@ -14,6 +14,7 @@ from .utils import *
 
 ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR') == 'True'
 ANTRAX_HPC = os.getenv('ANTRAX_HPC') == 'True'
+JAABA_PATH = os.getenv('ANTRAX_JAABA_PATH')
 
 
 ########################### AUX functions #########################
@@ -189,6 +190,10 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=
         for e in explist:
             movlist1 = e.movlist if movlist is None else movlist
             for m in movlist1:
+                w = {'fun': 'pair_search'}
+                w['args'] = [e.expdir, m, 'trackingdirname', e.session]
+                w['diary'] = join(e.logsdir, 'matlab_pair_search_m_' + str(m) + '.log')
+                w['str'] = 'pair search movie ' + str(m)
                 Q.put(('pair_search', e, m))
 
             # wait for tasks to complete
@@ -455,12 +460,6 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_H
 def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC):
     """Export xy data"""
 
-    if mcr or hpc:
-        print('')
-        print('antrax does not currently support jaaba commands in MCR mode')
-        print('')
-        return
-
     explist = parse_explist(explist, session)
 
     Q = MatlabQueue(nw=nw, mcr=mcr)
@@ -468,7 +467,11 @@ def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=AN
     for e in explist:
         movlist1 = e.movlist if movlist is None else movlist
         for m in movlist1:
-            Q.put(('export_xy', e, m))
+            w = {'fun': 'export_single_movie'}
+            w['args'] = [e.expdir, m, 'trackingdirname', e.session]
+            w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '.log')
+            w['str'] = 'export movie ' + str(m)
+            Q.put(w)
 
     # wait for tasks to complete
     Q.join()
@@ -503,7 +506,12 @@ def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mc
         for e in explist:
             movlist1 = e.movlist if movlist is None else movlist
             for m in movlist1:
-                Q.put(('export_jaaba', e, m))
+                w = {}
+                w['fun'] = 'prepare_data_for_jaaba'
+                w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'jaaba_path', JAABA_PATH]
+                w['diary'] = join(e.logsdir, 'matlab_export_jaaba_m_' + str(m) + '.log')
+                w['str'] = 'JAABA export movie ' + str(m)
+                Q.put(w)
 
         # wait for tasks to complete
         Q.join()
@@ -543,7 +551,12 @@ def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=N
         for e in explist:
             movlist1 = e.movlist if movlist is None else movlist
             for m in movlist1:
-                Q.put(('run_jaaba', e, m, jab))
+                w = {}
+                w['fun'] = 'run_jaaba_detect'
+                w['args'] = [e.expdir, m, jab, 'trackingdirname', e.session, 'jaaba_path', JAABA_PATH]
+                w['diary'] = join(e.logsdir, 'matlab_export_jaaba_m_' + str(m) + '.log')
+                w['str'] = 'JAABA run movie ' + str(m)
+                Q.put(w)
 
         # wait for tasks to complete
         Q.join()
