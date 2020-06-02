@@ -3,11 +3,14 @@ from os.path import join, isdir, isfile
 from glob import glob
 from clize import run
 from threading import Thread
-from shutil import copyfile, copy, rmtree
+from shutil import copyfile, copy, rmtree, copytree
 from subprocess import Popen
+import queue
+import time
+import antrax as ax
 
 
-def reorg(expdir, targetdir, new_expname=None, *, missing=False, force=False):
+def reorg(expdir, targetdir, new_expname=None, *, missing=False, force=False, tracking=True, nw=1):
 
     expname = [x for x in expdir.split('/') if len(x) > 0][-1]
 
@@ -57,18 +60,88 @@ def reorg(expdir, targetdir, new_expname=None, *, missing=False, force=False):
     new_paths = [x.replace(viddir, new_expdir+'/videos/') for x in paths]
     new_names = [x.replace(expname, new_expname).replace('.avi', '.mp4') for x in names]
     new_videos = [join(x, y) for x, y in zip(new_paths, new_names)]
-    
+
     # copy thermal as is
+    if len(thermal) > 0:
+        ax.report('I', 'Copying thermal camera videos')
     for v in thermal:
         x = v.replace(expdir, new_expdir + '/videos/')
         if not isfile(x):
             copyfile(v, x)
 
-    # loop on videos 
-    for v, newv in zip(videos, new_videos):
-        do_one_video(v, newv)
+    q = queue.Queue()
 
+    for v, newv in zip(videos, new_videos):
+        w = {'vid': v, 'new_vid': newv}
+        q.put_nowait(w)
+
+    for _ in range(nw):
+        Worker(q).start()
+
+    q.join()  # blocks until the queue is empty.
+
+    '''
+    # loop on videos
+    tot = len(videos)
+    cnt = 1
     
+    for v, newv in zip(videos, new_videos):
+        ax.report('I', 'Working on file ' + str(cnt) + '/' + str(tot))
+        do_one_video(v, newv)
+        cnt += 1
+    '''
+
+    # copy tracking sessions
+    if tracking:
+        if not ax.is_expdir(expdir):
+            ax.report('I', 'No antrax sessions found')
+        else:
+            ex = ax.axExperiment(expdir)
+            sessions = ex.get_sessions()
+            for s in sessions:
+                ax.report('I', 'Copying antrax session ' + s)
+                copytree(join(expdir, s), new_expdir)
+
+
+class Worker(Thread):
+
+    def __init__(self, q, *args, **kwargs):
+
+        self.q = q
+        super().__init__(*args, **kwargs)
+
+    def run(self):
+
+        while True:
+
+            try:
+
+                w = self.q.get(timeout=3)  # 3s timeout
+
+            except queue.Empty:
+
+                return
+
+            # do whatever work you have to do on work
+            dat = w['vid'].replace('.avi', '.dat')
+            new_dat = w['new_vid'].replace('.mp4', '.dat')
+
+            # compress the video to the new location
+            if not isfile(w['new_vid']):
+                cmd = 'ffmpeg -loglevel error  -i ' + w['vid'] + ' -vcodec libx264 -preset veryslow -crf 30 ' + w['new_vid']
+                p = Popen(cmd, shell=True)
+                p.wait()
+                print('finished transforming ' + w['vid'].split('/')[-1])
+            else:
+                print('skipping ' + w['vid'].split('/')[-1])
+
+                # resave dat to new location
+            if isfile(dat) and not isfile(new_dat):
+                copyfile(dat, new_dat)
+
+            self.q.task_done()
+
+
 def do_one_video(vid, new_vid):
 
     # get dat file
