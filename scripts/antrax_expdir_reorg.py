@@ -61,6 +61,8 @@ def reorg(expdir, targetdir, new_expname=None, *, missing=False, force=False, tr
     new_names = [x.replace(expname, new_expname).replace('.avi', '.mp4') for x in names]
     new_videos = [join(x, y) for x, y in zip(new_paths, new_names)]
 
+    ax.report('I', 'Found ' + str(len(new_videos)) + ' to convert')
+
     # copy thermal as is
     if len(thermal) > 0:
         ax.report('I', 'Copying thermal camera videos')
@@ -139,6 +141,7 @@ class Worker(Thread):
             if isfile(dat) and not isfile(new_dat):
                 copyfile(dat, new_dat)
 
+            ax.report('I', 'Finished ' + w['new_vid'])
             self.q.task_done()
 
 
