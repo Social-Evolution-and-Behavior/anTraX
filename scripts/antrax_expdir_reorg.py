@@ -20,10 +20,10 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
     new_expdir = join(targetdir, new_expname)
 
     if isdir(new_expdir) and force and not missing:
-        print('expdir exist in location - removing')
+        ax.report('W', 'expdir exist in location - removing')
         rmtree(new_expdir)
     elif isdir(new_expdir) and not missing:
-        print('expdir exist in location - use "--force" to remove or "--missing" to only convert new files')
+        ax.report('E', 'expdir exist in location - use "--force" to remove or "--missing" to only convert new files')
         return
 
     if not isdir(new_expdir):
@@ -61,7 +61,7 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
     new_names = [x.replace(expname, new_expname).replace('.avi', '.mp4') for x in names]
     new_videos = [join(x, y) for x, y in zip(new_paths, new_names)]
 
-    ax.report('I', 'Found ' + str(len(new_videos)) + ' to convert')
+    ax.report('I', 'Found ' + str(len(new_videos)) + ' videos to convert')
 
     # copy thermal as is
     if len(thermal) > 0:
@@ -133,15 +133,15 @@ class Worker(Thread):
                 cmd = 'ffmpeg -loglevel error  -i ' + w['vid'] + ' -vcodec libx264 -preset veryslow -crf 30 ' + w['new_vid']
                 p = Popen(cmd, shell=True)
                 p.wait()
-                print('finished transforming ' + w['vid'].split('/')[-1])
+                ax.report('I', 'Finished trancoding ' + w['new_vid'].split('/')[-1])
             else:
-                print('skipping ' + w['vid'].split('/')[-1])
+                ax.report('I', 'Skipping ' + w['new_vid'].split('/')[-1])
 
-                # resave dat to new location
+            # resave dat to new location
             if isfile(dat) and not isfile(new_dat):
                 copyfile(dat, new_dat)
 
-            ax.report('I', 'Finished ' + w['new_vid'])
+
             self.q.task_done()
 
 
