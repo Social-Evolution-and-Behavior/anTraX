@@ -113,7 +113,7 @@ def clear_tracking_data(ex, step, movlist, opts):
 def antrax_hpc_train_job(classdir, opts):
 
     opts['jobname'] = 'train'
-    opts['filename'] = 'train'
+    opts['filename'] = 'hpc_train'
     opts['taskarray'] = [0]
     opts['workdir'] = opts.get('workdir', classdir)
     opts['cpus'] = opts.get('cpus', 24)
@@ -160,7 +160,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
     if step == 'track':
 
         opts['jobname'] = 'trk:' + ex.expname
-        opts['filename'] = 'trk'
+        opts['filename'] = 'hpc_track'
         opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 2)
         opts['cmd'] = 'antrax track ' + ex.expdir + \
@@ -172,7 +172,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
     elif step == 'pair-search':
 
         opts['jobname'] = 'prs:' + ex.expname
-        opts['filename'] = 'pair_search'
+        opts['filename'] = 'hpc_pair_search'
         opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 2)
         opts['cmd'] = 'antrax pair-search ' + ex.expdir + \
@@ -184,7 +184,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
     elif step == 'post':
 
         opts['jobname'] = 'pst:' + ex.expname
-        opts['filename'] = 'pst'
+        opts['filename'] = 'hpc_pst'
         opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 2)
         opts['cmd'] = ''
@@ -192,7 +192,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
     elif step == 'classify':
 
         opts['jobname'] = 'cls:' + ex.expname
-        opts['filename'] = 'cls'
+        opts['filename'] = 'hpc_classify'
         opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 6)
         opts['cmd'] = 'antrax classify ' + ex.expdir + \
@@ -218,13 +218,13 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
 
         if opts['c'] is not None:
             opts['jobname'] = 'slv:' + ex.expname + ':' + str(opts['c'])
-            opts['filename'] = 'slv_' + str(opts['c'])
+            opts['filename'] = 'hpc_solve_col_' + str(opts['c']) + '_'
             opts['cmd'] += ' --clist ' + str(opts['c'])
 
     elif step == 'dlc':
 
         opts['jobname'] = 'dlc:' + ex.expname
-        opts['filename'] = 'dlc'
+        opts['filename'] = 'hpc_dlc'
         opts['taskarray'] = movlist
         opts['cpus'] = opts.get('cpus', 6)
         opts['cmd'] = 'antrax dlc ' + ex.expdir + \

@@ -251,7 +251,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifie
 
 
 def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, clist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
-          missing=False, session=None, dry=False, step=None):
+          missing=False, session=None, dry=False, step=0):
     """Run propagation step"""
 
     explist = parse_explist(explist, session)
@@ -304,7 +304,7 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
             if movlist is not None:
                 emlist = [m for m in emlist if m in movlist]
 
-            if step is None or step == 1:
+            if step == 0 or step == 1:
                 if e.prmtrs['geometry_multi_colony']:
                     for c in eclist:
                         for m in emlist:
@@ -325,7 +325,7 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
                 Q.join()
 
             # stitch
-            if step is None or step == 2:
+            if step == 0 or step == 2:
                 if e.prmtrs['geometry_multi_colony']:
                     for c in eclist:
                         for g in eglist:
@@ -345,7 +345,7 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
                 # wait for stitch to finish
                 Q.join()
 
-            if step is None or step == 3:
+            if step == 0 or step == 3:
                 if e.prmtrs['geometry_multi_colony']:
                     for c in eclist:
                         for m in emlist:
