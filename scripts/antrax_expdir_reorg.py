@@ -111,8 +111,8 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
             f.writelines("#SBATCH --cpus-per-task=%d\n" % 8)
             f.writelines("#SBATCH --array=%d-%d%%%d\n" % (0, len(new_videos)-1, 100))
             f.writelines("\n")
-            f.writelines(in_array_line)
-            f.writelines(out_array_line)
+            f.writelines(in_array_line + '\n\n')
+            f.writelines(out_array_line + '\n\n')
             f.writelines("srun -N1 %s\n" % cmd)
 
         p = Popen("sbatch %s" % jobfile, stdout=PIPE, shell=True)
