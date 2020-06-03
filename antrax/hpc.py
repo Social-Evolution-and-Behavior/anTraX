@@ -66,9 +66,15 @@ def create_slurm_job_file(opts):
     return jobfile
 
 
-def submit_slurm_job_file(jobfile):
+def submit_slurm_job_file(jobfile, waitfor=None):
 
-    p = Popen("sbatch %s" % jobfile, stdout=PIPE, shell=True)
+    if waitfor is None:
+        waitforstr = ''
+    else:
+        waitforstr = '--dependency=afterok:' + str(waitfor)
+
+    p = Popen("sbatch %s %s" % (waitforstr, jobfile), stdout=PIPE, shell=True)
+
     (out, err) = p.communicate()
     out = out.decode("utf-8")
     jid = out.split()[-1]
@@ -127,7 +133,7 @@ def antrax_hpc_train_job(classdir, opts):
         print('')
 
 
-def antrax_hpc_job(ex, step, opts):
+def antrax_hpc_job(ex, step, opts, solve_step=None):
 
     # if "missing" is set, get list of videos with missing output
     if opts.get('missing', False):
@@ -198,12 +204,16 @@ def antrax_hpc_job(ex, step, opts):
 
         opts['jobname'] = 'slv:' + ex.expname
         opts['filename'] = 'slv'
-        opts['taskarray'] = opts['glist']
+        if solve_step == 2:
+            opts['taskarray'] = opts['glist']
+        else:
+            opts['taskarray'] = opts['movlist']
         opts['cpus'] = opts.get('cpus', 4)
         opts['cmd'] = 'antrax solve ' + ex.expdir + \
             ' --session ' + ex.session + \
-            ' --glist $SLURM_ARRAY_TASK_ID ' + \
+            ' --movlist $SLURM_ARRAY_TASK_ID ' + \
             ' --nw 1 ' + \
+            ' --step ' + str(solve_step) + \
             ' --mcr'
 
         if opts['c'] is not None:
@@ -240,10 +250,14 @@ def antrax_hpc_job(ex, step, opts):
     print('Jobfile created in ' + jobfile)
     print('')
 
+    waitfor = opts.get('waitfor', None)
+
     if not opts.get('dry', False):
-        jid = submit_slurm_job_file(jobfile)
+        jid = submit_slurm_job_file(jobfile, waitfor=waitfor)
         print('Job number ' + str(jid) + ' was submitted')
         print('')
     else:
         print('Dry run, no job submitted.')
         print('')
+
+    return jid

@@ -250,8 +250,8 @@ def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifie
         Q.stop_workers()
 
 
-def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
-          missing=False, session=None, dry=False):
+def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, clist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
+          missing=False, session=None, dry=False, step=None):
     """Run propagation step"""
 
     explist = parse_explist(explist, session)
@@ -260,19 +260,34 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
 
         for e in explist:
 
+            eglist = glist if glist is not None else e.glist
+            emlist = [e.ggroups[g - 1] for g in eglist]
+            emlist = [m for grp in emlist for m in grp]
+
             hpc_options['dry'] = dry
             hpc_options['classifier'] = classifier
             hpc_options['missing'] = missing
-            hpc_options['glist'] = glist if glist is not None else e.glist
+            hpc_options['glist'] = eglist
+            hpc_options['movlist'] = emlist
 
             if e.prmtrs['geometry_multi_colony']:
                 eclist = clist if clist is not None else e.clist
                 for c in eclist:
                     hpc_options['c'] = c
-                    antrax_hpc_job(e, 'solve', opts=hpc_options)
+                    hpc_options['waitfor'] = None
+                    jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=1)
+                    hpc_options['waitfor'] = jid
+                    jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=2)
+                    hpc_options['waitfor'] = jid
+                    jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=3)
             else:
                 hpc_options['c'] = None
-                antrax_hpc_job(e, 'solve', opts=hpc_options)
+                hpc_options['waitfor'] = None
+                jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=1)
+                hpc_options['waitfor'] = jid
+                jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=2)
+                hpc_options['waitfor'] = jid
+                jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=3)
 
     else:
 
@@ -284,64 +299,69 @@ def solve(explist, *, glist: parse_movlist=None, clist: parse_movlist=None, mcr=
             eclist = clist if clist is not None else e.clist
             emlist = [e.ggroups[g-1] for g in eglist]
             emlist = [m for grp in emlist for m in grp]
+            if movlist is not None:
+                emlist = [m for m in emlist if m in movlist]
 
-            if e.prmtrs['geometry_multi_colony']:
-                for c in eclist:
+            if step is None or step == 1:
+                if e.prmtrs['geometry_multi_colony']:
+                    for c in eclist:
+                        for m in emlist:
+                            w = {'fun': 'solve_single_movie'}
+                            w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c]
+                            w['diary'] = join(e.logsdir, 'matlab_solve_m_' + str(m) + '_c_' + str(c) + '.log')
+                            w['str'] = 'solve colony ' + str(c) + ' movie ' + str(m)
+                            Q.put(w)
+                else:
                     for m in emlist:
                         w = {'fun': 'solve_single_movie'}
-                        w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c]
-                        w['diary'] = join(e.logsdir, 'matlab_solve_m_' + str(m) + '_c_' + str(c) + '.log')
-                        w['str'] = 'solve colony ' + str(c) + ' movie ' + str(m)
+                        w['args'] = [e.expdir, m, 'trackingdirname', e.session]
+                        w['diary'] = join(e.logsdir, 'matlab_solve_m_' + str(m) + '.log')
+                        w['str'] = 'solve movie ' + str(m)
                         Q.put(w)
-            else:
-                for m in emlist:
-                    w = {'fun': 'solve_single_movie'}
-                    w['args'] = [e.expdir, m, 'trackingdirname', e.session]
-                    w['diary'] = join(e.logsdir, 'matlab_solve_m_' + str(m) + '.log')
-                    w['str'] = 'solve movie ' + str(m)
-                    Q.put(w)
 
-            # wait for single movie tasks to complete
-            Q.join()
+                # wait for single movie tasks to complete
+                Q.join()
 
             # stitch
-            if e.prmtrs['geometry_multi_colony']:
-                for c in eclist:
+            if step is None or step == 2:
+                if e.prmtrs['geometry_multi_colony']:
+                    for c in eclist:
+                        for g in eglist:
+                            w = {'fun': 'solve_across_movies'}
+                            w['args'] = [e.expdir, g, 'trackingdirname', e.session, 'colony', c]
+                            w['diary'] = join(e.logsdir, 'matlab_solve_g_' + str(g) + '_c_' + str(c) + '.log')
+                            w['str'] = 'solve stitch colony ' + str(c) + ' graph ' + str(g)
+                            Q.put(w)
+                else:
                     for g in eglist:
                         w = {'fun': 'solve_across_movies'}
-                        w['args'] = [e.expdir, g, 'trackingdirname', e.session, 'colony', c]
-                        w['diary'] = join(e.logsdir, 'matlab_solve_g_' + str(g) + '_c_' + str(c) + '.log')
-                        w['str'] = 'solve stitch colony ' + str(c) + ' graph ' + str(g)
+                        w['args'] = [e.expdir, g, 'trackingdirname', e.session]
+                        w['diary'] = join(e.logsdir, 'matlab_solve_g_' + str(g) + '.log')
+                        w['str'] = 'solve stitch graph ' + str(g)
                         Q.put(w)
-            else:
-                for g in eglist:
-                    w = {'fun': 'solve_across_movies'}
-                    w['args'] = [e.expdir, g, 'trackingdirname', e.session]
-                    w['diary'] = join(e.logsdir, 'matlab_solve_g_' + str(g) + '.log')
-                    w['str'] = 'solve stitch graph ' + str(g)
-                    Q.put(w)
 
-            # wait for stitch to finish
-            Q.join()
+                # wait for stitch to finish
+                Q.join()
 
-            if e.prmtrs['geometry_multi_colony']:
-                for c in eclist:
+            if step is None or step == 3:
+                if e.prmtrs['geometry_multi_colony']:
+                    for c in eclist:
+                        for m in emlist:
+                            w = {'fun': 'export_single_movie'}
+                            w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c]
+                            w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '_c_' + str(c) + '.log')
+                            w['str'] = 'export colony ' + str(c) + ' movie ' + str(m)
+                            Q.put(w)
+                else:
                     for m in emlist:
                         w = {'fun': 'export_single_movie'}
-                        w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c]
-                        w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '_c_' + str(c) + '.log')
-                        w['str'] = 'export colony ' + str(c) + ' movie ' + str(m)
+                        w['args'] = [e.expdir, m, 'trackingdirname', e.session]
+                        w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '.log')
+                        w['str'] = 'export movie ' + str(m)
                         Q.put(w)
-            else:
-                for m in emlist:
-                    w = {'fun': 'export_single_movie'}
-                    w['args'] = [e.expdir, m, 'trackingdirname', e.session]
-                    w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '.log')
-                    w['str'] = 'export movie ' + str(m)
-                    Q.put(w)
 
-            # wait for stitch to finish
-            Q.join()
+                # wait for stitch to finish
+                Q.join()
 
         # close
         Q.stop_workers()
