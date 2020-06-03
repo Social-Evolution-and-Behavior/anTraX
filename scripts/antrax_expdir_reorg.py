@@ -57,7 +57,7 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
     names = [x.split('/')[-1] for x in videos]
     paths = ['/'.join(x.split('/')[:-1]) for x in videos]
 
-    new_paths = [x.replace(viddir, new_expdir+'/videos/') for x in paths]
+    new_paths = [x.replace(viddir, new_expdir + '/videos/') for x in paths]
     new_names = [x.replace(expname, new_expname).replace('.avi', '.mp4') for x in names]
     new_videos = [join(x, y) for x, y in zip(new_paths, new_names)]
 
