@@ -167,7 +167,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
             ' --session ' + ex.session + \
             ' --movlist $SLURM_ARRAY_TASK_ID' + \
             ' --nw 1' + \
-            ' --mcr'
+            ' --mcr 1'
 
     elif step == 'pair-search':
 
@@ -179,7 +179,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
                   ' --session ' + ex.session + \
                   ' --movlist $SLURM_ARRAY_TASK_ID' + \
                   ' --nw 1' + \
-                  ' --mcr'
+                  ' --mcr 1'
 
     elif step == 'post':
 
@@ -214,7 +214,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
             ' --movlist $SLURM_ARRAY_TASK_ID ' + \
             ' --nw 1 ' + \
             ' --step ' + str(solve_step) + \
-            ' --mcr'
+            ' --mcr 1'
 
         if opts['c'] is not None:
             opts['jobname'] = 'slv:' + ex.expname + ':' + str(opts['c'])
