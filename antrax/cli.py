@@ -250,11 +250,13 @@ def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifie
         Q.stop_workers()
 
 
-def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, clist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
+def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, clist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
           missing=False, session=None, dry=False, step=None):
     """Run propagation step"""
 
     explist = parse_explist(explist, session)
+    mcr = mcr or ANTRAX_USE_MCR
+    hpc = hpc or ANTRAX_HPC
 
     if hpc:
 
