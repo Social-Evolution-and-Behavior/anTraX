@@ -252,14 +252,11 @@ class axExperiment:
 
         return bg
 
-
     def get_glist(self):
-
 
         if 'graph_groupby' not in self.prmtrs:
 
             self.prmtrs['graph_groupby'] = 'subdir'
-
 
         if self.prmtrs['graph_groupby'] in ['experiment', 'wholeexperiment']:
 
