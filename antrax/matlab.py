@@ -121,6 +121,9 @@ def compile_antrax_executables():
     eng = start_matlab()
     p = eng.genpath(ANTRAX_PATH + '/matlab')
     eng.addpath(p, nargout=0)
+    eng.cd(ANTRAX_PATH + '/matlab/external/popenmatlab', nargout=0)
+    eng.mex('popenr.c', nargout=0)
+    eng.cd(ANTRAX_PATH, nargout=0)
     eng.compile_antrax_executables(nargout=0)
     eng.quit()
 

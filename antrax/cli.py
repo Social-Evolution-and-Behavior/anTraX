@@ -299,7 +299,7 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
 
             eglist = glist if glist is not None else e.glist
             eclist = clist if clist is not None else e.clist
-            emlist = [e.ggroups[g-1] for g in eglist]
+            emlist = [e.ggroups[g - 1] for g in eglist]
             emlist = [m for grp in emlist for m in grp]
             if movlist is not None:
                 emlist = [m for m in emlist if m in movlist]

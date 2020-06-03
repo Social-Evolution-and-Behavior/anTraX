@@ -203,7 +203,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
     elif step == 'solve':
 
         opts['jobname'] = 'slv' + str(solve_step) + ':' + ex.expname
-        opts['filename'] = 'slv' + str(solve_step)
+        opts['filename'] = 'hpc_solve' + str(solve_step)
         if solve_step == 2:
             opts['taskarray'] = opts['glist']
         else:
