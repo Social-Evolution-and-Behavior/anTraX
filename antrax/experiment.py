@@ -288,7 +288,7 @@ class axExperiment:
             glist = []
             ggroups = []
 
-        return glist, ggroups
+        return sorted(glist), sorted(ggroups)
 
     def get_graph_group(self, g):
 
