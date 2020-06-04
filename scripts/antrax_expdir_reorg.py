@@ -141,7 +141,7 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
             sessions = ex.get_sessions()
             for s in sessions:
                 ax.report('I', 'Copying antrax session ' + s)
-                copytree(join(expdir, s), new_expdir)
+                copytree(join(expdir, s), join(new_expdir, s))
 
 
 class Worker(Thread):
