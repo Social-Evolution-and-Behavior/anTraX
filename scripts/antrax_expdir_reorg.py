@@ -83,6 +83,7 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
         missingix = [i for i, nv in enumerate(new_videos) if not isfile(nv)]
         videos = [videos[i] for i in missingix]
         new_videos = [new_videos[i] for i in missingix]
+        ax.report('I', 'Running for ' + str(len(videos)) + ' missing files')
 
     if not hpc:
 
