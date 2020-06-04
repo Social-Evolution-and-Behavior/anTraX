@@ -58,10 +58,10 @@ class axExperiment:
         self.glist, self.ggroups = self.get_glist()
         if 'geometry_colony_labels' in self.prmtrs.keys():
             self.clist = list(range(1, len(self.prmtrs['geometry_colony_labels'])+1))
+            self.colony_labels = self.prmtrs['geometry_colony_labels']
         else:
-            self.clist = []
-        self.colony_labels = self.prmtrs['geometry_colony_labels']
-
+            self.clist = [1]
+            self.colony_labels = []
 
         if 'tagged' in self.prmtrs:
             if self.prmtrs['tagged']:
