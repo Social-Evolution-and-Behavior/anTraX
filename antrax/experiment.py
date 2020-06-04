@@ -56,7 +56,10 @@ class axExperiment:
         self.subdirs = self.get_subdirs()
         self.movlist = self.get_movlist()
         self.glist, self.ggroups = self.get_glist()
-        self.clist = list(range(1,len(self.prmtrs['geometry_colony_labels'])+1))
+        if 'geometry_colony_labels' in self.prmtrs.keys():
+            self.clist = list(range(1, len(self.prmtrs['geometry_colony_labels'])+1))
+        else:
+            self.clist = []
         self.colony_labels = self.prmtrs['geometry_colony_labels']
 
 
