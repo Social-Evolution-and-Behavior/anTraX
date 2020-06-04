@@ -79,9 +79,6 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
         if isfile(dat) and not isfile(new_dat):
             copyfile(dat, new_dat)
 
-    videos = [v for v, vnew in zip(videos, new_videos) if isfile(vnew)]
-    videos = [v for v, vnew in zip(videos, new_videos) if isfile(vnew)]
-
     if not hpc:
 
         q = queue.Queue()
@@ -100,13 +97,14 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
         # create job file
 
         jobfile = join(new_expdir, 'antrax_reorg.sh')
+
         with open(jobfile, 'w') as f:
 
             in_array_line = 'VIN=(' + \
-                            ' '.join(['"' + v + '"' for v, nv in zip(videos, new_videos) if isfile(nv)]) + \
+                            ' '.join(['"' + v + '"' for v, nv in zip(videos, new_videos) if not isfile(nv)]) + \
                             ')'
             out_array_line = 'VOUT=(' + \
-                             ' '.join(['"' + v + '"' for v, nv in zip(videos, new_videos) if isfile(nv)]) + \
+                             ' '.join(['"' + v + '"' for v, nv in zip(videos, new_videos) if not isfile(nv)]) + \
                              ')'
 
             cmd = 'ffmpeg -loglevel error  -i ${VIN[$SLURM_ARRAY_TASK_ID]} -vcodec libx264 -preset veryslow -crf 30 ${VOUT[$SLURM_ARRAY_TASK_ID]}'
