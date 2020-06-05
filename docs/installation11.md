@@ -81,7 +81,7 @@ In case you have MATLAB installed (i.e. you are not using the compiled binaries)
 You will also need to compile a mex file. In the matlab console, type:
 
 ```console
-cd <path-to-anTraX>/matlab
+cd <path-to-anTraX>/matlab/external/popenmatlab
 mex popenr.c
 ```
 If you intend to use anTraX within an interactive MATLAB session (requires an active license), add the repository to your search path. In the MATLAB console, type:
