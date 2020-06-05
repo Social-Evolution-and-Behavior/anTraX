@@ -40,7 +40,6 @@ report('I','Compiling antrax executables:')
 % eval(['mcc -m graph_explorer_app.mlapp  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'graph_explorer_app'])
 
 % new mcr interface
-report('I','    ...interface function')
 eval(['mcc -m antrax_mcr_interface.m  -a ',srcdir,' -d ',bindir, ' -o ', prefix, 'mcr_interface'])
 % 
 % % compile the track function
