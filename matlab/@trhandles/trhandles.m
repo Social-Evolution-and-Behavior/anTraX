@@ -691,10 +691,8 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 
             
             elseif ismember(Trck.get_param('graph_groupby'), {'custom'})
-                
-                
-                error('not implemented')
-                groups = {}
+                                
+                groups = Trck.get_param('graph_groups');
                 
             else
                 
