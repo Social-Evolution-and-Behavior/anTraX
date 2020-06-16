@@ -172,10 +172,12 @@ def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, ant
     create_trainset(ex, dlcdir, n=nimages, antlist=antlist, movlist=movlist, vid=video)
 
 
-def pair_search(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
+def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
                 missing=False, session=None, dry=False):
 
     explist = parse_explist(explist, session)
+    mcr = mcr or ANTRAX_USE_MCR
+    hpc = hpc or ANTRAX_HPC
 
     if hpc:
         for e in explist:
@@ -204,11 +206,13 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=
         Q.stop_workers()
 
 
-def track(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, classifier=None, onlystitch=False, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
+def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
           missing=False, session=None, dry=False):
     """Run tracking step"""
 
     explist = parse_explist(explist, session)
+    mcr = mcr or ANTRAX_USE_MCR
+    hpc = hpc or ANTRAX_HPC
 
     if hpc:
 
@@ -370,10 +374,10 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
 
 
 def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, arch='small', modelfile=None,
-          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
+          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=False, hpc_options: parse_hpc_options={},
           dry=False):
     """Train a blob classifier"""
-
+    hpc = hpc or ANTRAX_HPC
 
     if not is_classdir(classdir):
 
@@ -419,12 +423,13 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
         c.save(classfile)
 
 
-def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
+def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options={},
              nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False, dry=False,
              missing=False):
     """Run classification step"""
 
     explist = parse_explist(explist, session)
+    hpc = hpc or ANTRAX_HPC
 
     if not hpc:
         from antrax.classifier import axClassifier
@@ -452,7 +457,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=ANTRA
             c.predict_experiment(e, movlist=movlist, report=True)
 
 
-def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options=' ',
+def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' ',
         missing=False, dry=False):
     """Run DeepLabCut on antrax experiments
 
@@ -465,6 +470,7 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_H
      """
 
     explist = parse_explist(explist, session)
+    hpc = hpc or ANTRAX_HPC
 
     for e in explist:
         if hpc:
@@ -479,10 +485,12 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=ANTRAX_H
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
-def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC):
+def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False):
     """Export xy data"""
 
     explist = parse_explist(explist, session)
+    mcr = mcr or ANTRAX_USE_MCR
+    hpc = hpc or ANTRAX_HPC
 
     Q = MatlabQueue(nw=nw, mcr=mcr)
 
@@ -502,9 +510,12 @@ def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=AN
     Q.stop_workers()
 
 
-def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC,
+def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False,
                  missing=False, dry=False, hpc_options: parse_hpc_options=' '):
     """Export data to JAABA"""
+
+    mcr = mcr or ANTRAX_USE_MCR
+    hpc = hpc or ANTRAX_HPC
 
     if mcr or hpc:
         print('')
@@ -542,9 +553,12 @@ def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mc
         Q.stop_workers()
 
 
-def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=None, mcr=ANTRAX_USE_MCR, hpc=ANTRAX_HPC,
+def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=None, mcr=False, hpc=False,
               missing=False, hpc_options: parse_hpc_options=' ', dry=False):
     """Run JAABA classifier on antrax experiments"""
+
+    mcr = mcr or ANTRAX_USE_MCR
+    hpc = hpc or ANTRAX_HPC
 
     if mcr or hpc:
         print('')
