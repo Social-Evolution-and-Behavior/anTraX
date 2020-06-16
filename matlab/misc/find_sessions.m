@@ -14,9 +14,12 @@ function sessions = find_sessions(expdir)
     ds = dir(expdir);
     ds = ds([ds.isdir]);
     
+    is = false(0);
+    
     for i=1:length(ds)
         is(i) = is_session_dir([expdir,filesep,ds(i).name]);
     end
+    
     
     ds = ds(is);
     
