@@ -280,6 +280,9 @@ class axExperiment:
         elif self.prmtrs['graph_groupby'] == 'custom':
 
             ggroups = self.prmtrs['graph_groups']
+            if not isinstance(ggroups, list):
+                ggroups = [ggroups]
+            ggroups = [grp if isinstance(grp, list) else [grp] for grp in ggroups]
             glist = [g + 1 for g in range(len(ggroups))]
 
         else:
@@ -287,6 +290,10 @@ class axExperiment:
             print('Something wrong with graph lists')
             glist = []
             ggroups = []
+
+        ggroups = [sorted(grp) for grp in ggroups]
+        ggroups = [x for _,x in sorted(zip(glist, ggroups))]
+        glist = sorted(glist)
 
         return sorted(glist), sorted(ggroups)
 
