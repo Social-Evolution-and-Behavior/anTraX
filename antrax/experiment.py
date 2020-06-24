@@ -295,7 +295,7 @@ class axExperiment:
         ggroups = [x for _,x in sorted(zip(glist, ggroups))]
         glist = sorted(glist)
 
-        return sorted(glist), sorted(ggroups)
+        return glist, ggroups
 
     def get_graph_group(self, g):
 
