@@ -63,10 +63,13 @@ anTraX will create a directory called `jaaba` under the session directory. In th
 
 ![expdir structure](images/jaaba_directory_structure.png "jaaba directory structure")
 
+### JAABA perframe features
+
+JAABA computed a long list of perframe features (see the [JAABA original publication](https://www.nature.com/articles/nmeth.2281), supplementary material section 13  for full details). Many of these features are not valid for multi-animal tracklets (e.g. kinematic features and appearance features). Therefore, anTraX will write NaN values for these features in frames that corresponds to multi-animal tracklets.
 
 ### anTraX-specific perframe features
 
-In addition to JAABA's list of perframe features (see the [JAABA original publication](https://www.nature.com/articles/nmeth.2281), supplementary material section 13  for full details), anTraX will also include an additional set of features:
+In addition to JAABA's list of perframe features, anTraX will also include an additional set of features:
 
 * *antrax_blob_area*: The real blob area as reported by the segmentation algorithm. 
 * *antrax_dblob_area*: The derivative of the real blob area.
