@@ -8,4 +8,4 @@
 #SBATCH --array=0-50%100
 
 
-srun python /ru-auth/local/home/agal/code/anTraX/scripts/classifier_test.py /Users/asaf/tracking/anTraX/classifiers/A36_classifier_analysis -n 2000 --name n2000 --ne 100 --logfile /ru-auth/local/home/agal/classifier_test.log
+srun python /ru-auth/local/home/agal/code/anTraX/scripts/classifier_test.py  /ru-auth/local/home/agal/scratch/Classifiers/A36_classifier_analysis -n 2000 --name n2000 --ne 100 --logfile /ru-auth/local/home/agal/classifier_test.log
