@@ -371,7 +371,7 @@ class axClassifier:
         ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
         print(ts + ' -G- Done!')
 
-    def validate(self, examplesdir):
+    def validate(self, examplesdir, force=False, augment=False):
 
 
         #
@@ -381,13 +381,14 @@ class axClassifier:
         # how many classes in example dir?
         classes = classes_from_examplesdir(examplesdir)
 
-        if self.classes is not None and (classes != self.classes):
+        if self.classes is not None and (classes != self.classes) and not force:
             print('-E- Class list in example dir does not match classifier')
             return
 
         prepfun = None if self.prmtrs['scale'] == 1 else scale_and_crop
 
-        DG = image.ImageDataGenerator(
+        if not augment:
+            DG = image.ImageDataGenerator(
                                       width_shift_range=0,
                                       height_shift_range=0,
                                       shear_range=0,
@@ -396,6 +397,18 @@ class axClassifier:
                                       channel_shift_range=0,
                                       horizontal_flip=self.prmtrs['hsymmetry'],
                                       vertical_flip=True)
+        else:
+
+            DG = image.ImageDataGenerator(
+                width_shift_range=10,
+                height_shift_range=10,
+                shear_range=5,
+                rotation_range=15,
+                zoom_range=0.1,
+                brightness_range=(0.9, 1.1),
+                channel_shift_range=0,
+                horizontal_flip=self.prmtrs['hsymmetry'],
+                vertical_flip=True)
 
         FL = DG.flow_from_directory(examplesdir,
                                     target_size=(self.prmtrs['target_size'], self.prmtrs['target_size']),
@@ -433,7 +446,7 @@ class axClassifier:
 
         return error
 
-    def train(self, examplesdir, ne=5, verbose=1):
+    def train(self, examplesdir, ne=5, verbose=1, patience=10, min_delta=0.002):
 
         if isinstance(examplesdir, list):
             rm_after = True
@@ -471,7 +484,7 @@ class axClassifier:
                                     subset='training',
                                     shuffle=True)
 
-        early_stopping = EarlyStopping(monitor='loss', patience=10, min_delta=0.002)
+        early_stopping = EarlyStopping(monitor='loss', patience=patience, min_delta=min_delta)
         reduce_lr = ReduceLROnPlateau(monitor='loss', factor=0.5, patience=5, min_lr=0.0001)
 
         cw = class_weight.compute_class_weight('balanced', np.unique(FL.classes), FL.classes)
