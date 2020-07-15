@@ -2,8 +2,10 @@
 from subprocess import Popen, PIPE
 
 
-NS = [10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200]
-NE = 300
+#NS = [10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200]
+#NE = 300
+NS = [10,20]
+NE = 10
 
 HOME = '/ru-auth/local/home/agal/'
 CLASSDIR = HOME + '/scratch/Classifiers/A36_classifier_analysis'
@@ -12,7 +14,9 @@ LOGDIR = HOME + 'logs/'
 LOGFILE = WD + 'num_examples_test.log'
 TEMPLATE = HOME + '/code/anTraX/scripts/classifier_test_jobfile.sh'
 JOBFILE = WD + 'jobfile.sh'
-NREP = 50
+
+#NREP = 50
+NREP = 2
 
 if __name__ == '__main__':
 
