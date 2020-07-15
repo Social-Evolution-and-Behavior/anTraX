@@ -30,9 +30,10 @@ def classifier_test_fun(classdir, *, n=1000, target_size=64, nids=None, name=Non
 
             examples = glob(c + '/*.*')
             shuffle(examples)
-
-            tset = examples[:round(0.8*nc)]
-            vset = examples[round(0.8*nc):nc]
+            examples = examples[:nc]
+            ncreal = len(examples)
+            tset = examples[:round(0.8*ncreal)]
+            vset = examples[round(0.8*nc):]
 
             tset_new = [x.replace(classdir, d).replace('examples', 't') for x in tset]
             vset_new = [x.replace(classdir, d).replace('examples', 'v') for x in vset]
