@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
             f.writelines("#!/bin/bash\n")
             f.writelines("#SBATCH --job-name=%s\n" % name)
-            f.writelines("#SBATCH --output=%s_%%a.log\n" % LOGDIR + 'n' + str(n) + '_%a')
+            f.writelines("#SBATCH --output=%s_%%a.log\n" % LOGDIR + 'n' + str(n))
             f.writelines("#SBATCH --ntasks=%d\n" % 1)
             f.writelines("#SBATCH --cpus-per-task=%d\n" % int(8))
             f.writelines("#SBATCH --array=%d-%d%%%d\n" % (1, NREP, 10))
