@@ -10,15 +10,13 @@ from random import shuffle
 from shutil import copyfile
 
 
-def classifier_test_fun(classdir, *, n=1000, target_size=64, nids=None, name=None, ne=100, logfile=None):
+def classifier_test_fun(classdir, *, n=100, target_size=64, nids=None, name=None, ne=100, logfile=None):
 
 
     classfile = join(classdir, name + '.h5')
     examplesdir = join(classdir, 'examples')
     classdirs = glob(examplesdir + '/*')
     nclasses = len(classdirs)
-
-    nc = round(n/nclasses)
 
     with tempfile.TemporaryDirectory() as d:
 
@@ -30,7 +28,7 @@ def classifier_test_fun(classdir, *, n=1000, target_size=64, nids=None, name=Non
 
             examples = glob(c + '/*.*')
             shuffle(examples)
-            examples = examples[:nc]
+            examples = examples[:n]
             ncreal = len(examples)
             tset = examples[:round(0.8*ncreal)]
             vset = examples[round(0.8*ncreal):]
