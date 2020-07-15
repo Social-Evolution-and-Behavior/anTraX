@@ -47,10 +47,10 @@ if __name__ == '__main__':
 
             f.writelines("srun -N1 %s\n" % cmd)
 
-            p = Popen("sbatch %s" % JOBFILE, stdout=PIPE, shell=True)
+        p = Popen("sbatch %s" % JOBFILE, stdout=PIPE, shell=True)
 
-            (out, err) = p.communicate()
-            print(out)
-            out = out.decode("utf-8")
-            jid = out.split()[-1]
+        (out, err) = p.communicate()
+        print(out)
+        out = out.decode("utf-8")
+        jid = out.split()[-1]
 
