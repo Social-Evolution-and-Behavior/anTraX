@@ -33,10 +33,13 @@ def classifier_test_fun(classdir, *, n=1000, target_size=64, nids=None, name=Non
             examples = examples[:nc]
             ncreal = len(examples)
             tset = examples[:round(0.8*ncreal)]
-            vset = examples[round(0.8*nc):]
+            vset = examples[round(0.8*ncreal):]
 
             tset_new = [x.replace(classdir, d).replace('examples', 't') for x in tset]
             vset_new = [x.replace(classdir, d).replace('examples', 'v') for x in vset]
+
+            ax.report('I', c + ' ' + str(len(tset_new)))
+            ax.report('I', c + ' ' + str(len(vset_new)))
 
             for x, y in zip(tset, tset_new):
                 makedirs(dirname(y), exist_ok=True)
