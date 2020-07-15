@@ -26,16 +26,16 @@ if __name__ == '__main__':
         with open(JOBFILE, 'w') as f:
 
             name = 'n' + str(n)
-
+            logfile = LOGDIR + 'n' + str(n)
             f.writelines("#!/bin/bash\n")
             f.writelines("#SBATCH --job-name=%s\n" % name)
-            f.writelines("#SBATCH --output=%s_%%a.log\n" % LOGDIR + 'n' + str(n))
-            f.writelines("#SBATCH --ntasks=%d\n" % 1)
+            f.writelines("#SBATCH --output=%s_%%a.log\n" % logfile)
+            f.writelines("#SBATCH --ntasks=1\n")
             f.writelines("#SBATCH --cpus-per-task=%d\n" % int(8))
             f.writelines("#SBATCH --array=%d-%d%%%d\n" % (1, NREP, 10))
 
             f.writelines("#SBATCH --mail-type=ALL\n")
-            f.writelines("#SBATCH --mail-user=agal@rockefeller.edu%s\n")
+            f.writelines("#SBATCH --mail-user=agal@rockefeller.edu\n")
             f.writelines("\n")
 
             cmd = 'python /ru-auth/local/home/agal/code/anTraX/scripts/classifier_test.py ' + \
