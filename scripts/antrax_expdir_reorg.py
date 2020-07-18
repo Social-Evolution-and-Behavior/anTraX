@@ -10,7 +10,7 @@ import time
 import antrax as ax
 
 
-def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tracking=False, nw=1, hpc=False, cpus=8):
+def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tracking=False, nw=1, hpc=False, cpus=8, crf=30):
 
     expname = [x for x in expdir.split('/') if len(x) > 0][-1]
 
@@ -90,7 +90,7 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
         q = queue.Queue()
 
         for v, newv in zip(videos, new_videos):
-            w = {'vid': v, 'new_vid': newv}
+            w = {'vid': v, 'new_vid': newv, 'crf': crf}
             q.put_nowait(w)
 
         for _ in range(nw):
@@ -113,7 +113,8 @@ def reorg(expdir, targetdir, *, new_expname=None, missing=False, force=False, tr
                              ' '.join(['"' + v + '"' for v in new_videos]) + \
                              ')'
 
-            cmd = 'ffmpeg -loglevel error  -i ${VIN[$SLURM_ARRAY_TASK_ID]} -vcodec libx264 -preset veryslow -crf 30 ${VOUT[$SLURM_ARRAY_TASK_ID]}'
+            cmd = 'ffmpeg -loglevel error  -i ${VIN[$SLURM_ARRAY_TASK_ID]} -vcodec libx264 -preset veryslow -crf ' + \
+                  str(crf) + '${VOUT[$SLURM_ARRAY_TASK_ID]}'
 
             f.writelines("#!/bin/bash\n")
             f.writelines("#SBATCH --job-name=reorg\n")
@@ -165,7 +166,8 @@ class Worker(Thread):
 
             # compress the video to the new location
             if not isfile(w['new_vid']):
-                cmd = 'ffmpeg -loglevel error  -i ' + w['vid'] + ' -vcodec libx264 -preset veryslow -crf 30 ' + w['new_vid']
+                cmd = 'ffmpeg -loglevel error  -i ' + w['vid'] + \
+                      ' -vcodec libx264 -preset veryslow -crf ' + str(w['crf']) + ' ' + w['new_vid']
                 p = Popen(cmd, shell=True)
                 p.wait()
                 ax.report('I', 'Finished trancoding ' + w['new_vid'].split('/')[-1])
