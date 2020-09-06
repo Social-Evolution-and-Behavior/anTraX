@@ -156,6 +156,19 @@ class axClassifier:
             if self.classes is not None:
                 f.create_dataset('classes', (len(self.classes), 1), 'S10', [np.string_(x) for x in self.classes])
 
+    def check_example_dir(self, remove=False):
+
+        imagefiles = glob(self.examplesdir + '/*/*.*')
+
+        for imfile in imagefiles:
+
+            try:
+                im = Image.open(imfile)
+            except:
+                report('W', 'corrupt image ' + imfile)
+                if remove:
+                    os.remove(imfile)
+
     def prepare_images(self):
 
         # make 4D if only one image in data set
