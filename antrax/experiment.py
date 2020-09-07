@@ -400,9 +400,9 @@ class axExperiment:
 
                     tracklet_table.append(tracklet_table_m)
 
-                else:
-                    tracklet_table_m = pd.read_csv(
-                        join(self.antdatadir, 'tracklets_table_' + str(m) + '_' + str(m) + sfx + '.csv'))
+            else:
+                tracklet_table_m = pd.read_csv(
+                    join(self.antdatadir, 'tracklets_table_' + str(m) + '_' + str(m) + sfx + '.csv'))
 
             tracklet_table.append(tracklet_table_m)
 
