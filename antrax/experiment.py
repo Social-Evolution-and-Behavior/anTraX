@@ -392,10 +392,21 @@ class axExperiment:
 
         for m in movlist:
 
-            tracklet_table_m = pd.read_csv(
-                join(self.antdatadir, 'tracklets_table_' + str(m) + '_' + str(m) + sfx + '.csv'))
+            if self.prmtrs['geometry_multi_colony']:
+
+                for c in self.colony_labels:
+                    tracklet_table_m = pd.read_csv(
+                        join(self.antdatadir, c + '/tracklets_table_' + str(m) + '_' + str(m) + sfx + '.csv'))
+
+                    tracklet_table.append(tracklet_table_m)
+
+                else:
+                    tracklet_table_m = pd.read_csv(
+                        join(self.antdatadir, 'tracklets_table_' + str(m) + '_' + str(m) + sfx + '.csv'))
 
             tracklet_table.append(tracklet_table_m)
+
+
 
         tracklet_table = pd.concat(tracklet_table, axis=0)
 
