@@ -366,6 +366,18 @@ class axExperiment:
 
         return images
 
+    def calc_assignment_rate(self):
+
+        tt = self.get_tracklet_table()
+
+        N = self.movies_info['nframes'].sum() * len(self.antlist)
+        tt['len'] = tt['to'] - tt['from'] + 1
+        class_rate = tt.loc[tt['source'] == 1, :]['len'].sum()/N
+        ass_rate = tt['len'].sum()/N
+
+        print('assignment rate is ' + str(ass_rate))
+        print('classification rate is ' + str(class_rate))
+
     def get_tracklet_table(self, movlist=None, type=None):
 
         if type is None or type == 'tagged':
