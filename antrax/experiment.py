@@ -378,7 +378,13 @@ class axExperiment:
         print('assignment rate is ' + str(ass_rate))
         print('classification rate is ' + str(class_rate))
 
-    def get_tracklet_table(self, movlist=None, type=None):
+    def get_tracklet_table(self, movlist=None, type=None, colonies=None, exclude_colonies=[]):
+
+        if colonies is None:
+            colonies = self.colony_labels
+
+        if len(exclude_colonies) > 0:
+            colonies = [c for c in colonies if c not in exclude_colonies]
 
         if type is None or type == 'tagged':
             sfx = ''
@@ -394,10 +400,10 @@ class axExperiment:
 
             if self.prmtrs['geometry_multi_colony']:
 
-                for c in self.colony_labels:
+                for c in colonies:
                     tracklet_table_m = pd.read_csv(
                         join(self.antdatadir, c + '/tracklets_table_' + str(m) + '_' + str(m) + sfx + '.csv'))
-
+                    tracklet_table_m['colony'] = c
                     tracklet_table.append(tracklet_table_m)
 
             else:
