@@ -368,9 +368,19 @@ class axExperiment:
 
     def calc_assignment_rate(self,  colonies=None, exclude_colonies=[]):
 
-        tt = self.get_tracklet_table(colonies=colonies, exclude_colonies=exclude_colonies)
+        if colonies is None:
+            colonies = self.colony_labels
+
+        colonies = [c for c in colonies if c not in exclude_colonies]
+
+        print(colonies)
+
+        tt = self.get_tracklet_table(colonies=colonies)
 
         N = self.movies_info['nframes'].sum() * len(self.antlist)
+
+        if self.prmtrs['geometry_multi_colony']:
+            N = N * len(colonies)
         tt['len'] = tt['to'] - tt['from'] + 1
         class_rate = tt.loc[tt['source'] == 1, :]['len'].sum()/N
         ass_rate = tt['len'].sum()/N
@@ -378,12 +388,7 @@ class axExperiment:
         print('assignment rate is ' + str(ass_rate))
         print('classification rate is ' + str(class_rate))
 
-    def get_tracklet_table(self, movlist=None, type=None, colonies=None, exclude_colonies=[]):
-
-        if colonies is None:
-            colonies = self.colony_labels
-
-        colonies = [c for c in colonies if c not in exclude_colonies]
+    def get_tracklet_table(self, movlist=None, type=None, colonies=None):
 
         if type is None or type == 'tagged':
             sfx = ''
