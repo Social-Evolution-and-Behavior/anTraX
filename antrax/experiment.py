@@ -366,7 +366,7 @@ class axExperiment:
 
         return images
 
-    def calc_assignment_rate(self):
+    def calc_assignment_rate(self,  colonies=None, exclude_colonies=[]):
 
         tt = self.get_tracklet_table()
 
