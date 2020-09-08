@@ -383,8 +383,9 @@ class axExperiment:
         if colonies is None:
             colonies = self.colony_labels
 
-        if len(exclude_colonies) > 0:
-            colonies = [c for c in colonies if c not in exclude_colonies]
+        colonies = [c for c in colonies if c not in exclude_colonies]
+
+        print(colonies)
 
         if type is None or type == 'tagged':
             sfx = ''
