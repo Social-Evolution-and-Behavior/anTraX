@@ -368,7 +368,7 @@ class axExperiment:
 
     def calc_assignment_rate(self,  colonies=None, exclude_colonies=[]):
 
-        tt = self.get_tracklet_table()
+        tt = self.get_tracklet_table(colonies=colonies, exclude_colonies=exclude_colonies)
 
         N = self.movies_info['nframes'].sum() * len(self.antlist)
         tt['len'] = tt['to'] - tt['from'] + 1
@@ -384,8 +384,6 @@ class axExperiment:
             colonies = self.colony_labels
 
         colonies = [c for c in colonies if c not in exclude_colonies]
-
-        print(colonies)
 
         if type is None or type == 'tagged':
             sfx = ''
