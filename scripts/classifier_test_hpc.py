@@ -3,17 +3,17 @@ from subprocess import Popen, PIPE
 
 
 NS = [10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200]
-NE = 300
+NE = 500
 
 HOME = '/ru-auth/local/home/agal/'
-CLASSDIR = HOME + '/scratch/Classifiers/A36_classifier_analysis'
+CLASSDIR = HOME + '/scratch/Classifiers/A36_classifier_analysis_new'
 WD = HOME + '/antrax_classifer_test/'
 LOGDIR = HOME + 'logs/'
 LOGFILE = WD + 'num_examples_test.log'
 TEMPLATE = HOME + '/code/anTraX/scripts/classifier_test_jobfile.sh'
 JOBFILE = WD + 'jobfile.sh'
 
-NREP = 50
+NREP = 100
 
 
 if __name__ == '__main__':

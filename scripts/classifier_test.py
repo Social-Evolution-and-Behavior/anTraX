@@ -3,7 +3,7 @@ from clize import run, Parameter, parser
 import antrax as ax
 import tensorflow as tf
 from os.path import isfile, isdir, join, splitext, dirname
-from os import makedirs
+from os import makedirs 
 import tempfile
 from glob import glob
 from random import shuffle
@@ -11,7 +11,6 @@ from shutil import copyfile
 
 
 def classifier_test_fun(classdir, *, n=100, target_size=64, nids=None, name=None, ne=100, logfile=None):
-
 
     classfile = join(classdir, name + '.h5')
     examplesdir = join(classdir, 'examples')

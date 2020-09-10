@@ -38,25 +38,25 @@ if not ANTRAX_USE_MCR:
 
 # for the case of mcr, add mcr to library path
 MCR = os.getenv('ANTRAX_MCR')
+if ANTRAX_USE_MCR:
+    if LINUX:
+        LDPATH = [MCR + '/runtime/glnxa64',
+                MCR + '/bin/glnxa64',
+                MCR + '/sys/os/glnxa64',
+                MCR + '/sys/opengl/lib/glnxa64']
+        LDPATH = ':'.join(LDPATH)
+        os.putenv('LD_LIBRARY_PATH', LDPATH)
 
-if LINUX:
-    LDPATH = [MCR + '/runtime/glnxa64',
-              MCR + '/bin/glnxa64',
-              MCR + '/sys/os/glnxa64',
-              MCR + '/sys/opengl/lib/glnxa64']
-    LDPATH = ':'.join(LDPATH)
-    os.putenv('LD_LIBRARY_PATH', LDPATH)
+    elif MACOS:
+        LDPATH = [MCR + '/runtime/maci64',
+                MCR + '/bin/maci64',
+                MCR + '/sys/os/maci64']
+        LDPATH = ':'.join(LDPATH)
+        os.putenv('DYLD_LIBRARY_PATH', LDPATH)
+    else:
 
-elif MACOS:
-    LDPATH = [MCR + '/runtime/maci64',
-              MCR + '/bin/maci64',
-              MCR + '/sys/os/maci64']
-    LDPATH = ':'.join(LDPATH)
-    os.putenv('DYLD_LIBRARY_PATH', LDPATH)
-else:
-
-    # raise error
-    pass
+        # raise error
+        pass
 
 
 def run_matlab_function(fun, args, diaryfile=None, mcr=ANTRAX_USE_MCR, eng=None):

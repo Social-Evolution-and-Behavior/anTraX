@@ -14,8 +14,8 @@ out = strsplit(out);
 info.container = out{1};
 info.filesize = str2double(out{2});
 
-
 [~,out]=system([ffprobe ' -v error -show_entries stream=start_time,duration,pix_fmt,width,height,avg_frame_rate,nb_frames -of default=noprint_wrappers=1:nokey=1 ''',file,'''',' 2> /dev/null']);
+
 %disp(out)
 try
 out = strsplit(out);
