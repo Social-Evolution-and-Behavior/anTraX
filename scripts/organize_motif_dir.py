@@ -65,8 +65,6 @@ def motif_org(d, *, outdir=None, subdir_dur=24, expname=None, remove=False):
     vidinfo['ix'] = vidix
     vidinfo['dt'] = dt
 
-
-
     with open(yfile) as f:
         metadata = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -89,6 +87,7 @@ def motif_org(d, *, outdir=None, subdir_dur=24, expname=None, remove=False):
 
         subdir = subdirs[int(np.floor(row['ix']/files_per_subdir))]
         copyfile(row['vid'], join(subdir, str(expname) + '_' + str(row['ix']) + '.mp4'))
+        copyfile(row['npz'], join(subdir, str(expname) + '_' + str(row['ix']) + '.npz'))
 
         dat = pd.DataFrame({'% framenum': row['framenum'], 'timestamp': row['timestamp'], 'dt': row['dt']})
         dat.to_csv(join(subdir, str(expname) + '_' + str(row['ix']) + '.dat'), sep='\t', index=False)
