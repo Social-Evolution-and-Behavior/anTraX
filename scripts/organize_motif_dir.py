@@ -2,7 +2,7 @@ import numpy as np
 from glob import glob
 import os
 from os.path import join, isdir, isfile, dirname
-from shutil import copyfile
+from shutil import copyfile, rmtree
 from antrax.utils import mkdir, report
 from clize import run
 import yaml
@@ -10,6 +10,16 @@ import pandas as pd
 
 
 def motif_org(d, *, outdir=None, subdir_dur=24, expname=None, remove=False):
+
+    if not isdir(d):
+        report('E', 'Input directory does not exist')
+        return
+
+    yfile = join(d, 'metadata.yaml')
+
+    if not isfile(yfile):
+        report('E', 'Could not find motif metadata file, aborting')
+        return
 
     if expname is None or outdir is None:
         expname = dirname(d).split('/')[-1]
@@ -25,6 +35,11 @@ def motif_org(d, *, outdir=None, subdir_dur=24, expname=None, remove=False):
     # list all video files
 
     vid_files = glob(join(d, '*mp4'))
+
+    if len(vid_files) == 0:
+        report('E', 'No video files detected, aborting')
+        return
+
     vidix = np.array([int(f.split('/')[-1].split('.')[0]) for f in vid_files])
     vidix = vidix - vidix.min() + 1
     vidix, vid_files = zip(*sorted(zip(vidix, vid_files)))
@@ -34,6 +49,8 @@ def motif_org(d, *, outdir=None, subdir_dur=24, expname=None, remove=False):
     frame_times = [np.load(x)['frame_time'] for x in npz_files]
 
     dt = [np.diff(x) for x in frame_times]
+
+    report('I', 'Copying motif files')
 
     for i, x in enumerate(frame_times):
         if i > 0:
@@ -48,7 +65,7 @@ def motif_org(d, *, outdir=None, subdir_dur=24, expname=None, remove=False):
     vidinfo['ix'] = vidix
     vidinfo['dt'] = dt
 
-    yfile = join(d, 'metadata.yaml')
+
 
     with open(yfile) as f:
         metadata = yaml.load(f, Loader=yaml.FullLoader)
@@ -81,8 +98,7 @@ def motif_org(d, *, outdir=None, subdir_dur=24, expname=None, remove=False):
 
     if remove:
         report('I', 'Removing original files')
-        for f in vid_files + npz_files:
-            os.remove(f)
+        rmtree(d)
 
 
 if __name__ == '__main__':
