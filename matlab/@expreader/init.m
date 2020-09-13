@@ -4,7 +4,7 @@ function init(er,force)
 
 
 if nargin<2
-    force = false; 
+    force = false;
 end
 
 % if on RU hpc, always recreate movies_info
@@ -58,7 +58,7 @@ known_formats = {'.avi','.mov','.mp4'};
 filelist = dir([er.subdirs(1).fullpath,'*.*']);
 ix = arrayfun(@(x) ~contains(x.name,'.thermal.') && ~startsWith(x.name,'.'),filelist);
 filelist=filelist(ix);
-for i=1:length(filelist)    
+for i=1:length(filelist)
     [~,name{i},ext{i}] = fileparts(filelist(i).name);
 end
 vidext = intersect(unique(ext),known_formats);
@@ -89,14 +89,14 @@ for i=1:length(er.subdirs)
     
     
     for j=1:length(mlist) %subdirs(i).nmovies
-                
+        
         m = mlist(j);
         er.movies_info(m).index = m;
         er.movies_info(m).subdir = er.subdirs(i).name;
         er.movies_info(m).name = movlist(j).name(1:end-4);
         er.movies_info(m).movfile = movlist(j).name;
         %er.movies_info(m).dir = er.subdirs(i).fullpath;
-
+        
         if ~exist(er.movfile(m),'file')
             report('W',['Can''t find movie file #' num2str(m)])
         end
@@ -139,38 +139,54 @@ er.nmovies = length(er.movies_info);
 
 %% get movie infos
 
+
+if exist([er.expdir,filesep,'metadata.yaml'],'file')
+   
+    motif_metadata = ReadYaml([er.expdir,filesep,'metadata.yaml']);
+    fps = motif_metadata.acquisitionframerate;
+end
+    
+
+
+
 for i=1:length(er.movies_info)
     mov = er.movfile(i);
     if exist(mov,'file')
         info = ffinfo(mov);
         flds = fieldnames(info);
+        
+        
         for j=1:length(flds)
             er.movies_info(i).(flds{j})=info.(flds{j});
         end
-    
-    % hack duration and nframes
-    if with_dat
         
-        % some wierd bug sometimes with readtable..
-        % A=readtable(er.movies_info(i).datfile);
-        A = importdata(er.datfile(i));
-        if isstruct(A)
-            A = A.data;
+        % for motif videos: take fps from metadata
+        er.movies_info(i).fps = fps;
+        er.movies_info(i).duration = fps * er.movies_info(i).nframes;
+        
+        % hack duration and nframes
+        if with_dat
+            
+            % some wierd bug sometimes with readtable..
+            % A=readtable(er.movies_info(i).datfile);
+            A = importdata(er.datfile(i));
+            if isstruct(A)
+                A = A.data;
+            end
+            er.movies_info(i).nframes_avi = er.movies_info(i).nframes;
+            er.movies_info(i).duration_avi = er.movies_info(i).duration;
+            er.movies_info(i).nframes = size(A,1);
+            er.movies_info(i).duration = (er.movies_info(i).nframes-1)/er.movies_info(i).fps;
         end
-        er.movies_info(i).nframes_avi = er.movies_info(i).nframes;
-        er.movies_info(i).duration_avi = er.movies_info(i).duration;
-        er.movies_info(i).nframes = size(A,1);
-        er.movies_info(i).duration = (er.movies_info(i).nframes-1)/er.movies_info(i).fps;
-    end
-    
-    er.movies_info(i).fi = sum([er.movies_info(1:i-1).nframes])+1;
-    er.movies_info(i).ff = sum([er.movies_info(1:i).nframes]);
+        
+        er.movies_info(i).fi = sum([er.movies_info(1:i-1).nframes])+1;
+        er.movies_info(i).ff = sum([er.movies_info(1:i).nframes]);
     end
 end
 
 er.frame_size = [info.height,info.width];
 
-if save_movies_info  
+if save_movies_info
     T=struct2table(er.movies_info);
     writetable(T,er.movies_info_file,'Delimiter',' ','WriteVariableNames',true);
 end
@@ -189,14 +205,14 @@ end
         end
         
         for ii=1:length(fullname)
-        [~,m_name] = fileparts(fullname{ii});
-        if strcmp(vid_name_format,'delim_index')
-            nameparts = strsplit(m_name,index_delimiter);
-            m(ii) = str2num(nameparts{end});
-        elseif strcmp(vid_name_format,'expname_index')
-            nameparts = strsplit(m_name,er.expname);
-            m(ii) = str2num(nameparts{end});
-        end
+            [~,m_name] = fileparts(fullname{ii});
+            if strcmp(vid_name_format,'delim_index')
+                nameparts = strsplit(m_name,index_delimiter);
+                m(ii) = str2num(nameparts{end});
+            elseif strcmp(vid_name_format,'expname_index')
+                nameparts = strsplit(m_name,er.expname);
+                m(ii) = str2num(nameparts{end});
+            end
         end
         
     end
@@ -204,7 +220,7 @@ end
 
 
 
-    
+
 
 
 end
@@ -237,7 +253,7 @@ for i = 1:length(subdirs)
 end
 
 if ~isempty(subdirs)
-subdirs = subdirs(~isnan([subdirs.mf]));
+    subdirs = subdirs(~isnan([subdirs.mf]));
 end
 nsubdirs = length(subdirs);
 
