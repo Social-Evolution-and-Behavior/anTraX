@@ -97,8 +97,8 @@ class axExperiment:
 
         if ftype == 'graph' or ftype == 'track':
             files = glob(join(self.sessiondir, 'graphs/graph*.mat')) + glob(join(self.sessiondir, 'graphs/*/graph*.mat'))
-            files = [x for x in files if 'trjs' not in x]
-            files = [x for x in files if '_p' not in x]
+            files = [x for x in files if 'trjs' not in os.path.basename(x)]
+            files = [x for x in files if '_p' not in os.path.basename(x)]
             a = [int(x.split('/')[-1].split('.mat')[0].split('_')[-1]) for x in files]
             a = list(set(a))
         elif ftype == 'images':
