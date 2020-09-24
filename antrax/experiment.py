@@ -103,7 +103,7 @@ class axExperiment:
             a = list(set(a))
         elif ftype == 'images':
             files = glob(join(self.sessiondir, 'images/image*.mat'))
-            files = [x for x in files if '_p' not in x]
+            files = [x for x in files if '_p' not in os.path.basename(x)]
             a = [int(x.split('/')[-1].split('.mat')[0].split('_')[-1]) for x in files]
             a = list(set(a))
         elif ftype == 'autoids' or ftype == 'autoid' or ftype == 'classify':
@@ -111,12 +111,12 @@ class axExperiment:
             a = [int(x.split('/')[-1].split('.csv')[0].split('_')[-1]) for x in files]
         elif ftype == 'xy' or ftype == 'solve':
             files = glob(join(self.sessiondir, 'antdata/xy*.mat')) + glob(join(self.sessiondir, 'antdata/*/xy*.mat'))
-            files = [x for x in files if '_p' not in x]
+            files = [x for x in files if '_p' not in os.path.basename(x)]
             a = [int(x.split('/')[-1].split('.mat')[0].split('_')[-1]) for x in files]
             a = list(set(a))
         elif ftype == 'exit' or ftype == 'exits':
             files = glob(join(self.sessiondir, 'antdata/exit*.mat')) + glob(join(self.sessiondir, 'antdata/*/exit*.mat'))
-            files = [x for x in files if '_p' not in x]
+            files = [x for x in files if '_p' not in os.path.basename(x)]
             a = [int(x.split('/')[-1].split('.mat')[0].split('_')[-1]) for x in files]
             a = list(set(a))
         elif ftype == 'predictions' or ftype == 'dlc':
