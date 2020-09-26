@@ -81,7 +81,7 @@ A path to a json file containing a CNN model [serialized by keras](https://www.t
 
 `--aug-options <options>`
   
-A comma separated list of augmentation parameters. This option can be used to change some of the augmentation parameters used by TensorFlow to train the classifier. Currently supports the options `width_shift_range` (default value 10), `height_shift_range` (default value 10), `shear_range` (default value 5), `rotation_range` (default value 15), `zoom_range` (default value 0.1). Details of these parameters can be found in the [Keras documentation of the `ImageDataGenerator`](https://keras.io/api/preprocessing/image/). 
+A comma separated list of augmentation parameters. This option can be used to change some of the augmentation parameters used by TensorFlow to train the classifier. Currently supports the options `width_shift_range` (default value 10), `height_shift_range` (default value 10), `shear_range` (default value 5), `rotation_range` (default value 15), `zoom_range` (default value 0.1). Details of these parameters can be found in the [Keras documentation of  ImageDataGenerator](https://keras.io/api/preprocessing/image/). Example `--aug-options shear_range=10,rotation_range=20`.
 
 
 ### anTraX-supplied CNN architectures
