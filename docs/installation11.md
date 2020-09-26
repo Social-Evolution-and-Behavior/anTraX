@@ -41,6 +41,9 @@ cd anTraX
 git checkout <version>
 ```
 
+Alternatively, anTraX the latest version of anTraX can be directly dowloaded [here](https://github.com/Social-Evolution-and-Behavior/anTraX/archive/master.zip). 
+
+
 ### Install anTraX
 
 **Install the python package: **
