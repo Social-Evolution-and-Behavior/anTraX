@@ -110,7 +110,7 @@ def clear_tracking_data(ex, step, movlist, opts):
             [remove(x) for x in glob(dest_folder + '/predictions_' + str(m) + '.h5')]
 
 
-def antrax_hpc_train_job(classdir, opts):
+def antrax_hpc_train_job(classdir, opts, aug_options=''):
 
     opts['jobname'] = 'train'
     opts['filename'] = 'hpc_train'
@@ -120,6 +120,9 @@ def antrax_hpc_train_job(classdir, opts):
     opts['cmd'] = 'antrax train ' + classdir + \
                   ' --name ' + opts['name'] + \
                   ' --ne ' + str(opts['ne'])
+
+    if len(aug_options) > 0:
+        opts['cmd'] = opts['cmd'] + ' --aug-options ' + aug_options
 
     if not opts.get('dry', False):
         jobfile = create_slurm_job_file(opts)

@@ -52,7 +52,6 @@ def parse_hpc_options(s):
 
     return opts
 
-
 @parser.value_converter
 def parse_movlist(movlist):
 
@@ -374,7 +373,7 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
 
 
 def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, arch='small', modelfile=None,
-          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, hpc=False, hpc_options: parse_hpc_options={},
+          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, aug_options='', hpc=False, hpc_options: parse_hpc_options={},
           dry=False):
     """Train a blob classifier"""
     hpc = hpc or ANTRAX_HPC
@@ -389,9 +388,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
         report('E', 'bad classifier directory')
         return
 
-
     classfile = join(classdir, name + '.h5')
-
 
     examplesdir = join(classdir, 'examples')
 
@@ -412,14 +409,14 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
         hpc_options['name'] = name
         hpc_options['ne'] = ne
 
-        antrax_hpc_train_job(classdir, opts=hpc_options)
+        antrax_hpc_train_job(classdir, aug_options=aug_options, opts=hpc_options)
 
         return
 
     else:
 
         c = axClassifier.load(classfile)
-        c.train(examplesdir, ne=ne)
+        c.train(examplesdir, ne=ne, aug_options=aug_options)
         c.save(classfile)
 
 

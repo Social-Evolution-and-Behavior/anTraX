@@ -459,7 +459,15 @@ class axClassifier:
 
         return error
 
-    def train(self, examplesdir, ne=5, verbose=1, patience=10, min_delta=0.002):
+    def train(self, examplesdir, ne=5, verbose=1, patience=10, min_delta=0.002, aug_options=''):
+
+        if aug_options is None or aug_options == ' ' or aug_options == '':
+            aug_options = {}
+        else:
+            aug_options = {x.split('=')[0]: x.split('=')[1] for x in aug_options.split(',') if '=' in x}
+            for k, v in aug_options.items():
+                if v.isnumeric():
+                    aug_options[k] = int(v)
 
         if isinstance(examplesdir, list):
             rm_after = True
@@ -479,11 +487,11 @@ class axClassifier:
         prepfun = None if self.prmtrs['scale'] == 1 else scale_and_crop
 
         DG = image.ImageDataGenerator(
-                                    width_shift_range=10,
-                                    height_shift_range=10,
-                                    shear_range=5,
-                                    rotation_range=15,
-                                    zoom_range=0.1,
+                                    width_shift_range=aug_options.get('width_shift_range', 10),
+                                    height_shift_range=aug_options.get('height_shift_range', 10),
+                                    shear_range=aug_options.get('shear_range', 5),
+                                    rotation_range=aug_options.get('rotation_range', 15),
+                                    zoom_range=aug_options.get('zoom_range', 0.1),
                                     brightness_range=(0.9, 1.1),
                                     channel_shift_range=0,
                                     horizontal_flip=self.prmtrs['hsymmetry'],
