@@ -5,7 +5,7 @@ anTraX works natively on machines running Linux or OSX operating system. It will
 
 ** Python:**
 
-anTraX requires Python version 3.6 or above. It is highly recommended to install and use anTraX inside a virtual environment, using conda or any other environment manager. 
+anTraX requires Python version 3.6 or above. It is highly recommended to install and use anTraX inside a virtual environment, using conda or any other environment manager. Full list of dependenices and version numbers can be found [here](antrax_dependencies.txt). 
 
 ** MATLAB:** 
 
