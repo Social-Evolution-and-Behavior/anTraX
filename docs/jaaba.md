@@ -28,7 +28,7 @@ cp $ANTRAX_PATH/matlab/jaaba/*.xml $ANTRAX_JAABA_PATH/perframe/params/
 Add this variable to your bash profile file:
 
 ```bash
-export ANTRAX_JAAB_PATH=<full path to JAABA repository>
+export ANTRAX_JAABA_PATH=<full path to JAABA repository>
 ```
 Don't forget to source!
 
