@@ -161,9 +161,10 @@ for i=1:length(er.movies_info)
         end
         
         % for motif videos: take fps from metadata
-        er.movies_info(i).fps = fps;
-        er.movies_info(i).duration = fps * er.movies_info(i).nframes;
-        
+        if exist([er.expdir,filesep,'metadata.yaml'],'file')
+            er.movies_info(i).fps = fps;
+            er.movies_info(i).duration = fps * er.movies_info(i).nframes;
+        end
         % hack duration and nframes
         if with_dat
             
