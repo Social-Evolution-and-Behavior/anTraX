@@ -64,8 +64,12 @@ feature_units.antrax_dangle_to_center = parseunits('rad/s');
 
 
 % distance/angle from open boundry
+if Trck.get_param('geometry_open_boundry')
+    msk = Trck.Masks.open_boundry_perimeter(:,:,1);
+else
+    msk = Trck.Masks.roi(:,:,1);
+end
 
-msk = Trck.Masks.open_boundry_perimeter(:,:,1);
 sz = size(msk);
 [dist_to_open_map, closest_point_idx] = bwdist(~msk);
 [x_map, y_map] = meshgrid(1:sz(2),1:sz(1));

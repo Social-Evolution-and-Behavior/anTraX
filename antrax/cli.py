@@ -538,7 +538,7 @@ def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mc
             for m in movlist1:
                 w = {}
                 w['fun'] = 'prepare_data_for_jaaba'
-                w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'jaaba_path', JAABA_PATH]
+                w['args'] = [e.expdir, 'movlist', m, 'trackingdirname', e.session, 'jaaba_path', JAABA_PATH]
                 w['diary'] = join(e.logsdir, 'matlab_export_jaaba_m_' + str(m) + '.log')
                 w['str'] = 'JAABA export movie ' + str(m)
                 Q.put(w)

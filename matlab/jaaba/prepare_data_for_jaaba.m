@@ -11,8 +11,8 @@ addParameter(p,'movie',true, @islogical);
 parse(p,Trck,varargin{:});
 
 if ~isempty(p.Results.jaaba_path)
-    addpath(genpath(JAABA_PATH));
-    rmpath(genpath([JAABA_PATH,'/compiled']));
+    addpath(genpath(p.Results.jaaba_path));
+    rmpath(genpath([p.Results.jaaba_path,'/compiled']));
 end
 
 if ischar(Trck) 
