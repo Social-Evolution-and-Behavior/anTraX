@@ -44,6 +44,8 @@ class axExperiment:
         self.logsdir = join(self.sessiondir, 'logs')
         self.prmtrs = self.get_prmtrs()
         self.movies_info = self.get_movies_info()
+        self.framerate = self.movies_info['fps'][0]
+        self.fps = self.framerate
         self.job_table_file = self.sessiondir + '/.antrax_job_table.csv'
 
         self.alt_expname = self.expname
@@ -86,6 +88,13 @@ class axExperiment:
         subdirs = [x.split('/')[-1] for x in subdirs]
 
         return subdirs
+
+    def get_movie_subdir(self, m):
+
+        subdirs = self.get_subdirs()
+        mi = [mm for mm in [int(x.split('_')[0]) for x in subdirs] if mm <= m][-1]
+        mf = [mm for mm in [int(x.split('_')[1]) for x in subdirs] if mm >= m][0]
+        return subdirs.index(str(mi) + '_' + str(mf))
 
     def get_movlist(self):
 
@@ -147,6 +156,10 @@ class axExperiment:
         info_file = join(self.paramsdir, 'movies_info.txt')
         movies_info = pd.read_csv(info_file, sep=' ')
         return movies_info
+
+    def m_info(self, m):
+
+        return self.movies_info[self.movies_info['index'] == m].to_dict(orient='records')[0]
     
     def get_f(self, m, mf):
         
@@ -160,6 +173,26 @@ class axExperiment:
 
         return m, mf
 
+    def get_m_mf_from_sdf(self, subdir, sdf):
+
+        m1 = int(subdir.split('_')[0])
+        m2 = int(subdir.split('_')[1])
+
+        for m in range(m1, m2+1):
+
+            if sdf > self.m_info(m)['nframes']:
+
+                sdf = sdf - self.m_info(m)['nframes']
+
+            else:
+
+                break
+
+        if sdf > self.m_info(m)['nframes']:
+
+            report('E', 'sdf larger than nuber of frames in subdir')
+
+        return m, sdf
     
     def parse_tracklet_name(self, tracklet):
         
