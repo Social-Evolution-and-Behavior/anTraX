@@ -55,7 +55,10 @@ def parse_hpc_options(s):
 @parser.value_converter
 def parse_movlist(movlist):
 
-    movlist = parse_movlist_str(movlist)
+    if movlist == '0':
+        movlist = []
+    else:
+        movlist = parse_movlist_str(movlist)
 
     return movlist
 
@@ -587,10 +590,21 @@ def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=N
             for m in movlist1:
                 w = {}
                 w['fun'] = 'run_jaaba_detect'
-                w['args'] = [e.expdir, m, jab, 'trackingdirname', e.session, 'jaaba_path', JAABA_PATH]
+                w['args'] = [e.expdir, 'movlist', m, 'jab', jab, 'trackingdirname', e.session, 'jaaba_path', JAABA_PATH, 'antrax_path', ANTRAX_PATH]
                 w['diary'] = join(e.logsdir, 'matlab_export_jaaba_m_' + str(m) + '.log')
-                w['str'] = 'JAABA run movie ' + str(m)
+                w['str'] = 'JAABA run ' + e.expname + ' movie ' + str(m)
                 Q.put(w)
+
+        # wait for tasks to complete
+        Q.join()
+
+        for e in explist:
+            w = {}
+            w['fun'] = 'import_jaaba_results'
+            w['args'] = [e.expdir, e.session]
+            w['diary'] = join(e.logsdir, 'matlab_jaaba_results.log')
+            w['str'] = 'Collecting JAABA results for ' + e.expname
+            Q.put(w)
 
         # wait for tasks to complete
         Q.join()

@@ -64,6 +64,8 @@ class axAntData:
 
             df = pd.concat(dfs, axis=1)
             df['frame'] = np.arange(self.ex.movies_info.iloc[m - 1]['fi'], self.ex.movies_info.iloc[m - 1]['ff'] + 1)
+            df['m'] = m
+            df['mf'] = np.arange(1, self.ex.movies_info.iloc[m - 1]['nframes'] + 1)
             df = df.set_index('frame')
 
             mdfs.append(df)

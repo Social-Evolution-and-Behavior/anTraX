@@ -1,13 +1,45 @@
-function labels_out = put_labels_in_jab(Trck,jab,labelfile)
+function labels_out = put_labels_in_jab(Trck,jab,labelfile,max_lines_per_label)
 
 J = load(jab,'-mat');
-T = readtable(labelfile);
+
+if ~istable(labelfile)
+    
+    T = readtable(labelfile);
+    
+else
+    
+    T = labelfile;
+    
+end
+
 
 T.fi = T.from * Trck.er.fps;
 T.ff = T.to * Trck.er.fps;
 
 T.fi(T.fi==0) = 1;
 T.ff(T.ff==0) = 1;
+
+T = T(~isnan(T.ff.*T.fi),:);
+T = T(~strcmp('',T.id),:);
+
+labs = unique(T.label);
+
+if nargin>3
+    T0 = T;
+    T = [];
+    for i=1:length(labs)
+        
+        lab = labs(i);
+        lab = lab{1};
+        Tl = T0(strcmp(T0.label,lab),:);
+        if size(Tl,1)>max_lines_per_label
+            T = [T;Tl(1:max_lines_per_label,:)];
+        else
+            T = [T;Tl];
+        end
+    end
+    
+end
 
 behaviors = {};
 behaviors1 = J.x.behaviors.names;
@@ -33,7 +65,14 @@ L.imp_t1s = {};
 for i=1:numel(J.x.expDirNames)
     labels(i) = L;
 end
-    
+
+exps_in_jab = J.x.expDirNames;
+
+for i=1:numel(exps_in_jab)
+    e = exps_in_jab{i};
+    e = strsplit(e,'/');
+    exps_in_jab{i} = e{end};
+end
 
 
 for ie = 1:length(exps)
@@ -41,6 +80,10 @@ for ie = 1:length(exps)
     exp = exps{ie};
     
     expi = find(strcmp(exp,J.x.expDirNames));
+    
+    if isempty(expi)
+        expi = find(strcmp(exp, exps_in_jab));
+    end
     
     if isempty(expi)
         expi = find(strcmp([Trck.trackingdir,'jaaba/',exp],J.x.expDirNames));
@@ -51,7 +94,8 @@ for ie = 1:length(exps)
         continue
     end
     
-    Te = T(strcmp(T.experiment,exp),:);    
+    Te = T(strcmp(T.experiment,exp),:);
+    
     
     labeled_ids = unique(Te.id);
     
@@ -60,7 +104,9 @@ for ie = 1:length(exps)
         id = labeled_ids{i};
         idi = find(strcmp(id,Trck.usedIDs));
         
+        
         Ti = Te(strcmp(Te.id,id),:);
+        
         
         labels(expi).flies(i,1) =  idi;
         labels(expi).off(i) =  0;
@@ -107,14 +153,14 @@ imp_t0s = [];
 imp_t1s = [];
 
 for i=1:length(t1s)
-   
+    
     if ~ismember(t1s(i)-1,t0s)
-       
+        
         imp_t0s(end+1) = t0s(i);
         imp_t1s(end+1) = t1s(i);
         
     end
-        
+    
 end
 
 

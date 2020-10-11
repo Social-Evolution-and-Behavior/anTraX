@@ -190,7 +190,7 @@ class axExperiment:
 
         if sdf > self.m_info(m)['nframes']:
 
-            report('E', 'sdf larger than nuber of frames in subdir')
+            report('E', 'sdf larger than number of frames in subdir')
 
         return m, sdf
     

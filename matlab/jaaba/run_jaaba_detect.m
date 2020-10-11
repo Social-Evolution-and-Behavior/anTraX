@@ -1,19 +1,25 @@
 function run_jaaba_detect(Trck,varargin)
 
+p = inputParser;
+
 addRequired(p,'Trck',@(x) isa(x,'trhandles')||isfolder(x));
 addParameter(p,'trackingdirname',[],@ischar);
 addParameter(p,'movlist',[]);
 addParameter(p,'movie',true, @islogical);
 addParameter(p,'jaaba_path',[]);
+addParameter(p,'antrax_path',[]);
 addParameter(p,'jab',[],@ischar);
 
 parse(p,Trck,varargin{:});
 
 if ~isempty(p.Results.jaaba_path)
-    addpath(genpath(JAABA_PATH));
-    rmpath(genpath([JAABA_PATH,'/compiled']));
+    addpath(genpath(p.Results.jaaba_path));
+    rmpath(genpath([p.Results.jaaba_path,'/compiled']));
 end
 
+if ~isempty(p.Results.antrax_path)
+    addpath([p.Results.antrax_path,'/matlab/jaaba']);
+end
 
 if ischar(Trck) 
     Trck = trhandles(Trck,p.Results.trackingdirname);

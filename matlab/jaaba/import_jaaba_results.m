@@ -1,9 +1,15 @@
-function import_jaaba_results(Trck)
+function import_jaaba_results(Trck, session)
+
+if ischar(Trck) 
+    if nargin==1
+        Trck = trhandles(Trck);
+    else
+        Trck = trhandles(Trck, session);
+    end
+end
 
 
 jdir = [Trck.trackingdir,'jaaba',filesep];
-
-
 
 % get behaviors
 behaviors = {};
