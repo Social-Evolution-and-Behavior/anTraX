@@ -229,6 +229,13 @@ def wmed(data, weights):
     return w_median
 
 
+def interpolate_nans(x):
+    idx = np.arange(0, len(x))
+    nans = np.isnan(x)
+    x[nans] = np.interp(idx[nans], idx[~nans], x[~nans])
+
+    return x
+
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
     """
