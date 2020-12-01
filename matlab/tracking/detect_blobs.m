@@ -79,7 +79,10 @@ end
 BW = im2bw(ZGRY,p.Results.SegmentationThreshold);
 
 % filter out small blobs
-BW = bwareaopen(BW,round(Trck.get_param('segmentation_MinimumBlobArea')/2),Trck.hblobs.ants.Connectivity);
+if Trck.get_param('segmentation_BlobAreaFilter')
+    BW = bwareaopen(BW,round(Trck.get_param('segmentation_MinimumBlobArea')/2),Trck.hblobs.ants.Connectivity);
+end
+
 BW2=BW;
 
 % image closing
@@ -107,7 +110,9 @@ end
 
 
 % filter out small blobs again
-BW2 = bwareaopen(BW2,Trck.get_param('segmentation_MinimumBlobArea'),Trck.hblobs.ants.Connectivity);
+if Trck.get_param('segmentation_BlobAreaFilter')
+    BW2 = bwareaopen(BW2,Trck.get_param('segmentation_MinimumBlobArea'),Trck.hblobs.ants.Connectivity);
+end
 
 Trck.currfrm.Z = Z;
 Trck.currfrm.BW = BW;

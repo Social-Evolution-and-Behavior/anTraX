@@ -11,6 +11,10 @@ if exist([Trck.paramsdir,'labels.csv'],'file')
         labels(1).(c) = torow(A(ix,1));
     end
     
+    if ~ismember('tagcolors',categories)
+        labels.tagcolors = {};
+    end
+    
     if ~ismember('ant_labels',categories)
         labels.ant_labels = {};
     end

@@ -68,6 +68,7 @@ prmtrs.segmentation_ImOpenning = false;
 prmtrs.segmentation_ImOpenningSize = 1;
 prmtrs.segmentation_ImOpenningStrel = strel('disk',prmtrs.segmentation_ImOpenningSize);
 prmtrs.segmentation_MinimumBlobArea = 21;
+prmtrs.segmentation_BlobAreaFilter = true;
 
 prmtrs.segmentation_ColorContrastAdjust = false;
 prmtrs.segmentation_ColorContrast = [1,1,1];
