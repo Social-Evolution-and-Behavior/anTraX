@@ -1,4 +1,4 @@
-function MaskedIm = applyMasktoIm(Im,Mask)
+function MaskedIm = applyMasktoIm(Im,Mask,fillval)
 % jonathan saragosti 
 % 02/18/15
 % apply a binary mask to an image,

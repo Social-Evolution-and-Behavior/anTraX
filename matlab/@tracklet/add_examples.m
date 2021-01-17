@@ -41,7 +41,12 @@ end
 
 ims = trj.get_image(tt);
 msk = repmat(max(ims,[],3)==0,[1,1,3,1]);
-ims(msk)=255;
+
+if trj.Trck.get_param('segmentation_invert')
+    ims(msk)=0;
+else
+    ims(msk)=255;
+end
 
 for i=1:size(ims,4)
     

@@ -51,6 +51,7 @@ prmtrs.segmentation_local_z_scaling = false;
 prmtrs.segmentation_illum_correct = false;
 prmtrs.segmentation_illum_correct_level = 0.9;
 
+prmtrs.segmentation_invert = false;
 prmtrs.segmentation_threshold = 0.14;
 
 prmtrs.segmentation_IntensityFilter = false;

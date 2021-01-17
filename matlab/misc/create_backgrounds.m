@@ -85,6 +85,8 @@ function bg = calc_bg(frames,method)
 switch method
     case 'max'
         bg = max(frames,[],4);
+    case 'min'
+        bg = min(frames,[],4);
     case 'median'
         bg = median(frames,4);
     otherwise

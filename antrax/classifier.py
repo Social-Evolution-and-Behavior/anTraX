@@ -336,6 +336,8 @@ class axClassifier:
 
             names += [tracklet]
 
+        f.close()
+
         if outfile is None:
             outfile = os.path.join(self.outdir, 'autoids_' + str(m) + '.csv')
 

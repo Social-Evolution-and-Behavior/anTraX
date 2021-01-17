@@ -377,7 +377,7 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
 
 def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, arch='small', modelfile=None,
           target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, aug_options='', hpc=False, hpc_options: parse_hpc_options={},
-          dry=False):
+          background='white', dry=False):
     """Train a blob classifier"""
     hpc = hpc or ANTRAX_HPC
 
@@ -402,7 +402,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
             f = glob(examplesdir + '/*/*.png')[0]
             target_size = max(imread(f).shape)
 
-        c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size, hsymmetry=hsymmetry,
+        c = axClassifier(name, nclasses=n, target_size=target_size, crop_size=crop_size, hsymmetry=hsymmetry, background=background,
                          unknown_weight=unknown_weight, multi_weight=multi_weight, modeltype=arch, json=modelfile)
 
         c.save(classfile)

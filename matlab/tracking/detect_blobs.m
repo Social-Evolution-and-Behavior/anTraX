@@ -52,8 +52,14 @@ end
 
 %% Image segmentation
 
-Z = imsubtract(BGS,frame_single);
+if Trck.get_param('segmentation_invert')
+    Z = imsubtract(frame_single,BGS);
+else
+    Z = imsubtract(BGS,frame_single);
+end
+
 Z = Z.*single(mask);
+
 %Z = applyMasktoIm(Z,mask);
 
 if Trck.get_param('segmentation_local_z_scaling')   
@@ -69,7 +75,11 @@ end
 % threshold the image
 if Trck.get_param('segmentation_use_max_rgb')
     ZGRY = max(Z,[],3);
-    FGRY = min(frame,[],3);
+    if Trck.get_param('segmentation_invert')
+        FGRY = max(frame,[],3);
+    else
+        FGRY = min(frame,[],3);
+    end
 else
     ZGRY = rgb2gray(Z);
     FGRY = rgb2gray(frame);
@@ -223,7 +233,7 @@ Trck.currfrm.antblob = ab;
 sqsz = Trck.get_param('sqsz');
 
 padded_label = padarray(ab.LABEL,[sqsz/2,sqsz/2]);
-if Trck.get_param('segmentation_color_correction_for_classification')
+if Trck.get_param('segmentation_color_correction_for_classification') && ~Trck.get_param('segmentation_invert')
     padded_frame = padarray(frame_corrected,[sqsz/2,sqsz/2]);
 else
     padded_frame = padarray(frame_orig,[sqsz/2,sqsz/2]);
