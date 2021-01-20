@@ -3,7 +3,7 @@
 from os.path import isfile, isdir, join, splitext
 
 from threading import Thread
-from subprocess import Popen, DEVNULL
+from subprocess import Popen, DEVNULL, STDOUT, PIPE
 import queue
 import io
 from time import sleep
@@ -105,9 +105,18 @@ def run_mcr_function(fun, args, diary=DEVNULL):
     report('D', 'running matlab mcr ')
     report('D', 'command is: ' + ' '.join(cmd))
     p = Popen(cmd, stdout=diary, stderr=diary)
-
-    # wait for completion
-    p.wait()
+    if diary == PIPE:
+        while True:
+            output = p.stdout.readline().decode()
+            if output == '' and p.poll() is not None:
+                break
+            if output:
+                print(output.strip())
+        rc = p.poll()
+        report('D', 'matlab app exited with code ' + str(rc))
+    else:
+        # wait for completion
+        p.wait()
 
 
 def start_matlab():
@@ -176,7 +185,7 @@ def launch_matlab_app(appname, args, mcr=ANTRAX_USE_MCR):
 
     if mcr:
 
-        run_mcr_function(appname, args)
+        run_mcr_function(appname, args, diary=PIPE)
 
     else:
 
