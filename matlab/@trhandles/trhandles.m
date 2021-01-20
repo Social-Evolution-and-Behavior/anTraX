@@ -80,6 +80,10 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
         
         function Trck = trhandles(expdir,trackingdirname)
             
+            
+            report('D','initializing Trck object')
+
+            
             if isa(expdir,'trhandles')
                 Trck=expdir;
                 return
@@ -91,6 +95,8 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                 return
             end
             
+            report('D','finding sessions')
+
             ss = find_sessions(expdir);
             
             session_given = nargin>1 && ~isempty(trackingdirname);

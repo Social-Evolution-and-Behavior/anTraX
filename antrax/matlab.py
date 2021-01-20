@@ -102,6 +102,8 @@ def run_mcr_function(fun, args, diary=DEVNULL):
 
         cmd = [ANTRAX_BIN_PATH + wrapper + '.app/Contents/MacOS/' + wrapper] + args
 
+    report('D', 'running matlab mcr ')
+    report('D', 'command is: ' + ' '.join(cmd))
     p = Popen(cmd, stdout=diary, stderr=diary)
 
     # wait for completion
