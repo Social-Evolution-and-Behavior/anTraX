@@ -104,19 +104,23 @@ def run_mcr_function(fun, args, diary=DEVNULL):
 
     report('D', 'running matlab mcr ')
     report('D', 'command is: ' + ' '.join(cmd))
-    p = Popen(cmd, stdout=diary, stderr=diary)
-    if diary == PIPE:
-        while True:
-            output = p.stdout.readline().decode()
-            if output == '' and p.poll() is not None:
-                break
-            if output:
-                print(output.strip())
+
+    with Popen(cmd, stdout=diary, stderr=diary) as p:
+        if diary == PIPE:
+            while True:
+                outline = p.stdout.readline().decode()
+                if outline == '' and p.poll() is not None:
+                    break
+                if outline:
+                    print(outline.strip())
+            while True:
+                errline = p.stderr.readline().decode()
+                if errline == '' and p.poll() is not None:
+                    break
+                if errline:
+                    print(errline.strip())
         rc = p.poll()
         report('D', 'matlab app exited with code ' + str(rc))
-    else:
-        # wait for completion
-        p.wait()
 
 
 def start_matlab():
