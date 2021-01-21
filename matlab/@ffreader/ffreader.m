@@ -163,20 +163,20 @@ classdef ffreader < handle & matlab.mixin.SetGet
         end
         
         function collectInfo(self)
-            k=0;
-            while isempty(self.info)
-                try
-                    self.info = ffinfo(self.file);
-                catch exception
-                    k=k+1;
-                    report('W','Get info failed, retrying')
-                    if k>10
-                        report('E', 'ffinfo failed 10 times')
-                        throw(exception)
-                    end
-                end
-            end
-            error('just testing')
+            self.info = ffinfo(self.file);
+%            k=0;
+%            while isempty(self.info)
+%                 try
+%                     self.info = ffinfo(self.file);
+%                 catch exception
+%                     k=k+1;
+%                     report('W','Get info failed, retrying')
+%                     if k>10
+%                         report('E', 'ffinfo failed 10 times')
+%                         throw(exception)
+%                     end
+%                 end
+%            end
             
         end
         

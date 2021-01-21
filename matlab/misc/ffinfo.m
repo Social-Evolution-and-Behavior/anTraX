@@ -52,6 +52,7 @@ info.channels = 3;
 info.framesize = [info.width,info.height,info.channels];
 info.framebytes = prod(info.framesize);
 catch
+    report('D', ['issues with ffprobe output for file ', file]);
     info.width=nan;
     info.height=nan;
     info.pixel=nan;
