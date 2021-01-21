@@ -22,6 +22,8 @@ addParameter(p,'EraseLastMessage','',@ischar);
 parse(p,type,msg,varargin{:})
 
 
+debug_mode = strcmp(getenv('ANTRAX_DEBUG_MODE'),'True');
+
 %reverseStr = repmat(sprintf('\b'), 1, length(p.Results.EraseLastMessage));
 
 
@@ -67,9 +69,11 @@ elseif type=='O'
     fullmsg = [t,' -O- *** Use of obsolete function ''',obsFunc,''' in function ''',callFunc,''' ***\n'];
     cprintf('*[1,0,0]',fullmsg);
 elseif type=='D'
-    fullmsg = [t,' -D- ',funcstr,msg,'\n'];
-    % uncomment for debug reports
-    cprintf('*[0.2,0.4,0.8]',fullmsg);
+    if debug_mode
+        fullmsg = [t,' -D- ',funcstr,msg,'\n'];
+        % uncomment for debug reports
+        cprintf('*[0.2,0.4,0.8]',fullmsg);
+    end
 % unknow - black
 elseif type=='WB'
     fullmsg = [t ' - ' funcstr,msg,'\n'];

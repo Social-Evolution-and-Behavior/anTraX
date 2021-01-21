@@ -9,6 +9,12 @@ end
 
 [~,ffprobe] = system('which ffprobe');
 ffprobe = ffprobe(1:end-1);
+
+if ~isfile(ffprobe)
+    report('E', 'Could not locate ffprobe')
+    error('Could not locate ffprobe')
+end
+
 [~,out]=system([ffprobe ' -v error -show_entries format=format_name,size -of default=noprint_wrappers=1:nokey=1 ''',file,'''',' 2> /dev/null']);
 out = strsplit(out);
 info.container = out{1};

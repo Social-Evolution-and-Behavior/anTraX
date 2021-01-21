@@ -131,6 +131,11 @@ classdef ffreader < handle & matlab.mixin.SetGet
            
             [~,ffmpeg] = system('which ffmpeg');
             ffmpeg = ffmpeg(1:end-1);
+            
+            if ~isfile(ffmpeg)
+                report('E', 'Could not locate ffmpeg')
+                error('Could not locate ffmpeg')
+            end
 
             if self.isopen
                 %report('D',['closing pipe #',num2str(self.p)]);
@@ -164,7 +169,7 @@ classdef ffreader < handle & matlab.mixin.SetGet
                     self.info = ffinfo(self.file);
                 catch
                     k=k+1;
-                    report('W','Get info failrd, retrying')
+                    report('W','Get info failed, retrying')
                     if k>10
                         error('ffinfo failed 10 times')
                     end
