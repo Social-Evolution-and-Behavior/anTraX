@@ -139,7 +139,7 @@ def graph_explorer(expdir, *, m=0, session=None, mcr=ANTRAX_USE_MCR):
     """Launch graph-explorer app"""
 
     args = [expdir, 'm', m] if session is None else [expdir, 'm', m, 'session', session]
-    launch_matlab_app('graph_explorer_app', args, mcr=mcr)
+    launch_matlab_app('graph_explorer', args, mcr=mcr)
 
 
 def validate(expdir, *, session=None, mcr=ANTRAX_USE_MCR):

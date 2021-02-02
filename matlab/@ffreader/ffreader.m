@@ -45,6 +45,16 @@ classdef ffreader < handle & matlab.mixin.SetGet
                 obj.buf_sz = bfsz;
             end
             
+            
+            % check if popenr exists and compiled
+            if ~isdeployed && exist('popenr','file')~=3
+                report('E', '===========================================')
+                report('E', 'Please compile the popenr mex file')
+                report('E', 'Refer to antTraX installation instructions')
+                report('E', '===========================================')
+                error('popenr does not exist')
+            end
+            
             obj.file = file;
             obj.collectInfo;
             obj.buf = zeros([obj.info.height,obj.info.width,obj.info.channels,obj.buf_sz],'uint8');
