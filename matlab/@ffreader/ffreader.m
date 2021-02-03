@@ -45,6 +45,16 @@ classdef ffreader < handle & matlab.mixin.SetGet
                 obj.buf_sz = bfsz;
             end
             
+            
+            % check if popenr exists and compiled
+            if ~isdeployed && exist('popenr','file')~=3
+                report('E', '===========================================')
+                report('E', 'Please compile the popenr mex file')
+                report('E', 'Refer to antTraX installation instructions')
+                report('E', '===========================================')
+                error('popenr does not exist')
+            end
+            
             obj.file = file;
             obj.collectInfo;
             obj.buf = zeros([obj.info.height,obj.info.width,obj.info.channels,obj.buf_sz],'uint8');
@@ -131,6 +141,11 @@ classdef ffreader < handle & matlab.mixin.SetGet
            
             [~,ffmpeg] = system('which ffmpeg');
             ffmpeg = ffmpeg(1:end-1);
+            
+            if ~isfile(ffmpeg)
+                report('E', 'Could not locate ffmpeg')
+                error('Could not locate ffmpeg')
+            end
 
             if self.isopen
                 %report('D',['closing pipe #',num2str(self.p)]);
@@ -158,18 +173,20 @@ classdef ffreader < handle & matlab.mixin.SetGet
         end
         
         function collectInfo(self)
-            k=0;
-            while isempty(self.info)
-                try
-                    self.info = ffinfo(self.file);
-                catch
-                    k=k+1;
-                    report('W','Get info failrd, retrying')
-                    if k>10
-                        error('ffinfo failed 10 times')
-                    end
-                end
-            end
+            self.info = ffinfo(self.file);
+%            k=0;
+%            while isempty(self.info)
+%                 try
+%                     self.info = ffinfo(self.file);
+%                 catch exception
+%                     k=k+1;
+%                     report('W','Get info failed, retrying')
+%                     if k>10
+%                         report('E', 'ffinfo failed 10 times')
+%                         throw(exception)
+%                     end
+%                 end
+%            end
             
         end
         

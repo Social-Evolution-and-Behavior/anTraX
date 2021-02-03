@@ -5,12 +5,12 @@ from os.path import isfile, isdir, join, splitext
 from itertools import count, groupby, chain
 from glob import glob
 import ruamel.yaml
-import h5py 
+import h5py
 import numpy as np
 from datetime import datetime
 
-from numpy import pi
-import skvideo.io as skv
+# from numpy import pi
+# import skvideo.io as skv
 
 
 import socket
@@ -23,6 +23,7 @@ MCR = os.getenv('MCR')
 ANTRAX = os.getenv('ANTRAX')
 
 ANTRAX_DEBUG_MODE = os.getenv("ANTRAX_DEBUG_MODE") == 'True'
+
 
 class ANTRAXError(Exception):
 
@@ -102,7 +103,7 @@ def is_classdir(d):
 
 
 def parse_tracklet_name(tracklet):
-    
+
     pass
 
 
@@ -110,7 +111,7 @@ def find_expdirs(root):
 
     expdirs = []
     for d in glob(root):
-         expdirs += [x[0] for x in os.walk(d) if is_expdir(x[0])]
+        expdirs += [x[0] for x in os.walk(d) if is_expdir(x[0])]
 
     return expdirs
 
@@ -139,26 +140,26 @@ def update_dlc_project_path(cfg):
         with open(cfg, 'w') as fp:
             yaml.dump(d, fp)
 
-            
-def get_dlc_data_from_file(filename):
-        
-        f = h5py.File(filename, 'r')
-        tracklets = [k for k in f.keys()]
-        data = {}
-        for tracklet in tracklets:
-            data[tracklet] = pd.read_hdf(filename, key=tracklet)
-            
-        return data
 
-    
+def get_dlc_data_from_file(filename):
+
+    f = h5py.File(filename, 'r')
+    tracklets = [k for k in f.keys()]
+    data = {}
+    for tracklet in tracklets:
+        data[tracklet] = pd.read_hdf(filename, key=tracklet)
+
+    return data
+
+
 def make_white_bg(ims):
-    
+
     gry = np.tile(np.expand_dims(ims.max(axis=3), -1), (1, 1, 1, 3))
     bg = np.ones_like(gry) * 255
     return np.where(gry == 0, bg, ims)
 
 
-def angle(x1,y1,x2,y2):
+def angle(x1, y1, x2, y2):
     dx = x2 - x1
     dy = y2 - y1
     return np.arctan2(dx, dy)
@@ -180,7 +181,7 @@ def tracklet_table_to_blob_table(tracklet_table):
         blob_table.append(btable)
 
     blob_table = pd.concat(blob_table, axis=0, ignore_index=True)
-    #blob_table = blob_table.set_index(['tracklet', 'ix'])
+    # blob_table = blob_table.set_index(['tracklet', 'ix'])
 
     return blob_table
 
@@ -236,8 +237,9 @@ def interpolate_nans(x):
 
     return x
 
+
 # Print iterations progress
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
+def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='#', printEnd="\r"):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -253,7 +255,7 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
-    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = printEnd)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end=printEnd)
     # Print New Line on Complete
     if iteration == total:
         print()

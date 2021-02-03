@@ -1,16 +1,11 @@
 
-from clize import run, Parameter, parser
-from sigtools.wrappers import decorator
-import os
-from os.path import isfile, isdir, join, splitext
-from glob import glob
-from time import sleep
+from clize import run, parser
 from imageio import imread
 from . import *
 from .matlab import *
 from .hpc import antrax_hpc_job, antrax_hpc_train_job
 from .utils import *
-
+import os
 
 ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR') == 'True'
 ANTRAX_HPC = os.getenv('ANTRAX_HPC') == 'True'
@@ -28,6 +23,7 @@ def to_int(arg):
     else:
         return None
 
+
 @parser.value_converter
 def to_float(arg):
 
@@ -35,6 +31,7 @@ def to_float(arg):
         return float(arg)
     else:
         return None
+
 
 @parser.value_converter
 def parse_hpc_options(s):
@@ -52,6 +49,7 @@ def parse_hpc_options(s):
 
     return opts
 
+
 @parser.value_converter
 def parse_movlist(movlist):
 
@@ -63,7 +61,7 @@ def parse_movlist(movlist):
     return movlist
 
 
-#@parser.value_converter
+# @parser.value_converter
 def parse_explist(exparg, session=None):
 
     exps = []
@@ -101,6 +99,7 @@ def compile_antrax():
 def configure(expdir=None, *, mcr=ANTRAX_USE_MCR):
     """Launch antrax configuration app"""
 
+    report('D', 'antrax cli entry point')
     args = [expdir] if expdir is not None else []
     launch_matlab_app('antrax', args, mcr=mcr)
 
@@ -140,7 +139,7 @@ def graph_explorer(expdir, *, m=0, session=None, mcr=ANTRAX_USE_MCR):
     """Launch graph-explorer app"""
 
     args = [expdir, 'm', m] if session is None else [expdir, 'm', m, 'session', session]
-    launch_matlab_app('graph_explorer_app', args, mcr=mcr)
+    launch_matlab_app('graph_explorer', args, mcr=mcr)
 
 
 def validate(expdir, *, session=None, mcr=ANTRAX_USE_MCR):
@@ -150,12 +149,12 @@ def validate(expdir, *, session=None, mcr=ANTRAX_USE_MCR):
     launch_matlab_app('validate_tracking', args, mcr=mcr)
 
 
-def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, antlist=None, nimages=100, video=False, username='anTraX'):
+def export_dlc(expdir, dlcdir, *, session=None, movlist: parse_movlist=None, antlist=None, nimages=100,
+               video=False, username='anTraX'):
     """Export trainset for DeepLabCut"""
 
     import deeplabcut as dlc
     from antrax.dlc import  create_trainset
-
 
     ex = axExperiment(expdir, session)
 
@@ -208,8 +207,8 @@ def pair_search(explist, *, movlist: parse_movlist=None, mcr=False, nw=2, hpc=Fa
         Q.stop_workers()
 
 
-def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
-          missing=False, session=None, dry=False):
+def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, onlystitch=False, nw=2, hpc=False,
+          hpc_options: parse_hpc_options={}, missing=False, session=None, dry=False):
     """Run tracking step"""
 
     explist = parse_explist(explist, session)
@@ -256,8 +255,8 @@ def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, o
         Q.stop_workers()
 
 
-def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, clist: parse_movlist=None, mcr=False, nw=2, hpc=False, hpc_options: parse_hpc_options={},
-          missing=False, session=None, dry=False, step=0):
+def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, clist: parse_movlist=None, mcr=False,
+          nw=2, hpc=False, hpc_options: parse_hpc_options={}, missing=False, session=None, dry=False, step=0):
     """Run propagation step"""
 
     explist = parse_explist(explist, session)
@@ -375,10 +374,11 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
         Q.stop_workers()
 
 
-def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, arch='small', modelfile=None,
-          target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, aug_options='', hpc=False, hpc_options: parse_hpc_options={},
-          background='white', dry=False):
+def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=20, multi_weight=0.1, arch='small',
+          modelfile=None, target_size: to_int=None, crop_size: to_int=None, hsymmetry=False, aug_options='',
+          hpc=False, hpc_options: parse_hpc_options={}, background='white', dry=False):
     """Train a blob classifier"""
+
     hpc = hpc or ANTRAX_HPC
 
     if not is_classdir(classdir):
@@ -461,7 +461,8 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
         missing=False, dry=False):
     """Run DeepLabCut on antrax experiments
 
-     :param explist: path to experiment folder, path to file with experiment folders, path to a folder containing several experiments
+     :param explist: path to experiment folder, path to file with experiment folders, path to a folder
+                     containing several experiments
      :param session: run on specific session
      :param cfg: Full path to DLC project config file
      :param movlist: List of video indices to run (default is all)
@@ -590,7 +591,8 @@ def run_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, jab=N
             for m in movlist1:
                 w = {}
                 w['fun'] = 'run_jaaba_detect'
-                w['args'] = [e.expdir, 'movlist', m, 'jab', jab, 'trackingdirname', e.session, 'jaaba_path', JAABA_PATH, 'antrax_path', ANTRAX_PATH]
+                w['args'] = [e.expdir, 'movlist', m, 'jab', jab, 'trackingdirname', e.session, 'jaaba_path',
+                             JAABA_PATH, 'antrax_path', ANTRAX_PATH]
                 w['diary'] = join(e.logsdir, 'matlab_export_jaaba_m_' + str(m) + '.log')
                 w['str'] = 'JAABA run ' + e.expname + ' movie ' + str(m)
                 Q.put(w)
@@ -634,7 +636,16 @@ def main():
         'compile': compile_antrax
     }
 
+    # print welcome message
+    print('')
+    print('==================================================================================')
+    print('')
+    print('Welcome to anTraX - a software for tracking color tagged ants (and other insects)')
+    print('')
+    print('==================================================================================')
+    print('')
+
     run(function_list, description="""
-    anTraX is a software for high-throughput tracking of color tagged insects, for full documentation, see antrax.readthedocs.io
-    
+    anTraX is a software for high-throughput tracking of color tagged insects, for full documentation,
+    see antrax.readthedocs.io
     """)

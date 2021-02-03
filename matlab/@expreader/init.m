@@ -3,6 +3,9 @@ function init(er,force)
 % about the movies in the experiment directory
 
 
+report('D','initializing expreader object')
+
+
 if nargin<2
     force = false;
 end
@@ -46,6 +49,8 @@ end
 % subdir names are required to be in the format "i_j", where i and j are the
 % indexes of the first and last video files in the subdirectory
 
+report('D','going through video subdirs')
+
 get_subdirs(er);
 nmovies = sum([er.subdirs.nmovies]);
 index_delimiter = '_';
@@ -78,6 +83,7 @@ else
     vid_name_format='delim_index';
 end
 
+report('D','going through video files')
 
 er.movies_info = [];
 for i=1:length(er.subdirs)
@@ -139,6 +145,7 @@ er.nmovies = length(er.movies_info);
 
 %% get movie infos
 
+report('D','collecting video file info')
 
 if exist([er.expdir,filesep,'metadata.yaml'],'file')
    
@@ -187,11 +194,15 @@ end
 
 er.frame_size = [info.height,info.width];
 
+report('D','saving video info table')
+
+
 if save_movies_info
     T=struct2table(er.movies_info);
     writetable(T,er.movies_info_file,'Delimiter',' ','WriteVariableNames',true);
 end
 
+report('D','expreader initialization complete')
 
 
     function m = file_index(fullname)
