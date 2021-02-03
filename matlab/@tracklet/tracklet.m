@@ -452,6 +452,10 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
             for i=1:length(trjs)
                 trjs(i).exist = sparse(Trck.er.totalframenum,1);
                 trjs(i).exist(trjs(i).ti.absframe:trjs(i).tf.absframe) = true;
+                if length(trjs(i).exist)>Trck.er.totalframenum
+                    report('W',['Problem with exist for tracklet ',trjs(i).name]);
+                    trjs(i).exist = trjs(i).exist(1:Trck.er.totalframenum,1);
+                end
             end
             
         end
