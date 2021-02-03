@@ -125,6 +125,12 @@ def run_mcr_function(fun, args, diary=DEVNULL):
 
 def start_matlab():
 
+    try:
+        import matlab.engine
+    except:
+        report('E', 'matlab engine not found')
+        return
+
     eng = matlab.engine.start_matlab()
     p = eng.genpath(join(ANTRAX_PATH, 'matlab'))
     eng.addpath(p, nargout=0)
