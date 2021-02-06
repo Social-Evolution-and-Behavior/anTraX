@@ -11,6 +11,10 @@ switch command
         
         graph_explorer_app(varargin{:});
         
+    case 'graph_explorer_app'
+        
+        graph_explorer_app(varargin{:});
+        
     case 'validate_tracking'
         
         validate_tracking(varargin{:});
