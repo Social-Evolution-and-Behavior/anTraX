@@ -10,7 +10,7 @@ if Trck.get_param('geometry_multi_colony')
         for j=1:Trck.NIDs
             id = Trck.usedIDs{j};
             Tid = Tc(strcmp(Tc.id,id) |  strcmp(Tc.id,'all'),:);
-            ndeadframes = sum(T.to - T.from + 1);
+            ndeadframes = sum(Tid.to - Tid.from + 1);
             nassignedframes = sum(~isnan(XY.(c).(id)(:,1)));
             ntotframes = size(XY.(c).(id),1);
             a(i,j) = nassignedframes/(ntotframes - ndeadframes);
@@ -27,7 +27,7 @@ else
     end
 end
 
-
+a(isnan(a))=0;
 total_assigment_rate = mean(a(:));
 
 
