@@ -51,7 +51,10 @@ for i=1:size(T,1)
         
     elseif fromstr(1)=='m' && ~contains(fromstr,'f')
         
-        ti(i) = trtime(Trck,str2num(fromstr(2:end)));
+        m = str2num(fromstr(2:end));
+        f = Trck.er.movies_info(m).fi;
+        
+        ti(i) = trtime(Trck, f);
         
     elseif fromstr(1)=='m' && contains(fromstr,'f')
         
