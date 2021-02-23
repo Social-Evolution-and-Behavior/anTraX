@@ -441,7 +441,7 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
             end
             
             if nargin==1 || isempty(Trck)
-                if length(trjs)>1 && ~all([trjs.Trck]==trjs(1).Trck)
+                if length(trjs)>1 && ~all([trjs.Trck]==trjs(1).Trck)    
                     report('E','All trajectories must have the same Trck field, or give it as a second argument')
                     report('E','Abborting')
                     return
