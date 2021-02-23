@@ -1,4 +1,4 @@
-function generate_assignment_rate_report(Trck, XY)
+function total_assigment_rate = generate_assignment_rate_report(Trck, XY)
 
 T = parse_time_config(Trck,'command','remove');
 
