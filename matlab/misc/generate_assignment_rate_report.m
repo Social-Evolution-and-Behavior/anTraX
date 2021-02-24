@@ -3,6 +3,9 @@ function total_assigment_rate = generate_assignment_rate_report(Trck, XY)
 T = parse_time_config(Trck,'command','remove');
 
 
+total_frames_to_assign = 0;
+total_frames_assigned = 0;
+
 if Trck.get_param('geometry_multi_colony')
     for i=1:Trck.Ncolonies
         c = Trck.colony_labels{i};
@@ -14,6 +17,8 @@ if Trck.get_param('geometry_multi_colony')
             nassignedframes = sum(~isnan(XY.(c).(id)(:,1)));
             ntotframes = size(XY.(c).(id),1);
             a(i,j) = nassignedframes/(ntotframes - ndeadframes);
+            total_frames_to_assign = total_frames_to_assign + ntotframes - ndeadframes;
+            total_frames_assigned = total_frames_assigned + nassignedframes;
         end
     end
 else
@@ -24,12 +29,14 @@ else
         nassignedframes = sum(~isnan(XY.(id)(:,1)));
         ntotframes = size(XY.(id),1);
         a(j) = nassignedframes/(ntotframes - ndeadframes);
+        total_frames_to_assign = total_frames_to_assign + ntotframes - ndeadframes;
+        total_frames_assigned = total_frames_assigned + nassignedframes;
     end
 end
 
-a(isnan(a))=0;
-total_assigment_rate = mean(a(:));
+%a(isnan(a))=0;
+%total_assigment_rate = mean(a(:));
 
-
+total_assigment_rate = total_frames_assigned/total_frames_to_assign;
 
 
