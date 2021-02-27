@@ -48,6 +48,10 @@ noant_nodes = noant_nodes(~ismember({G.trjs(noant_nodes).autoID},G.usedIDs));
 finalize(G,noant_nodes);
 report('I',['...',num2str(nnz(noant_nodes)),' short, unconnected and unidentified tracklets were filtered'])
 
+% redo the singles search ignoring links to no-ant tracklets
+ant_nodes = any(G.possible_ids,2);
+G.node_single = G.get_singles('all',ant_nodes);
+
 % step 1.5: apply temporal window for ids ??
 if G.Trck.get_param('graph_apply_temporal_window')
     
@@ -396,6 +400,7 @@ n = n + nprop;
 end
 
 function eliminate(G,nodes,ids,force)
+
 for i=1:length(ids)
     id = ids(i);
     iscont = false(size(nodes));
