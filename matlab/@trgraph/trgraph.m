@@ -146,9 +146,9 @@ classdef trgraph < handle & matlab.mixin.SetGet
             
         end
         
-        function [passed,singles] = get_singles(G,criteria)
+        function [passed,singles] = get_singles(G,criteria,ant_nodes)
             
-            if nargin<2
+            if nargin<2 || isempty(criteria) || strcmp(criteria,'all')
                 criteria = {'minarea','maxarea','OneLink','label','cfg'};
             end
             
@@ -168,6 +168,14 @@ classdef trgraph < handle & matlab.mixin.SetGet
             nchildren = outdegree(G.G);
             aids = {G.trjs.propID};
             
+            if nargin>2
+                ant_sg = subgraph(G.G,ant_nodes);
+                sgnparents = indegree(ant_sg);
+                sgnchildren = outdegree(ant_sg);
+                nparents(ant_nodes) = sgnparents;
+                nchildren(ant_nodes) = sgnchildren;
+            end
+
             passed = true(size(G.trjs));
             
             if ismember('rarea',criteria) || ismember('minarea',criteria)
