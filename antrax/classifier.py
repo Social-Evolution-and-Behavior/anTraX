@@ -1,7 +1,9 @@
 from os import listdir
 from os.path import isfile, join
 import tensorflow as tf
+from tensorflow import Graph, Session
 from tensorflow import keras
+from tensorflow.keras import backend as K
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 import h5py
@@ -10,6 +12,9 @@ import os
 import csv
 import shutil
 from tempfile import mkdtemp
+
+import queue
+import threading
 
 from PIL import Image
 from glob import glob
@@ -26,6 +31,22 @@ from .models import new_model
 AMBIG_CLASSES = ['Unknown', '??', 'MultiAnt', 'Multi', 'multi']
 MULTI_CLASSES = ['MultiAnt', 'Multi', 'multi']
 NONANT_CLASSES = ['NoAnt', 'FOOD', 'Larva']
+
+K.clear_session()
+
+
+
+def get_thread_model(modelfile):
+
+    thread_model = {}
+    g = Graph()
+    with g.as_default():
+        thread_model['session'] = Session()
+        with thread_model['session'].as_default():
+            thread_model['model'] = keras.models.load_model(modelfile)
+            thread_model['graph'] = tf.get_default_graph()
+
+    return thread_model
 
 
 class axClassifier:
@@ -53,6 +74,8 @@ class axClassifier:
                 classes = None
 
         c = axClassifier(name=None, nclasses=None, loaded=True, prmtrs=prmtrs, classes=classes, model=model)
+        c.modelfile = modelfile
+
         if c.classes is not None:
             c.trained = True
 
@@ -67,6 +90,8 @@ class axClassifier:
 
         if 'hsymmetry' not in c.prmtrs:
             c.prmtrs['hsymmetry'] = True
+
+        report('I', 'Loaded classifier from ' + modelfile)
 
         return c
 
@@ -126,7 +151,7 @@ class axClassifier:
         self.examplesdir = examplesdir
 
         # placeholder data fields
-        self.images = None
+        # self.images = None
         self.imagesfile = None
         self.y = None
 
@@ -134,6 +159,13 @@ class axClassifier:
         self.labels = None
 
         self.trained = False
+
+        self.imagefile_f = None
+        self.passedfile_f = None
+        self.ntracklets_in_current_file = None
+
+        self.modelfile = None
+
 
     def reset_model(self):
 
@@ -169,53 +201,64 @@ class axClassifier:
                 if remove:
                     os.remove(imfile)
 
-    def prepare_images(self):
+    def prepare_images(self, images):
 
         # make 4D if only one image in data set
-        if self.images.ndim == 3:
-            self.images = np.reshape(self.images, (1,) + self.images.shape)
+        if images.ndim == 3:
+            images = np.reshape(images, (1,) + images.shape)
 
         # transform matlab image array into tensor
-        self.images = np.moveaxis(self.images, [0, 1, 2, 3], [0, 3, 2, 1])
+        images = np.moveaxis(images, [0, 1, 2, 3], [0, 3, 2, 1])
 
         # change background
         if self.prmtrs['background'] == 'white':
-            msk = self.images.max(axis=3) == 0
+            msk = images.max(axis=3) == 0
             msk = msk[:, :, :, None]
             msk = np.tile(msk, [1, 1, 1, 3])
-            self.images[msk] = 255
+            images[msk] = 255
         elif self.prmtrs['background'] == 'black':
-            msk = self.images.max(axis=3) == 255
+            msk = images.max(axis=3) == 255
             msk = msk[:, :, :, None]
             msk = np.tile(msk, [1, 1, 1, 3])
-            self.images[msk] = 0
+            images[msk] = 0
 
         # crop images
-        if self.prmtrs['crop_size'] is not None and self.images.shape[1] > self.prmtrs['crop_size']:
+        if self.prmtrs['crop_size'] is not None and images.shape[1] > self.prmtrs['crop_size']:
 
-            a = np.floor((self.images.shape[1] - self.prmtrs['crop_size'])/2).astype('int')
+            a = np.floor((images.shape[1] - self.prmtrs['crop_size'])/2).astype('int')
 
-            self.images = self.images[:, a:(a+self.prmtrs['crop_size']), a:(a+self.prmtrs['crop_size']), :]
+            images = images[:, a:(a+self.prmtrs['crop_size']), a:(a+self.prmtrs['crop_size']), :]
 
         # resize images
-        if self.images.shape[1] != self.prmtrs['target_size'] or self.prmtrs['scale'] != 1:
+        if images.shape[1] != self.prmtrs['target_size'] or self.prmtrs['scale'] != 1:
             a0 = self.prmtrs['target_size']
             a1 = int(float(a0) * self.prmtrs['scale'])
-            resized = np.zeros([self.images.shape[0], a1, a1, self.images.shape[-1]], dtype=np.uint8)
-            for i in range(self.images.shape[0]):
-                resized[i] = np.array(Image.fromarray(self.images[i]).resize((a1, a1)))
+            resized = np.zeros([images.shape[0], a1, a1, images.shape[-1]], dtype=np.uint8)
+            for i in range(images.shape[0]):
+                resized[i] = np.array(Image.fromarray(images[i]).resize((a1, a1)))
 
-            self.images = resized[:, int((a1 - a0) / 2):int((a1 + a0) / 2), int((a1 - a0) / 2):int((a1 + a0) / 2), :]
+            images = resized[:, int((a1 - a0) / 2):int((a1 + a0) / 2), int((a1 - a0) / 2):int((a1 + a0) / 2), :]
 
-        self.images = self.images.astype('float32')
+        images = images.astype('float32')
 
-    def predict_images(self, debug=False):
+        return images
 
-        if tf.shape(self.images.shape)[0] == 0:
+    def predict_images(self, images, model=None, debug=False):
+
+        if model is None:
+            model = self.model
+
+        if tf.shape(images.shape)[0] == 0:
+            y = []
+        else:
+            y = model.predict(images)
+
+        return y
+
+    def process_predictions(self, y, debug=False):
+
+        if len(y) == 0:
             return 'Unknown', 0, -1
-
-        y = self.model.predict(self.images)
-        self.y = y
 
         frame_nums = np.arange(y.shape[0])
 
@@ -277,66 +320,74 @@ class axClassifier:
 
         return label, score, best_frame
 
-    def predict_images_file(self, imagefile, outfile=None, usepassed=False, report=False):
+    def predict_tracklet(self, tracklet, model=None):
 
-        scores = []
-        labels = []
-        names = []
-        best_frames = []
-        comments = []
+        images = self.imagefile_f[tracklet][()]
+        images = self.prepare_images(images)
+
+        indexes = np.arange(images.shape[0])
+        if self.passedfile_f is not None:
+            passed = self.passedfile_f[tracklet][()][0]
+            indexes = np.nonzero(passed)[0]
+            images = images[indexes]
+
+        y = self.predict_images(images, model=model)
+        label, score, best_frame = self.process_predictions(y)
+
+        if best_frame >= 0:
+            best_frame = indexes[best_frame] + 1
+        else:
+            best_frame = best_frame + 1
+
+        return label, score, best_frame
+
+    def prediction_worker(self):
+
+        thread_model = get_thread_model(self.modelfile)
+
+        with thread_model['graph'].as_default():
+            with thread_model['session'].as_default():
+
+                while True:
+                    tracklet = self.q_tracklets.get()
+                    if tracklet is None:
+                        break
+                    label, score, best_frame = self.predict_tracklet(tracklet, model=thread_model['model'])
+                    self.q_predictions.put((tracklet, label, score, best_frame))
+                    self.q_tracklets.task_done()
+                    printProgressBar(self.ntracklets_in_current_file - self.q_tracklets.qsize(), self.ntracklets_in_current_file, prefix='Progress:', suffix='Complete', length=50)
+
+    def predict_images_file(self, imagefile, outfile=None, usepassed=False, report=False):
 
         m = int(imagefile.rstrip('.mat').split('_')[1])
 
         # read frame filter file
         passed_file = 'frame_passed_' + imagefile.lstrip('images_')
-        pf = None
-        if isfile(join(self.imagedir, passed_file)):
-            pf = h5py.File(join(self.imagedir, passed_file), 'r')
+        self.passedfile_f = None
+        if usepassed and isfile(join(self.imagedir, passed_file)):
+            self.passedfile_f = h5py.File(join(self.imagedir, passed_file), 'r')
 
-        f = h5py.File(join(self.imagedir, imagefile), 'r')
+        self.imagefile_f = h5py.File(join(self.imagedir, imagefile), 'r')
 
-        ntracklets = len(f)
+        self.ntracklets_in_current_file = len(self.imagefile_f)
 
-        print('         ...' + str(ntracklets) + ' tracklets to classify in movie' )
-
-        cnt = 0
+        print('         ...' + str(self.ntracklets_in_current_file) + ' tracklets to classify in movie' )
 
         if report:
-            printProgressBar(0, ntracklets, prefix='Progress:', suffix='Complete', length=50)
+            printProgressBar(0, self.ntracklets_in_current_file, prefix='Progress:', suffix='Complete', length=50)
 
-        for tracklet in f.keys():
+        for tracklet in self.imagefile_f.keys():
 
+            self.q_tracklets.put(tracklet)
 
-            cnt += 1
+        self.q_tracklets.join()
 
-            if report:
-                printProgressBar(cnt, ntracklets, prefix='Progress:', suffix='Complete', length=50)
+        self.imagefile_f.close()
+        self.imagefile_f = None
 
-            self.images = f[tracklet][()]
-
-            # preprocess the image and prepare it for classification
-            self.prepare_images()
-
-            # filter frames
-            indexes = np.arange(self.images.shape[0])
-            if usepassed and pf is not None:
-                passed = pf[tracklet][()][0]
-                indexes = np.nonzero(passed)[0]
-                self.images = self.images[indexes]
-
-            # predict
-            label, score, best_frame = self.predict_images()
-            scores += [score]
-            labels += [label]
-            comments += ['']
-            if best_frame >= 0:
-                best_frames += [indexes[best_frame] + 1]
-            else:
-                best_frames += [best_frame + 1]
-
-            names += [tracklet]
-
-        f.close()
+        if self.passedfile_f is not None:
+            self.passedfile_f.close()
+            self.passedfile_f = None
 
         if outfile is None:
             outfile = os.path.join(self.outdir, 'autoids_' + str(m) + '.csv')
@@ -344,10 +395,12 @@ class axClassifier:
         with open(outfile, "w") as output:
             writer = csv.writer(output, lineterminator='\n')
             writer.writerow(['tracklet', 'label', 'score', 'best_frame'])
-            for (n, l, p, b) in zip(names, labels, scores, best_frames):
-                writer.writerow([n, l, p, b])
+            while not self.q_predictions.empty():
+                p = self.q_predictions.get()
+                writer.writerow(p)
+                self.q_predictions.task_done()
 
-    def predict_experiment(self, expdir, session=None, movlist='all', outdir=None, usepassed=False, report=None):
+    def predict_experiment(self, expdir, session=None, movlist='all', outdir=None, usepassed=False, report=None, nw=1):
 
         if type(expdir) == axExperiment:
             if session is not None and not expdir.session == session:
@@ -375,7 +428,19 @@ class axClassifier:
             self.imagefiles = [f for f in self.imagefiles if movieindex[self.imagefiles.index(f)] in movlist]
 
         if report is None:
-            report = len(self.imagefiles)==1
+            report = len(self.imagefiles) == 1
+
+        self.q_tracklets = queue.Queue()
+        self.q_predictions = queue.Queue()
+
+        self.prediction_threads = []
+
+        tf.reset_default_graph()
+
+        for i in range(nw):
+            t = threading.Thread(target=self.prediction_worker)
+            t.start()
+            self.prediction_threads.append(t)
 
         for f in self.imagefiles:
             m = int(f.rstrip('.mat').split('_')[1])
@@ -384,6 +449,14 @@ class axClassifier:
             self.predict_images_file(f, usepassed=usepassed, report=report)
 
         ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
+
+        report('I', 'Stopping workers')
+        for i in range(nw):
+            self.q_tracklets.put(None)
+
+        for t in self.prediction_threads:
+            t.join()
+
         print(ts + ' -G- Done!')
 
     def validate(self, examplesdir, force=False, augment=False):

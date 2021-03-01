@@ -424,7 +424,7 @@ def train(classdir,  *, name='classifier', scratch=False, ne=5, unknown_weight=2
 
 
 def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False, hpc_options: parse_hpc_options={},
-             nw=0, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False, dry=False,
+             nw=1, session=None, usepassed=False, dont_use_min_conf=False, consv_factor=None, report=False, dry=False,
              missing=False):
     """Run classification step"""
 
@@ -454,7 +454,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False
         else:
             if from_expdir:
                 c = axClassifier.load(classifier)
-            c.predict_experiment(e, movlist=movlist, report=True)
+            c.predict_experiment(e, movlist=movlist, report=True, nw=nw)
 
 
 def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' ',
