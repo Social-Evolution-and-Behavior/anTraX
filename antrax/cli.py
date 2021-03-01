@@ -454,7 +454,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False
         else:
             if from_expdir:
                 c = axClassifier.load(classifier)
-            c.predict_experiment(e, movlist=movlist, report=True, nw=nw)
+            c.predict_experiment(e, movlist=movlist, verbose=True, nw=nw)
 
 
 def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, hpc_options: parse_hpc_options=' ',

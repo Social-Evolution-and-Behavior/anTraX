@@ -357,7 +357,7 @@ class axClassifier:
                     self.q_tracklets.task_done()
                     printProgressBar(self.ntracklets_in_current_file - self.q_tracklets.qsize(), self.ntracklets_in_current_file, prefix='Progress:', suffix='Complete', length=50)
 
-    def predict_images_file(self, imagefile, outfile=None, usepassed=False, report=False):
+    def predict_images_file(self, imagefile, outfile=None, usepassed=False, verbose=False):
 
         m = int(imagefile.rstrip('.mat').split('_')[1])
 
@@ -373,7 +373,7 @@ class axClassifier:
 
         print('         ...' + str(self.ntracklets_in_current_file) + ' tracklets to classify in movie' )
 
-        if report:
+        if verbose:
             printProgressBar(0, self.ntracklets_in_current_file, prefix='Progress:', suffix='Complete', length=50)
 
         for tracklet in self.imagefile_f.keys():
@@ -400,7 +400,7 @@ class axClassifier:
                 writer.writerow(p)
                 self.q_predictions.task_done()
 
-    def predict_experiment(self, expdir, session=None, movlist='all', outdir=None, usepassed=False, report=None, nw=1):
+    def predict_experiment(self, expdir, session=None, movlist='all', outdir=None, usepassed=False, verbose=None, nw=1):
 
         if type(expdir) == axExperiment:
             if session is not None and not expdir.session == session:
@@ -427,15 +427,13 @@ class axClassifier:
                 movlist = [int(m) for m in movlist.split(',')]
             self.imagefiles = [f for f in self.imagefiles if movieindex[self.imagefiles.index(f)] in movlist]
 
-        if report is None:
-            report = len(self.imagefiles) == 1
+        if verbose is None:
+            verbose = len(self.imagefiles) == 1
 
         self.q_tracklets = queue.Queue()
         self.q_predictions = queue.Queue()
 
         self.prediction_threads = []
-
-        tf.reset_default_graph()
 
         for i in range(nw):
             t = threading.Thread(target=self.prediction_worker)
@@ -444,11 +442,8 @@ class axClassifier:
 
         for f in self.imagefiles:
             m = int(f.rstrip('.mat').split('_')[1])
-            ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
-            print(ts + ' -I- Classifying tracklets of movie ' + str(m))
-            self.predict_images_file(f, usepassed=usepassed, report=report)
-
-        ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
+            report('I', 'Classifying tracklets of movie ' + str(m))
+            self.predict_images_file(f, usepassed=usepassed, verbose=verbose)
 
         report('I', 'Stopping workers')
         for i in range(nw):
@@ -457,7 +452,7 @@ class axClassifier:
         for t in self.prediction_threads:
             t.join()
 
-        print(ts + ' -G- Done!')
+        report('G', 'Done!')
 
     def validate(self, examplesdir, force=False, augment=False):
 
