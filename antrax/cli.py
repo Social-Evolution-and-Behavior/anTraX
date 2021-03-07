@@ -282,19 +282,25 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
                 for c in eclist:
                     hpc_options['c'] = c
                     hpc_options['waitfor'] = None
-                    jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=1)
-                    hpc_options['waitfor'] = jid
-                    jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=2)
-                    hpc_options['waitfor'] = jid
-                    jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=3)
+                    if step == 0 or step == 1:
+                        jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=1)
+                        hpc_options['waitfor'] = jid
+                    if step == 0 or step == 2:
+                        jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=2)
+                        hpc_options['waitfor'] = jid
+                    if step == 0 or step == 3:
+                        jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=3)
             else:
                 hpc_options['c'] = None
                 hpc_options['waitfor'] = None
-                jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=1)
-                hpc_options['waitfor'] = jid
-                jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=2)
-                hpc_options['waitfor'] = jid
-                jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=3)
+                if step == 0 or step == 1:
+                    jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=1)
+                    hpc_options['waitfor'] = jid
+                if step == 0 or step == 2:
+                    jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=2)
+                    hpc_options['waitfor'] = jid
+                if step == 0 or step == 3:
+                    jid = antrax_hpc_job(e, 'solve', opts=hpc_options, solve_step=3)
 
     else:
 
