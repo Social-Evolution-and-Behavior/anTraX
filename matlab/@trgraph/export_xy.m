@@ -16,7 +16,7 @@ parse(p,G,varargin{:});
 
 
 if ~G.Trck.get_param('tagged') || strcmp(p.Results.type,'untagged')
-    export_xy_untagged(G, varargin);
+    export_xy_untagged(G, varargin{:});
     return
 elseif strcmp(p.Results.type,'noprop')
     export_xy_noprop(G, 'extrafields',p.Results.extrafields);

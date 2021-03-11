@@ -4,6 +4,7 @@ p = inputParser;
 
 addRequired(p,'G',@(x) isa(x,'trgraph'));
 addParameter(p,'extrafields',{'majax'});
+addParameter(p,'interpolate',false);
 addParameter(p,'csv',true);
 parse(p,G,varargin{:});
 
