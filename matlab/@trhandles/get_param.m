@@ -46,7 +46,11 @@ switch pname
         
     case 'single_video_post_commands'
         
-        p = Trck.prmtrs.(pname);
+        if ~isfield(Trck.prmtrs, 'single_video_post_commands') 
+            p = {};
+        else
+            p = Trck.prmtrs.(pname);
+        end
         if isempty(p)
             p = {};
         end
