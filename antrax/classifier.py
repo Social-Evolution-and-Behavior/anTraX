@@ -297,7 +297,7 @@ class axClassifier:
 
         ntracklets = len(f)
 
-        print('         ...' + str(ntracklets) + ' tracklets to classify in movie' )
+        print('         ...' + str(ntracklets) + ' tracklets to classify in movie')
 
         cnt = 0
 
@@ -305,7 +305,6 @@ class axClassifier:
             printProgressBar(0, ntracklets, prefix='Progress:', suffix='Complete', length=50)
 
         for tracklet in f.keys():
-
 
             cnt += 1
 
@@ -375,13 +374,14 @@ class axClassifier:
             self.imagefiles = [f for f in self.imagefiles if movieindex[self.imagefiles.index(f)] in movlist]
 
         if report is None:
-            report = len(self.imagefiles)==1
+            report = len(self.imagefiles) == 1
 
         for f in self.imagefiles:
             m = int(f.rstrip('.mat').split('_')[1])
             ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
             print(ts + ' -I- Classifying tracklets of movie ' + str(m))
-            self.predict_images_file(f, usepassed=usepassed, report=report)
+            outfile = f.replace(self.imagedir, self.outdir).replace('.mat', '.csv').replace('images', 'autoids')
+            self.predict_images_file(f, usepassed=usepassed, report=report, outfile=outfile)
 
         ts = datetime.now().strftime('%d/%m/%y %H:%M:%S')
         print(ts + ' -G- Done!')
