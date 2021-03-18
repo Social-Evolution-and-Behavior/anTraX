@@ -91,6 +91,8 @@ class axExperiment:
         except:
             report('W', 'Could not create directories')
 
+        report('I', 'Loaded experiment ' + self.expname + ', session ' + self.session)
+
     def get_subdirs(self):
 
         subdirs = glob(self.viddir + '/*_*')
