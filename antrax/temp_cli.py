@@ -88,8 +88,8 @@ def parse_explist(exparg, session=None):
 
 ########################### Run functions ##########################
 
-
-def export_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
+'''
+def exportxy_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
                 missing=False, session=None, dry=False):
 
     explist = parse_explist(explist, session)
@@ -99,7 +99,7 @@ def export_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR,
             hpc_options['dry'] = dry
             hpc_options['movlist'] = movlist
             hpc_options['missing'] = missing
-            antrax_hpc_job(e, 'export-untagged', opts=hpc_options)
+            antrax_hpc_job(e, 'exportxy-untagged', opts=hpc_options)
     else:
 
         Q = MatlabQueue(nw=nw, mcr=mcr)
@@ -115,7 +115,7 @@ def export_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MCR,
 
         # close
         Q.stop_workers()
-
+'''
 
 def compute_medians(explist, *, movlist: parse_movlist=None, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
                 missing=False, session=None, dry=False):
@@ -175,8 +175,8 @@ def extract_events(explist, *, movlist: parse_movlist=None, nw=2, hpc=ANTRAX_HPC
     explist = parse_explist(explist, session)
 
 
-def workflow_untagged(explist, *, movlist: parse_movlist=None, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
-                missing=False, session=None, dry=False, window=36001):
+def exportxy_untagged(explist, *, movlist: parse_movlist=None, nw=2, session=None,
+                      hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={}):
 
     explist = parse_explist(explist, session)
 
@@ -188,9 +188,32 @@ def workflow_untagged(explist, *, movlist: parse_movlist=None, nw=2, hpc=ANTRAX_
     Q = AnalysisQueue(nw=nw)
 
     for m in movlist:
-        item = ('tpu.compute_medians', [ex], {'movlist': [m]})
+        item = ('tpu.exportxy_untagged', [ex], {'movlist': [m]})
         Q.put(item)
 
+    Q.join()
+    Q.stop_workers()
+
+
+
+def workflow_untagged(explist, *, movlist: parse_movlist=None, nw=2, nants=0, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
+                missing=False, session=None, dry=False, window=36001):
+
+    explist = parse_explist(explist, session)
+
+    ex = explist[0]
+
+    if nants > 0:
+        ex.nants = nants
+
+    if movlist is None:
+        movlist = ex.movlist
+
+    Q = AnalysisQueue(nw=nw)
+
+    for m in movlist:
+        item = ('tpu.compute_medians', [ex], {'movlist': [m]})
+        Q.put(item)
 
     Q.join()
 
@@ -258,7 +281,7 @@ class AnalysisQueue(queue.Queue):
 def main():
 
     function_list = {
-        'export-untagged': export_untagged,
+        'exportxy-untagged': exportxy_untagged,
         'compute-medians': compute_medians,
         'compute-nest-location': compute_nest_location,
         'compute-measures': compute_measures,

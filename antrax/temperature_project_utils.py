@@ -59,6 +59,19 @@ def compute_measures(ex, movlist=None):
     td.save_frmdata()
 
 
+def exportxy_untagged(ex, movlist=None):
+
+    report('I', 'Exporting xy for movie ' + str(movlist))
+
+    if movlist is None:
+        movlist = ex.movlist
+
+    for m in movlist:
+        ex.export_xy_untagged_one_movie(m)
+
+    report('I', 'Finished exporting xy for movie ' + str(movlist))
+
+
 #### aux functions for pandas apply ####
 
 
@@ -221,6 +234,8 @@ class axTempData(axTrackletData):
 
         if nants is None and ex.prmtrs['tagged']:
             nants = len(ex.antlist)
+        elif nants is None:
+            nants = ex.nants
 
         self.nants = nants
 

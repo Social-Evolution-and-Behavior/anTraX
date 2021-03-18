@@ -16,16 +16,26 @@ idx = pd.IndexSlice
 
 class axAntData:
     
-    def __init__(self, ex, movlist=None, antlist=None, dlc=False, dlcproject=None, **kwargs):
+    def __init__(self, ex, movlist=None, fi=None, ff=None, antlist=None, dlc=False, dlcproject=None, **kwargs):
 
         self.ex = ex
         self.data = None
         self.tracklet_table = None
         
-        if movlist is None:
+        if movlist is None and fi is None:
             self.movlist = ex.movlist
-        else:
+            self.fi = ex.fi
+            self.ff = ex.ff
+        elif fi is not None and ff is not None:
+            self.fi = fi
+            self.ff = ff
+        elif movlist is not None:
             self.movlist = movlist
+            self.fi = ex.movies_info[np.isin(ex.movies_info['index'], movlist)]['fi'].min()
+            self.ff = ex.movies_info[np.isin(ex.movies_info['index'], movlist)]['ff'].max()
+        else:
+            report('E', 'Something wrong with range arguments')
+            return
 
         if antlist is None:
             self.antlist = ex.antlist
@@ -43,9 +53,10 @@ class axAntData:
             filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '.mat')
             antdata = read_mat(filename)
 
-            if antdata[self.antlist[0]].shape[1]==3:
+
+            if antdata[self.antlist[0]].shape[1] == 3:
                 with_type = False
-            elif antdata[self.antlist[0]].shape[1]==4:
+            elif antdata[self.antlist[0]].shape[1] == 4:
                 with_type = True
             else:
                 report('E', 'Something wrong with antdata structure')
@@ -319,7 +330,7 @@ class axTrackletData:
 
         self.load(verbose=verbose)
 
-        self.groupByFrame = self.trdata.groupby(by='frame')
+        self.groupByFrame = self.trdata.groupby(by='frame', axis=0)
         self.groupByTracklet = self.trdata.groupby(by='tracklet')
 
     def load(self, verbose=False):
@@ -331,25 +342,35 @@ class axTrackletData:
             if verbose:
                 report('I', 'Loading data of movie ' + str(m))
 
-            filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.mat')
-            tracklet_data = read_mat(filename)
+            filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.h5')
+            df = pd.read_hdf(filename, key='trdata')
+            df.rename_axis(['tracklet', 'f', 'frameix'], axis='index', inplace=True)
+            df.drop('tracklet', axis=1, inplace=True)
+
+            # if not self.ex.is_parted(m):
+            #     filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.mat')
+            #     tracklet_data = read_mat(filename)
+            # else:
+            #    parts = self.ex.get_parts(m)
+            #    trdata = [read_mat(join(self.ex.antdatadir, 'xy_' + str(m) + '_p' + str(p) + '.mat')) for p in parts]
+            #    trdata = {k: v for d in trdata for k, v in d.items()}
 
             # convert to dataframe
 
-            cols = ['tracklet', 'frame', 'x', 'y', 'orient', 'area', 'nants']
-            if 'majax' in tracklet_data:
-                cols.append('majax')
+            # cols = ['tracklet', 'frame', 'x', 'y', 'orient', 'area', 'nants']
+            # if 'majax' in tracklet_data:
+            #    cols.append('majax')
 
-            cols = pd.Index(cols)
+            # cols = pd.Index(cols)
 
-            d = {k: tracklet_data[k] for k in cols if k in tracklet_data.keys()}
-            d['x'] = tracklet_data['xy'][:, 0]
-            d['y'] = tracklet_data['xy'][:, 1]
+            # d = {k: tracklet_data[k] for k in cols if k in tracklet_data.keys()}
+            # d['x'] = tracklet_data['xy'][:, 0]
+            # d['y'] = tracklet_data['xy'][:, 1]
 
-            df = pd.DataFrame(d)
+            # df = pd.DataFrame(d)
 
-            df['tracklet'] = df['tracklet'].astype('int')
-            df['frame'] = df['frame'].astype('int')
+            # df['tracklet'] = df['tracklet'].astype('int')
+            # df['frame'] = df['frame'].astype('int')
 
             mdfs.append(df)
 

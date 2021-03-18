@@ -44,6 +44,8 @@ class axExperiment:
         self.logsdir = join(self.sessiondir, 'logs')
         self.prmtrs = self.get_prmtrs()
         self.movies_info = self.get_movies_info()
+        self.fi = self.movies_info['fi'].min()
+        self.ff = self.movies_info['ff'].max()
         self.framerate = self.movies_info['fps'][0]
         self.fps = self.framerate
         self.job_table_file = self.sessiondir + '/.antrax_job_table.csv'
@@ -58,6 +60,8 @@ class axExperiment:
         self.subdirs = self.get_subdirs()
         self.movlist = self.get_movlist()
         self.glist, self.ggroups = self.get_glist()
+        self.labels = self.get_labels()
+
         if 'geometry_colony_labels' in self.prmtrs.keys():
             self.clist = list(range(1, len(self.prmtrs['geometry_colony_labels'])+1))
             self.colony_labels = self.prmtrs['geometry_colony_labels']
@@ -67,7 +71,11 @@ class axExperiment:
 
         if 'tagged' in self.prmtrs:
             if self.prmtrs['tagged']:
-                self.antlist = self.get_labels()['ant_labels']
+                try:
+                    self.antlist = self.get_labels()['ant_labels']
+                except:
+                    self.antlist = []
+
             else:
                 self.antlist = []
         else:
@@ -75,6 +83,8 @@ class axExperiment:
                 self.antlist = self.get_labels()['ant_labels']
             except:
                 self.antlist = []
+
+        self.nants = len(self.antlist)
 
         try:
             mkdir(self.logsdir)
@@ -255,7 +265,7 @@ class axExperiment:
     def get_labels(self):
 
         labelsfile = join(self.paramsdir, 'labels.csv')
-        self.labels = {}
+        labels = {}
 
         # old format
         if isfile(join(self.paramsdir, 'labels.mat')):
@@ -263,23 +273,36 @@ class axExperiment:
             with open(labelsfile) as f:
                 reader = csv.reader(f)
                 for row in reader:
-                    self.labels[row[0]] = row[1:]
+                    labels[row[0]] = row[1:]
+
+            if 'nonant_labels' in labels and 'noant_labels' not in labels:
+                labels['noant_labels'] = labels['nonant_labels']
+                del labels['nonant_labels']
+
+            # save to new format
+            with open(labelsfile, 'w') as f:
+                writer = csv.writer(f, delimiter='\t')
+                for k, v in labels.items():
+                    for vv in v:
+                        writer.writerow([vv, k])
+
+            os.remove(join(self.paramsdir, 'labels.mat'))
 
         # new format
         else:
             with open(labelsfile) as f:
                 reader = csv.reader(f, delimiter='\t')
                 for row in reader:
-                    if row[1] not in self.labels:
-                        self.labels[row[1]] = []
-                    self.labels[row[1]] += [row[0]]
+                    if row[1] not in labels:
+                        labels[row[1]] = []
+                    labels[row[1]] += [row[0]]
 
         # hack
-        if 'nonant_labels' in self.labels and 'noant_labels' not in self.labels:
-            self.labels['noant_labels'] = self.labels['nonant_labels']
-            del self.labels['nonant_labels']
+        if 'nonant_labels' in labels and 'noant_labels' not in labels:
+            labels['noant_labels'] = labels['nonant_labels']
+            del labels['nonant_labels']
 
-        return self.labels
+        return labels
 
     def get_bg(self):
 
@@ -518,9 +541,19 @@ class axExperiment:
         # this contains the frame data
         trdata = pd.concat(trdata, ignore_index=False)
                 
-        return trdata 
-            
-    def get_tracklet_data_one_movie(self, m, dlc, dlcproject=None, only_ants=True, only_singles=False):
+        return trdata
+
+    def export_xy_untagged_one_movie(self, m):
+
+        filename = join(self.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.h5')
+        trdata = self.get_tracklet_data_one_movie(m, only_ants=True)
+        trdata['x'] = trdata['x'] * self.prmtrs['geometry_rscale']
+        trdata['y'] = trdata['x'] * self.prmtrs['geometry_rscale']
+        trdata['m'] = m
+        trdata['area'] = trdata['x'] * (self.prmtrs['geometry_rscale'] ** 2)
+        trdata.to_hdf(filename, key='trdata')
+
+    def get_tracklet_data_one_movie(self, m, dlc=False, dlcproject=None, only_ants=True, only_singles=False):
         
         print('Loading data for movie ' + str(m))
         
@@ -528,18 +561,17 @@ class axExperiment:
         dlcdir = self.get_dlc_dir(dlcproject)
         
         if not parted:
-            trdata = read_mat(join(self.trackletdir,'trdata_' + str(m) + '.mat'))  
+            trdata = read_mat(join(self.trackletdir, 'trdata_' + str(m) + '.mat'))
             if dlc:
                 dlcdata = get_dlc_data_from_file(join(dlcdir, 'predictions_' + str(m) + '.h5'))
         else:            
             parts = self.get_parts(m)
-            trdata = [read_mat(join(self.trackletdir,'trdata_' + str(m) + '_p' + str(p) + '.mat')) for p in parts]
+            trdata = [read_mat(join(self.trackletdir, 'trdata_' + str(m) + '_p' + str(p) + '.mat')) for p in parts]
             trdata = {k: v for d in trdata for k, v in d.items()}
             if dlc:
                 dlcdata = [get_dlc_data_from_file(join(dlcdir, 'predictions_' + str(m) + '_p' + str(p) + '.h5')) for p in parts]
                 dlcdata = {k: v for d in dlcdata for k, v in d.items()}
-        
-        
+
         # if dlc, filter out tracklets without predictions (i.e. not singles)
         if dlc:
             trdata = {k: v for k, v in trdata.items() if k in dlcdata.keys()}
@@ -548,7 +580,7 @@ class axExperiment:
         autoids = self.get_autoids([m])
         
         if only_ants:
-            noant_tracklets = [k for k, v in autoids.items() if v in self.get_labels()['noant_labels']]
+            noant_tracklets = [k for k, v in autoids.items() if v in self.labels['noant_labels']]
             trdata = {k: v for k, v in trdata.items() if k not in noant_tracklets}
             if dlc:
                 dlcdata = {k: v for k, v in dlcdata.items() if k in ant_tracklets}
@@ -561,39 +593,38 @@ class axExperiment:
                 v = np.expand_dims(v, axis=0)
             fi, ff = self.parse_tracklet_name(tracklet)
             aid = autoids[tracklet] if tracklet in autoids.keys() else ''
-            s = (aid in self.get_labels()['ant_labels'] and not aid=='MultiAnt') or (aid in self.get_labels()['other_labels'])
+            s = (aid in self.labels['ant_labels'] and not aid == 'MultiAnt') or (aid in self.labels['other_labels'])
             index = list(range(v.shape[0]))
             data = {'tracklet': pd.Series(tracklet, index),
-                    'frame': pd.Series(list(range(fi,ff+1))),
+                    'frame': pd.Series(list(range(fi, ff+1))),
                     'frameix': pd.Series(list(range(ff-fi+1))),
-                    'area': pd.Series(v[:,0]),
-                    'x': pd.Series(v[:,1]),
-                    'y':pd.Series(v[:,2]),
-                    'majorax':pd.Series(v[:,3]),
-                    'eccentricity':pd.Series(v[:,4]),
-                    'bbx0':pd.Series(v[:,7]),
-                    'bby0':pd.Series(v[:,8]),
-                    'or': pd.Series(v[:,5]),
+                    'area': pd.Series(v[:, 0]),
+                    'x': pd.Series(v[:, 1]),
+                    'y': pd.Series(v[:, 2]),
+                    'majorax': pd.Series(v[:, 3]),
+                    'eccentricity': pd.Series(v[:, 4]),
+                    'bbx0': pd.Series(v[:, 7]),
+                    'bby0': pd.Series(v[:, 8]),
+                    'or': pd.Series(v[:, 5]),
                     'autoid': pd.Series(aid, index),
                     'single': pd.Series(s, index)
                     }
             
             data = pd.DataFrame(data)
-            data = data[['tracklet','frame','frameix','x','y','majorax','eccentricity','area','or','bbx0','bby0','autoid','single']]
+            data = data[['tracklet', 'frame', 'frameix', 'x', 'y', 'majorax', 'eccentricity', 'area', 'or', 'bbx0', 'bby0', 'autoid', 'single']]
             
             if only_singles:
                 data = data.loc[data['single']]
             
             if dlc:
                 data = pd.concat([data, dlcdata[tracklet]], axis=1, ignore_index=False)
-                
-            
+
             dfs.append(pd.DataFrame(data))
             
         df = pd.concat(dfs, ignore_index=False)
         #mix = pd.MultiIndex(df[['tracklet','frame','frameix']])
         #df.reindex(mix)
-        df.set_index(['tracklet','frame','frameix'], drop=False, inplace=True, verify_integrity=True)
+        df.set_index(['tracklet', 'frame', 'frameix'], drop=False, inplace=True, verify_integrity=True)
         
         return df
             

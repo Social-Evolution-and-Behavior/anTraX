@@ -36,6 +36,9 @@ def to_float(arg):
 @parser.value_converter
 def parse_hpc_options(s):
 
+    if type(s) == dict:
+        return s
+
     if s is None or s == ' ':
         return {}
 
@@ -492,29 +495,11 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
-def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False):
+def exportxy(explist, *, movlist=None, session=None, nw=2, mcr=False, hpc=False, hpc_options={}, missing=False, dry=False):
     """Export xy data"""
 
-    explist = parse_explist(explist, session)
-    mcr = mcr or ANTRAX_USE_MCR
-    hpc = hpc or ANTRAX_HPC
-
-    Q = MatlabQueue(nw=nw, mcr=mcr)
-
-    for e in explist:
-        movlist1 = e.movlist if movlist is None else movlist
-        for m in movlist1:
-            w = {'fun': 'export_single_movie'}
-            w['args'] = [e.expdir, m, 'trackingdirname', e.session]
-            w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '.log')
-            w['str'] = 'export movie ' + str(m)
-            Q.put(w)
-
-    # wait for tasks to complete
-    Q.join()
-
-    # close
-    Q.stop_workers()
+    solve(explist, movlist=movlist, session=session, nw=nw, mcr=mcr, hpc=hpc, step=3, hpc_options=hpc_options,
+          missing=missing, dry=dry)
 
 
 def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False,
