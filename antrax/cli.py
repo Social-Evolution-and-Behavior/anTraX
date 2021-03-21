@@ -99,6 +99,31 @@ def compile_antrax():
     compile_antrax_executables()
 
 
+def update_antrax(*, tag=None, branch=None):
+
+    # save current directory
+    cwd = os.getcwd()
+
+    # change to git directory
+    os.chdir(ANTRAX_PATH)
+
+    # run git command(s)
+    os.system('git fetch --all --tags --prune')
+    os.system('git pull')
+
+    if branch is not None:
+        os.system('git checkout ' + branch)
+
+    if tag is not None:
+        os.system('git checkout ' + tag)
+
+    # run pip
+    os.system('pip install -e .')
+
+    # change directory back
+    os.chdir(cwd)
+
+
 def configure(expdir=None, *, mcr=ANTRAX_USE_MCR):
     """Launch antrax configuration app"""
 
@@ -624,6 +649,7 @@ def main():
         'exportxy': exportxy,
         'dlc': dlc,
         'pair-search': pair_search,
+        'update': update_antrax,
         'compile': compile_antrax
     }
 
