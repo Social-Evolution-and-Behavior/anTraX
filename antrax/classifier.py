@@ -166,6 +166,10 @@ class axClassifier:
 
         self.modelfile = None
 
+        self.prediction_threads = []
+        self.q_tracklets = None
+        self.q_predictions = None
+
 
     def reset_model(self):
 
@@ -357,7 +361,17 @@ class axClassifier:
                     self.q_tracklets.task_done()
                     printProgressBar(self.ntracklets_in_current_file - self.q_tracklets.qsize(), self.ntracklets_in_current_file, prefix='Progress:', suffix='Complete', length=50)
 
-    def predict_images_file(self, imagefile, outfile=None, usepassed=False, verbose=False):
+    def predict_images_file(self, imagefile, outfile=None, usepassed=False, verbose=False, nw=1):
+
+        self.q_tracklets = queue.Queue()
+        self.q_predictions = queue.Queue()
+
+        self.prediction_threads = []
+
+        for i in range(nw):
+            t = threading.Thread(target=self.prediction_worker)
+            t.start()
+            self.prediction_threads.append(t)
 
         m = int(imagefile.rstrip('.mat').split('_')[1])
 
@@ -402,6 +416,17 @@ class axClassifier:
                 writer.writerow(p)
                 self.q_predictions.task_done()
 
+        report('I', 'Stopping workers')
+        for i in range(nw):
+            self.q_tracklets.put(None)
+
+        for t in self.prediction_threads:
+            t.join()
+
+        self.prediction_threads = []
+        self.q_tracklets = None
+        self.q_predictions = None
+
     def predict_experiment(self, expdir, session=None, movlist='all', missing=False,
                            outdir=None, usepassed=False, verbose=None, nw=1):
 
@@ -439,32 +464,15 @@ class axClassifier:
 
         report('D', 'imagefiles ' + str(self.imagefiles))
 
-        self.q_tracklets = queue.Queue()
-        self.q_predictions = queue.Queue()
-
-        self.prediction_threads = []
-
-        for i in range(nw):
-            t = threading.Thread(target=self.prediction_worker)
-            t.start()
-            self.prediction_threads.append(t)
-
         for f in self.imagefiles:
             m = int(f.rstrip('.mat').split('_')[1])
             report('I', 'Classifying tracklets of movie ' + str(m))
             outfile = join(self.outdir, f.replace('.mat', '.csv').replace('images', 'autoids'))
             report('D', 'output file is ' + outfile)
             if not missing or not isfile(outfile):
-                self.predict_images_file(f, usepassed=usepassed, verbose=verbose, outfile=outfile)
+                self.predict_images_file(f, usepassed=usepassed, verbose=verbose, outfile=outfile, nw=nw)
             else:
                 report('I', '...autoids file exists, skipping')
-
-        report('I', 'Stopping workers')
-        for i in range(nw):
-            self.q_tracklets.put(None)
-
-        for t in self.prediction_threads:
-            t.join()
 
         report('G', 'Done!')
 
