@@ -371,7 +371,7 @@ class axClassifier:
 
         self.ntracklets_in_current_file = len(self.imagefile_f)
 
-        print('         ...' + str(self.ntracklets_in_current_file) + ' tracklets to classify in movie' )
+        print('         ...' + str(self.ntracklets_in_current_file) + ' tracklets to classify in file' )
 
         if verbose:
             printProgressBar(0, self.ntracklets_in_current_file, prefix='Progress:', suffix='Complete', length=50)
@@ -392,6 +392,8 @@ class axClassifier:
         if outfile is None:
             outfile = os.path.join(self.outdir, 'autoids_' + str(m) + '.csv')
 
+        report('D', 'output file is ' + outfile)
+
         with open(outfile, "w") as output:
             writer = csv.writer(output, lineterminator='\n')
             writer.writerow(['tracklet', 'label', 'score', 'best_frame'])
@@ -400,7 +402,8 @@ class axClassifier:
                 writer.writerow(p)
                 self.q_predictions.task_done()
 
-    def predict_experiment(self, expdir, session=None, movlist='all', outdir=None, usepassed=False, verbose=None, nw=1):
+    def predict_experiment(self, expdir, session=None, movlist='all', missing=False,
+                           outdir=None, usepassed=False, verbose=None, nw=1):
 
         if type(expdir) == axExperiment:
             if session is not None and not expdir.session == session:
@@ -415,13 +418,17 @@ class axClassifier:
         self.imagedir = ex.imagedir
         self.outdir = outdir if outdir is not None else ex.labelsdir
 
+        report('D', 'outdir  is ' + self.outdir)
+
         mkdir(self.outdir)
 
         self.imagefiles = [f for f in listdir(self.imagedir) if isfile(join(self.imagedir, f))]
         self.imagefiles = [f for f in self.imagefiles if 'images' in f]
+
         movieindex = [int(x.rstrip('.mat').split('_')[1]) for x in self.imagefiles]
         self.imagefiles = [x for _, x in sorted(zip(movieindex, self.imagefiles))]
         movieindex = sorted(movieindex)
+
         if movlist is not None and not movlist == 'all':
             if isinstance(movlist, str):
                 movlist = [int(m) for m in movlist.split(',')]
@@ -429,6 +436,8 @@ class axClassifier:
 
         if verbose is None:
             verbose = len(self.imagefiles) == 1
+
+        report('D', 'imagefiles ' + str(self.imagefiles))
 
         self.q_tracklets = queue.Queue()
         self.q_predictions = queue.Queue()
@@ -443,8 +452,12 @@ class axClassifier:
         for f in self.imagefiles:
             m = int(f.rstrip('.mat').split('_')[1])
             report('I', 'Classifying tracklets of movie ' + str(m))
-            outfile = f.replace(self.imagedir, self.outdir).replace('.mat', '.csv').replace('images', 'autoids')
-            self.predict_images_file(f, usepassed=usepassed, verbose=verbose, outfile=outfile)
+            outfile = join(self.outdir, f.replace('.mat', '.csv').replace('images', 'autoids'))
+            report('D', 'output file is ' + outfile)
+            if not missing or not isfile(outfile):
+                self.predict_images_file(f, usepassed=usepassed, verbose=verbose, outfile=outfile)
+            else:
+                report('I', '...autoids file exists, skipping')
 
         report('I', 'Stopping workers')
         for i in range(nw):
