@@ -459,28 +459,25 @@ class axClassifier:
                 movlist = [int(m) for m in movlist.split(',')]
             self.imagefiles = [f for f in self.imagefiles if movieindex[self.imagefiles.index(f)] in movlist]
 
-        if missing:
-            self.imagefiles = [f for f in self.imagefiles if not isfile(join(self.outdir, f.replace('.mat', '.csv').replace('images', 'autoids')))]
-
-        report('I', 'found ' + str(len(self.imagefiles)) + ' image files to classify')
-
         if verbose is None:
             verbose = len(self.imagefiles) == 1
 
+        report('D', 'imagefiles ' + str(self.imagefiles))
+
         for f in self.imagefiles:
             m = int(f.rstrip('.mat').split('_')[1])
-            if ex.is_parted(m):
-                p = int(f.rstrip('.mat').split('_')[2][1:])
-                report('I', 'Classifying tracklets of movie ' + str(m) + ' part ' + str(p))
-            else:
-                report('I', 'Classifying tracklets of movie ' + str(m))
+            report('I', 'Classifying tracklets of movie ' + str(m))
             outfile = join(self.outdir, f.replace('.mat', '.csv').replace('images', 'autoids'))
             report('D', 'output file is ' + outfile)
-            self.predict_images_file(f, usepassed=usepassed, verbose=verbose, outfile=outfile, nw=nw)
+            if not missing or not isfile(outfile):
+                self.predict_images_file(f, usepassed=usepassed, verbose=verbose, outfile=outfile, nw=nw)
+            else:
+                report('I', '...autoids file exists, skipping')
 
         report('G', 'Done!')
 
     def validate(self, examplesdir, force=False, augment=False):
+
 
         #
         if not self.trained:
