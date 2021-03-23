@@ -276,7 +276,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, o
             w = {'fun': 'link_across_movies'}
             w['args'] = [e.expdir, 'trackingdirname', e.session]
             w['diary'] = join(e.logsdir, 'matlab_link_across_movies.log')
-            w['str'] = 'link scross movies'
+            w['str'] = 'link across movies'
             Q.put(w)
 
         # close
