@@ -482,7 +482,7 @@ class axClassifier:
 
         if self.trained and (classes != self.classes):
 
-            print('-E- Class list in example dir does not match classifier. Use --from-scratch to train a new model')
+            print('-E- Class list in example dir does not match classifier. Use --scratch to train a new model')
             return
 
         # create data generators
