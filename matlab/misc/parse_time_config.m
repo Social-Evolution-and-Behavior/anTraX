@@ -12,16 +12,21 @@ parse(p,Trck,varargin{:});
 file = [Trck.paramsdir,'ids.cfg'];
 
 if exist(file,'file')
-    T=readtable(file,'FileType','text','ReadVariableNames',false,'Delimiter',' ');
+    T = readtable(file,'FileType','text','ReadVariableNames',false,'Delimiter',' ');
 else
-    T = [];
+    T = table([],[],[],[],[],'VariableNames', {'command','colony','id','from','to'});
     return
 end
+
+if isempty(T)
+    T = table([],[],[],[],[],'VariableNames', {'command','colony','id','from','to'});
+    return
+end
+
 
 if Trck.get_param('geometry_multi_colony')
 
     T.Properties.VariableNames={'command','colony','id','from','to'};
-    
     
 elseif size(T,2)==5
     
