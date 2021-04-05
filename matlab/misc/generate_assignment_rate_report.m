@@ -1,6 +1,14 @@
-function total_assigment_rate = generate_assignment_rate_report(Trck, XY)
+function total_assigment_rate = generate_assignment_rate_report(Trck, XY, frames)
 
 T = parse_time_config(Trck,'command','remove');
+
+T.from = T.from.f;
+T.to = T.to.f;
+
+T = T(T.from <= frames(end),:);
+T = T(T.to >= frames(1),:);
+T.from(T.from < frames(1)) = 1;
+T.to(T.to > frames(end)) = frames(end);
 
 
 total_frames_to_assign = 0;
