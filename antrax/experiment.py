@@ -140,6 +140,11 @@ class axExperiment:
             files = [x for x in files if '_p' not in os.path.basename(x)]
             a = [int(x.split('/')[-1].split('.mat')[0].split('_')[-1]) for x in files]
             a = list(set(a))
+        elif ftype == 'xy_untagged_h5':
+            files = glob(join(self.sessiondir, 'antdata/xy*_untagged.h5')) + glob(join(self.sessiondir, 'antdata/*/xy*_untagged.h5'))
+            files = [x for x in files if '_p' not in os.path.basename(x)]
+            a = [int(x.split('/')[-1].split('.h5')[0].split('_')[-2]) for x in files]
+            a = list(set(a))
         elif ftype == 'predictions' or ftype == 'dlc':
             files = glob(join(self.sessiondir, 'deeplabcut*/predictions*.h5'))
             a = [int(x.split('/')[-1].split('.h5')[0].split('_')[-1]) for x in files]
@@ -549,6 +554,11 @@ class axExperiment:
 
         filename = join(self.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.h5')
         trdata = self.get_tracklet_data_one_movie(m, only_ants=True)
+
+        if trdata is None:
+            report('E', 'Failed getting tracklet data, aborting')
+            return
+
         trdata['x'] = trdata['x'] * self.prmtrs['geometry_rscale']
         trdata['y'] = trdata['x'] * self.prmtrs['geometry_rscale']
         trdata['m'] = m
@@ -561,18 +571,22 @@ class axExperiment:
         
         parted = self.is_parted(m)
         dlcdir = self.get_dlc_dir(dlcproject)
-        
-        if not parted:
-            trdata = read_mat(join(self.trackletdir, 'trdata_' + str(m) + '.mat'))
-            if dlc:
-                dlcdata = get_dlc_data_from_file(join(dlcdir, 'predictions_' + str(m) + '.h5'))
-        else:            
-            parts = self.get_parts(m)
-            trdata = [read_mat(join(self.trackletdir, 'trdata_' + str(m) + '_p' + str(p) + '.mat')) for p in parts]
-            trdata = {k: v for d in trdata for k, v in d.items()}
-            if dlc:
-                dlcdata = [get_dlc_data_from_file(join(dlcdir, 'predictions_' + str(m) + '_p' + str(p) + '.h5')) for p in parts]
-                dlcdata = {k: v for d in dlcdata for k, v in d.items()}
+
+        try:
+            if not parted:
+                trdata = read_mat(join(self.trackletdir, 'trdata_' + str(m) + '.mat'))
+                if dlc:
+                    dlcdata = get_dlc_data_from_file(join(dlcdir, 'predictions_' + str(m) + '.h5'))
+            else:
+                parts = self.get_parts(m)
+                trdata = [read_mat(join(self.trackletdir, 'trdata_' + str(m) + '_p' + str(p) + '.mat')) for p in parts]
+                trdata = {k: v for d in trdata for k, v in d.items()}
+                if dlc:
+                    dlcdata = [get_dlc_data_from_file(join(dlcdir, 'predictions_' + str(m) + '_p' + str(p) + '.h5')) for p in parts]
+                    dlcdata = {k: v for d in dlcdata for k, v in d.items()}
+        except OSError:
+            report('E', 'Failed loading data, please verify your data integrity')
+            return None
 
         # if dlc, filter out tracklets without predictions (i.e. not singles)
         if dlc:

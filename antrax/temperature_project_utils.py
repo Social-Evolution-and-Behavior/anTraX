@@ -59,12 +59,15 @@ def compute_measures(ex, movlist=None):
     td.save_frmdata()
 
 
-def exportxy_untagged(ex, movlist=None):
+def exportxy_untagged(ex, movlist=None, missing=False):
 
     report('I', 'Exporting xy for movie ' + str(movlist))
 
     if movlist is None:
         movlist = ex.movlist
+
+    if missing:
+        movlist = [m for m in ex.get_missing(ftype='xy_untagged_h5') if m in movlist]
 
     for m in movlist:
         ex.export_xy_untagged_one_movie(m)

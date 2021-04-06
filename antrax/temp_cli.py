@@ -175,7 +175,7 @@ def extract_events(explist, *, movlist: parse_movlist=None, nw=2, hpc=ANTRAX_HPC
     explist = parse_explist(explist, session)
 
 
-def exportxy_untagged(explist, *, movlist: parse_movlist=None, nw=2, session=None,
+def exportxy_untagged(explist, *, movlist: parse_movlist=None, nw=2, session=None, missing=False,
                       hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={}):
 
     explist = parse_explist(explist, session)
@@ -184,6 +184,9 @@ def exportxy_untagged(explist, *, movlist: parse_movlist=None, nw=2, session=Non
 
     if movlist is None:
         movlist = ex.movlist
+
+    if missing:
+        movlist = [m for m in ex.get_missing(ftype='xy_untagged_h5') if m in movlist]
 
     Q = AnalysisQueue(nw=nw)
 
