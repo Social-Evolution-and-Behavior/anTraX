@@ -528,7 +528,9 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 named_pairs(i).dist = pairs(i,3);
             end
             
-            pairs = pairs(argsort(pairs(:,3)),:);
+            if ~isempty(pairs)
+                pairs = pairs(argsort(pairs(:,3)),:);
+            end
             
             G.pairs = pairs;
             
