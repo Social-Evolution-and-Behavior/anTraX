@@ -741,8 +741,19 @@ classdef  tracklet < handle  &  matlab.mixin.SetGet & matlab.mixin.Copyable & ma
                 if ~isfile(f)
                     continue
                 end
+                
                 T = readtable(f);
                 
+                % patch to a weird case when sometimes matlab doesnt
+                % understand the csv structure (GitHub issue #20)
+                if ~ismember('tracklet', T.Properties.VariableNames)
+                    T = readtable(f,'Delimiter',',');
+                end
+                
+                if isempty(T)
+                    return
+                end
+                                    
                 ix = ismember(T.tracklet,mtrjnames);
                 T = T(ix,:);
                 
