@@ -484,6 +484,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
             report('I','done distance mat');
             sset = find(din>1 & ~ignore);
             
+            pairs = {};
             
             for six=1:length(sset)%,G.NumWorkers)
                 
