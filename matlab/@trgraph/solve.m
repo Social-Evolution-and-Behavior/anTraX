@@ -533,6 +533,8 @@ end
 nnp=nn;
 
 report('I','Biconnected components condition (positive)')
+
+if ~isempty(G.pairs)
 G.pairs = G.pairs(argsort(G.pairs(:,3)),:);
 while true
     n=0;
@@ -568,6 +570,7 @@ while true
     if n==0
         break
     end
+end
 end
 
 if nn==nnp
