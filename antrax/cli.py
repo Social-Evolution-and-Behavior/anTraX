@@ -268,8 +268,12 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
         for e in explist:
 
             eglist = glist if glist is not None else e.glist
+
             emlist = [e.ggroups[g - 1] for g in eglist]
             emlist = [m for grp in emlist for m in grp]
+
+            if movlist is not None:
+                emlist = [m for m in emlist if m in movlist]
 
             hpc_options['dry'] = dry
             hpc_options['classifier'] = classifier
