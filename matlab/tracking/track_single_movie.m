@@ -11,6 +11,7 @@ addParameter(p,'batchparams',[]);
 addParameter(p,'path_to_antrax',[]);
 addParameter(p,'trackingdirname',[]);
 addParameter(p,'moviepart',[]);
+addParameter(p,'totalparts',[]);
 addParameter(p,'diary',[]);
 
 % parse inputs
@@ -26,6 +27,7 @@ Trck.er.init_buf(0);
 %% set frame range to track
 
 m = p.Results.m;
+
 if ischar(m)
     m = str2double(m);
 end
@@ -40,7 +42,24 @@ if ischar(to)
     to = str2double(to);
 end
 
-if ~isempty(m) && (~isempty(from) || ~isempty(to))
+moviepart = p.Results.moviepart;
+if ischar(moviepart)
+    moviepart = str2double(moviepart);
+end
+
+totalparts = p.Results.totalparts;
+if ischar(totalparts)
+    totalparts = str2double(totalparts);
+end
+
+if ~isempty(m) && ~isempty(moviepart) && ~isempty(totalparts)
+    nframes_m = Trck.er.movies_info(m).nframes;
+    nframes_p = ceil(nframes_m/totalparts);
+    mfi = (moviepart - 1) * nframes_p + 1;
+    mff = min([moviepart * nframes_p, nframes_m]);
+    ti = trtime(Trck, m, mfi);
+    tf = trtime(Trck, m, mff);
+elseif ~isempty(m) && (~isempty(from) || ~isempty(to))
     ti = trtime(Trck,max([from,Trck.get_param('videos_first_frame_to_track')]));
     tf = trtime(Trck,min([to,Trck.er.totalframenum]));
 elseif ~isempty(m)
