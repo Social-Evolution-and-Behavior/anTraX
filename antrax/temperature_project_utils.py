@@ -10,7 +10,7 @@ from skimage.draw import circle_perimeter, circle, line, line_aa
 from PIL import Image
 from os.path import join, isdir, isfile
 import os
-
+from math import ceil
 
 from .utils import *
 from .data import axAntData, axTrackletData
@@ -21,40 +21,56 @@ from .analysis_functions import *
 ### cli functions ###
 
 
-def compute_medians(ex, movlist=None):
+def compute_medians(ex, movlist=None, nants=None):
 
     report('I', 'Computing medians for movie ' + str(movlist))
 
     if movlist is None:
         movlist = ex.movlist
 
-    td = axTempData(ex, movlist=movlist)
+    td = axTempData(ex, movlist=movlist, reset_frmdata=True, nants=nants)
     td.compute_medians()
     td.save_frmdata()
 
 
-def compute_nest_location(ex, movlist=None, K=36001):
+def compute_nest_location(ex, movlist=None, K=36001, nants=None):
 
-    report('I', 'Computing nest location for experiment ' + ex.expname)
+    report('I', 'Computing nest location for video ' + str(movlist))
 
     if movlist is None:
         movlist = ex.movlist
-    report('I', '   ...Loading')
-    td = axTempData(ex, movlist=movlist)
-    report('I', '   ...Computing')
+
+    # expand movlist if possible
+    video_length = ex.movies_info.iloc[movlist[0]-1].nframes
+    extend_by = ceil(K/video_length)
+
+    orig_movlist = movlist.copy()
+
+    for _ in range(extend_by):
+
+        if max(movlist) < max(ex.movlist):
+            movlist.append(max(movlist) + 1)
+
+        if min(movlist) > min(ex.movlist):
+            movlist.append(min(movlist) - 1)
+
+    movlist = sorted(list(set(movlist)))
+
+    td = axTempData(ex, movlist=movlist, nants=nants)
     td.nest_median_filtering(K=K)
-    report('I', '   ...Saving')
-    td.save_frmdata()
 
+    td.save_frmdata(movlist=orig_movlist, tmp=True)
 
-def compute_measures(ex, movlist=None):
+    report('I', 'Finished nest location for video ' + str(orig_movlist))
+
+def compute_measures(ex, movlist=None, nants=None):
 
     report('I', 'Computing measures for movie ' + str(movlist))
 
     if movlist is None:
         movlist = ex.movlist
 
-    td = axTempData(ex, movlist=movlist)
+    td = axTempData(ex, movlist=movlist, nants=nants)
     td.compute_measures()
     td.save_frmdata()
 
@@ -233,14 +249,7 @@ class axTempData(axTrackletData):
 
     def __init__(self, ex, movlist=None, nants=None, verbose=False, reset_frmdata=False):
 
-        super().__init__(ex, movlist=movlist, verbose=verbose)
-
-        if nants is None and ex.prmtrs['tagged']:
-            nants = len(ex.antlist)
-        elif nants is None:
-            nants = ex.nants
-
-        self.nants = nants
+        super().__init__(ex, movlist=movlist, verbose=verbose, nants=nants)
 
         # check if frmdata files exist
         frmdatadir = join(ex.sessiondir, 'frmdata')
@@ -273,13 +282,20 @@ class axTempData(axTrackletData):
 
         self.frmdata = load_frmdata(self.ex, movlist=self.movlist)
 
-    def save_frmdata(self):
+    def save_frmdata(self, movlist=None, tmp=False):
 
         frmdatadir = join(self.ex.sessiondir, 'frmdata')
 
-        for m in self.movlist:
+        if movlist is None:
+            movlist = self.movlist
+
+        for m in movlist:
 
             filename = join(frmdatadir, 'frmdata_' + str(m) + '.csv')
+
+            if tmp:
+
+                filename = filename + '.tmp'
 
             fi = self.ex.movies_info[self.ex.movies_info['index'] == m]['fi'].values[0]
             ff = self.ex.movies_info[self.ex.movies_info['index'] == m]['ff'].values[0]
@@ -290,8 +306,17 @@ class axTempData(axTrackletData):
 
     def compute_measures(self):
 
+        if self.trdata.shape[0] == 0:
+
+            self.frmdata['vout'] = np.nan
+            self.frmdata['nout'] = np.nan
+            self.frmdata['fracout'] = np.nan
+
+            return
+
         # single
-        self.trdata['single'] = self.tracklet_table.iloc[self.trdata['tracklet'] - 1]['single'].values
+        if 'single' not in self.trdata:
+            self.trdata['single'] = self.tracklet_table.iloc[self.trdata['tracklet'] - 1]['single'].values
         self.trdata['w'] = self.trdata['area'] / self.groupByFrame['area'].transform('sum')
         self.trdata['nants'] = self.nants * self.trdata['w']
         self.frmdata['total_area'] = self.groupByFrame['area'].sum()
@@ -311,6 +336,17 @@ class axTempData(axTrackletData):
 
     def compute_medians(self):
 
+        if self.trdata.shape[0] == 0:
+
+            self.trdata['w'] = np.nan
+            self.trdata['nants'] = np.nan
+            self.frmdata['total_area'] = np.nan
+            self.frmdata['medx'] = np.nan
+            self.frmdata['medy'] = np.nan
+            self.frmdata['majmax'] = np.nan
+
+            return
+
         # blob weight and nants estimation
         self.trdata['w'] = self.trdata['area'] / self.groupByFrame['area'].transform('sum')
         self.trdata['nants'] = self.nants * self.trdata['w']
@@ -325,6 +361,14 @@ class axTempData(axTrackletData):
             self.frmdata['majmax'] = self.frmdata['majmax'].astype('float') * self.ex.prmtrs['geometry_rscale']
 
     def nest_median_filtering(self, K=36001):
+
+        if self.trdata.shape[0] == 0:
+
+            self.frmdata['nestx'] = np.nan
+            self.frmdata['nesty'] = np.nan
+            self.frmdata['nestr'] = np.nan
+
+            return
 
         fun = lambda xx: scipy.signal.medfilt(xx, kernel_size=K)
 

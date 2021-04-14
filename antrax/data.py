@@ -316,7 +316,7 @@ class axAntData:
 
 class axTrackletData:
 
-    def __init__(self, ex, movlist=None, verbose=False):
+    def __init__(self, ex, movlist=None, verbose=False, nants=None):
 
         self.ex = ex
         self.trdata = None
@@ -328,10 +328,17 @@ class axTrackletData:
         else:
             self.movlist = movlist
 
+        if nants is None and ex.prmtrs['tagged']:
+            nants = len(ex.antlist)
+        elif nants is None:
+            nants = ex.nants
+
+        self.nants = nants
+
         self.load(verbose=verbose)
 
         self.groupByFrame = self.trdata.groupby(by='frame', axis=0)
-        self.groupByTracklet = self.trdata.groupby(by='tracklet')
+        #self.groupByTracklet = self.trdata.groupby(by='tracklet', axis=0)
 
     def load(self, verbose=False):
 
@@ -342,10 +349,19 @@ class axTrackletData:
             if verbose:
                 report('I', 'Loading data of movie ' + str(m))
 
-            filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.h5')
-            df = pd.read_hdf(filename, key='trdata')
+            try:
+                filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.h5')
+                df = pd.read_hdf(filename, key='trdata')
+            except:
+                report('W', 'Could not load xy file for video ' + str(m))
+                column_names = ['tracklet', 'frame', 'frameix', 'x', 'y', 'majax', 'eccentricity', 'area', 'or', 'bbx0', 'bby0', 'autoid', 'single', 'm']
+                df = pd.DataFrame(columns=column_names)
+                df.set_index(['tracklet', 'frame', 'frameix'], drop=False, inplace=True, verify_integrity=True)
+
             df.rename_axis(['tracklet', 'f', 'frameix'], axis='index', inplace=True)
-            df.drop('tracklet', axis=1, inplace=True)
+
+
+            # df.drop('tracklet', axis=1, inplace=True)
 
             # if not self.ex.is_parted(m):
             #     filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.mat')
@@ -375,4 +391,11 @@ class axTrackletData:
             mdfs.append(df)
 
         self.trdata = pd.concat(mdfs, axis=0)
-        self.tracklet_table = self.ex.get_tracklet_table(self.movlist, type='untagged')
+
+        if 'majorax' in self.trdata:
+            self.trdata.rename(columns={'majorax': 'majax'}, inplace=True)
+
+        try:
+            self.tracklet_table = self.ex.get_tracklet_table(self.movlist, type='untagged')
+        except:
+            report('W', 'Could not read tracklet table ')

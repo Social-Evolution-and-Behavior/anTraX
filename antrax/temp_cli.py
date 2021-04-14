@@ -198,13 +198,16 @@ def exportxy_untagged(explist, *, movlist: parse_movlist=None, nw=2, session=Non
     Q.stop_workers()
 
 
-
 def workflow_untagged(explist, *, movlist: parse_movlist=None, nw=2, nants=0, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
-                missing=False, session=None, dry=False, window=36001):
+                missing=False, session=None, dry=False, window=36001, step='all'):
 
     explist = parse_explist(explist, session)
 
     ex = explist[0]
+
+    if nants == 0:
+        report('E', 'Please provide number of ants with --nants')
+        return
 
     if nants > 0:
         ex.nants = nants
@@ -212,24 +215,40 @@ def workflow_untagged(explist, *, movlist: parse_movlist=None, nw=2, nants=0, hp
     if movlist is None:
         movlist = ex.movlist
 
+    if missing:
+        movlist = [m for m in ex.get_missing(ftype='frmdata') if m in movlist]
+        report('I', 'Running for videos ' + str(movlist))
+
     Q = AnalysisQueue(nw=nw)
 
-    for m in movlist:
-        item = ('tpu.compute_medians', [ex], {'movlist': [m]})
-        Q.put(item)
+    if step in ['all', '1', 'compute_medians']:
+        for m in movlist:
+            item = ('tpu.compute_medians', [ex], {'movlist': [m]})
+            Q.put(item)
 
-    Q.join()
+        Q.join()
 
-    item = ('tpu.compute_nest_location', [ex], {'movlist': movlist, 'K': window})
-    Q.put(item)
+    if step in ['all', '2', 'compute_nest_location']:
+        for m in movlist:
+            item = ('tpu.compute_nest_location', [ex], {'movlist': [m], 'K': window})
+            Q.put(item)
 
-    Q.join()
+        Q.join()
 
-    for m in movlist:
-        item = ('tpu.compute_measures', [ex], {'movlist': [m]})
-        Q.put(item)
+        frmdatadir = join(ex.sessiondir, 'frmdata')
+        for m in movlist:
+            f1 = join(frmdatadir, 'frmdata_' + str(m) + '.csv.tmp')
+            f2 = join(frmdatadir, 'frmdata_' + str(m) + '.csv')
+            os.remove(f2)
+            os.rename(f1, f2)
 
-    Q.join()
+    if step in ['all', '3', 'compute_measures']:
+        for m in movlist:
+            item = ('tpu.compute_measures', [ex], {'movlist': [m]})
+            Q.put(item)
+
+        Q.join()
+
     Q.stop_workers()
 
 

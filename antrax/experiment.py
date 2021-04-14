@@ -149,6 +149,10 @@ class axExperiment:
             files = glob(join(self.sessiondir, 'deeplabcut*/predictions*.h5'))
             a = [int(x.split('/')[-1].split('.h5')[0].split('_')[-1]) for x in files]
             a = list(set(a))
+        elif ftype == 'frmdata':
+            files = glob(join(self.sessiondir, 'frmdata/frmdata*.csv'))
+            a = [int(x.split('/')[-1].split('.csv')[0].split('_')[-1]) for x in files]
+            a = list(set(a))
         else:
             print('Something wrong')
             a = []
@@ -542,7 +546,7 @@ class axExperiment:
         
         trdata = []
         for m in movlist:
-            trdatam = self.get_tracklet_data_one_movie(m, dlc=dlc, dlcproject=dlcproject, only_ants=only_ants, only_singles=only_singles)
+            trdatam, tracklet_table = self.get_tracklet_data_one_movie(m, dlc=dlc, dlcproject=dlcproject, only_ants=only_ants, only_singles=only_singles)
             trdata.append(trdatam)
         
         # this contains the frame data
@@ -553,7 +557,7 @@ class axExperiment:
     def export_xy_untagged_one_movie(self, m):
 
         filename = join(self.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.h5')
-        trdata = self.get_tracklet_data_one_movie(m, only_ants=True)
+        trdata, tracklet_table = self.get_tracklet_data_one_movie(m, only_ants=True)
 
         if trdata is None:
             report('E', 'Failed getting tracklet data, aborting')
@@ -565,10 +569,11 @@ class axExperiment:
         trdata['area'] = trdata['x'] * (self.prmtrs['geometry_rscale'] ** 2)
         trdata.to_hdf(filename, key='trdata')
 
+        tracklet_table_filename = join(self.antdatadir, 'tracklets_table_' + str(m) + '_' + str(m) + '_untagged.csv')
+        tracklet_table.to_csv(tracklet_table_filename)
+
     def get_tracklet_data_one_movie(self, m, dlc=False, dlcproject=None, only_ants=True, only_singles=False):
-        
-        print('Loading data for movie ' + str(m))
-        
+
         parted = self.is_parted(m)
         dlcdir = self.get_dlc_dir(dlcproject)
 
@@ -585,12 +590,14 @@ class axExperiment:
                     dlcdata = [get_dlc_data_from_file(join(dlcdir, 'predictions_' + str(m) + '_p' + str(p) + '.h5')) for p in parts]
                     dlcdata = {k: v for d in dlcdata for k, v in d.items()}
         except OSError:
-            report('E', 'Failed loading data, please verify your data integrity')
-            return None
+            report('E', 'Failed loading data of video ' + str(m) + ', please verify your data integrity')
+            return None, None
 
         # if dlc, filter out tracklets without predictions (i.e. not singles)
         if dlc:
             trdata = {k: v for k, v in trdata.items() if k in dlcdata.keys()}
+
+        report('I', 'Finished loading data for movie ' + str(m))
         
         # filter by classification
         autoids = self.get_autoids([m])
@@ -599,9 +606,13 @@ class axExperiment:
             noant_tracklets = [k for k, v in autoids.items() if v in self.labels['noant_labels']]
             trdata = {k: v for k, v in trdata.items() if k not in noant_tracklets}
             if dlc:
-                dlcdata = {k: v for k, v in dlcdata.items() if k in ant_tracklets}
+                dlcdata = {k: v for k, v in dlcdata.items() if k not in noant_tracklets}
         
         dfs = []
+
+        tracklet_table = []
+
+        tracklet_index = 0
         
         for tracklet, v in trdata.items():
 
@@ -625,12 +636,15 @@ class axExperiment:
                     'autoid': pd.Series(aid, index),
                     'single': pd.Series(s, index)
                     }
+
+            tracklet_index += 1
+            tracklet_table.append([tracklet_index, fi, ff, m, tracklet, 0, int(s), 0])
             
             data = pd.DataFrame(data)
             data = data[['tracklet', 'frame', 'frameix', 'x', 'y', 'majorax', 'eccentricity', 'area', 'or', 'bbx0', 'bby0', 'autoid', 'single']]
             
-            if only_singles:
-                data = data.loc[data['single']]
+            #if only_singles:
+            #    data = data.loc[data['single']]
             
             if dlc:
                 data = pd.concat([data, dlcdata[tracklet]], axis=1, ignore_index=False)
@@ -638,12 +652,18 @@ class axExperiment:
             dfs.append(pd.DataFrame(data))
             
         df = pd.concat(dfs, ignore_index=False)
+
+        tracklet_table = pd.DataFrame(tracklet_table, columns=['index', 'from', 'to', 'm', 'tracklet', 'assigned', 'single', 'source'])
+
+        if only_singles:
+            df = df.loc[df['single']]
+
         #mix = pd.MultiIndex(df[['tracklet','frame','frameix']])
         #df.reindex(mix)
         df.set_index(['tracklet', 'frame', 'frameix'], drop=False, inplace=True, verify_integrity=True)
-        
-        return df
-            
+
+
+        return df, tracklet_table
 
     def get_frame_data(self, movlist=None):
 
