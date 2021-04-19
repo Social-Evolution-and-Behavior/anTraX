@@ -747,6 +747,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 if ~isempty(G.assigned_ids)
                     GS(i).assigned_ids = G.assigned_ids(ix,:);
                     GS(i).possible_ids = G.possible_ids(ix,:);
+                    GS(i).assignment_scores = G.assignment_scores(ix,:);
                     GS(i).finalized = G.finalized(ix,:);
                 end
                 GS(i).isopen = false;
