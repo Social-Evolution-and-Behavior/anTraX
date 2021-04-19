@@ -44,7 +44,7 @@ switch command
     case 'link_across_movies'
         
         expdir = varargin{1};
-        link_across_moives(expdir, 'reset', true);
+        link_across_movies(expdir, 'reset', true);
         
     case 'solve_across_movies'
         
