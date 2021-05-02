@@ -67,7 +67,10 @@ class axExperiment:
 
         if 'tagged' in self.prmtrs:
             if self.prmtrs['tagged']:
-                self.antlist = self.get_labels()['ant_labels']
+                try:
+                    self.antlist = self.get_labels()['ant_labels']
+                except:
+                    self.antlist = []
             else:
                 self.antlist = []
         else:

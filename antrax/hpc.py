@@ -259,6 +259,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
         print('Job number ' + str(jid) + ' was submitted')
         print('')
     else:
+        jid = 0
         print('Dry run, no job submitted.')
         print('')
 
