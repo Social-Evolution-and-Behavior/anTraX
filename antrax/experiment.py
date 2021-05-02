@@ -75,7 +75,6 @@ class axExperiment:
                     self.antlist = self.get_labels()['ant_labels']
                 except:
                     self.antlist = []
-
             else:
                 self.antlist = []
         else:

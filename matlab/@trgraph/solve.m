@@ -519,7 +519,15 @@ while true
     for i=1:length(assigned_nodes)
         idix = find(G.assigned_ids(assigned_nodes(i),:));
         for j=1:length(idix)
-            score = G.assignment_scores(assigned_nodes(i),idix(j));
+            %try
+                score = G.assignment_scores(assigned_nodes(i),idix(j));
+            %catch ME
+            %    report('E','error in propagate_all')
+            %    report('I',['node is ',num2str(assigned_nodes(i))])
+            %    report('I',['size of assignment scores is ',num2str(size(G.assignment_scores))])
+            %    report('I',['size of assignment ids is ',num2str(size(G.assigned_ids))])
+            %    rethrow(ME)
+            %end
             nij = propagate(G,assigned_nodes(i),idix(j),score);
             n = n + nij;
         end
@@ -533,6 +541,8 @@ end
 nnp=nn;
 
 report('I','Biconnected components condition (positive)')
+
+if ~isempty(G.pairs)
 G.pairs = G.pairs(argsort(G.pairs(:,3)),:);
 while true
     n=0;
@@ -568,6 +578,7 @@ while true
     if n==0
         break
     end
+end
 end
 
 if nn==nnp
