@@ -484,6 +484,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
             report('I','done distance mat');
             sset = find(din>1 & ~ignore);
             
+            pairs = {};
             
             for six=1:length(sset)%,G.NumWorkers)
                 
@@ -528,7 +529,9 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 named_pairs(i).dist = pairs(i,3);
             end
             
-            pairs = pairs(argsort(pairs(:,3)),:);
+            if ~isempty(pairs)
+                pairs = pairs(argsort(pairs(:,3)),:);
+            end
             
             G.pairs = pairs;
             
@@ -744,6 +747,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
                 if ~isempty(G.assigned_ids)
                     GS(i).assigned_ids = G.assigned_ids(ix,:);
                     GS(i).possible_ids = G.possible_ids(ix,:);
+                    GS(i).assignment_scores = G.assignment_scores(ix,:);
                     GS(i).finalized = G.finalized(ix,:);
                 end
                 GS(i).isopen = false;
