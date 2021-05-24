@@ -488,6 +488,7 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False
             hpc_options['classifier'] = classifier
             hpc_options['movlist'] = movlist
             hpc_options['missing'] = missing
+            hpc_options['nw'] = nw
             antrax_hpc_job(e, 'classify', opts=hpc_options)
         else:
             if from_expdir:

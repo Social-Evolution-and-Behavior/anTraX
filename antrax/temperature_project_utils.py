@@ -185,6 +185,7 @@ def make_events(td, Tth=27.5, before=10*60*10, after=60*60*10, dur=15*60*10):
     events['T'] = np.array([frmdata['thmean'].iloc[(i + 3000):(i + 6000)].mean() for i in events['onset']])
 
     # make triggered response traces
+    events['fracout'] = [frmdata['fracout'].iloc[(i - before):(i + after)].values for i in events['onset']]
     events['nout'] = [frmdata['nout'].iloc[(i - before):(i + after)].values for i in events['onset']]
     events['vout'] = [frmdata['vout'].iloc[(i - before):(i + after)].values for i in events['onset']]
     events['TT'] = [frmdata['thcammean'].iloc[(i - before):(i + after)].values for i in

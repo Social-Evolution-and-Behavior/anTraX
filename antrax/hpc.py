@@ -181,7 +181,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
         opts['cmd'] = 'antrax pair-search ' + ex.expdir + \
                   ' --session ' + ex.session + \
                   ' --movlist $SLURM_ARRAY_TASK_ID' + \
-                  ' --nw 1' + \
+                  ' --nw ' + str(opts['nw']) + \
                   ' --mcr'
 
     elif step == 'post':
