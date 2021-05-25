@@ -150,7 +150,7 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
 
     # unless step is "track", run only on movies with image data
     if not step == 'track':
-        movlist = [m for m in movlist if m in ex.get_file_list('images')]
+        movlist = [m for m in movlist if m in ex.get_file_list('images') or ex.is_parted(m)]
 
     # clear tracking data for movlist
     if not opts.get('dry', False):
