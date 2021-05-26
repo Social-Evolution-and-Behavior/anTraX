@@ -470,8 +470,11 @@ class axClassifier:
         for f in self.imagefiles:
             m = int(f.rstrip('.mat').split('_')[1])
             if ex.is_parted(m):
-                p = int(f.rstrip('.mat').split('_')[2][1:])
-                report('I', 'Classifying tracklets of movie ' + str(m) + ' part ' + str(p))
+                try:
+                    p = int(f.rstrip('.mat').split('_')[2][1:])
+                    report('I', 'Classifying tracklets of movie ' + str(m) + ' part ' + str(p))
+                except:
+                    continue
             else:
                 report('I', 'Classifying tracklets of movie ' + str(m))
             outfile = join(self.outdir, f.replace('.mat', '.csv').replace('images', 'autoids'))
