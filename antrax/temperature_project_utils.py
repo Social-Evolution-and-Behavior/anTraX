@@ -184,6 +184,12 @@ def make_events(td, Tth=27.5, before=10*60*10, after=60*60*10, dur=15*60*10):
     events['S'] = frmdata['S1'].loc[events['onset'] + 3000].values
     events['T'] = np.array([frmdata['thmean'].iloc[(i + 3000):(i + 6000)].mean() for i in events['onset']])
 
+    # nest
+    scale = td.ex.prmtrs['geometry_rscale'] * 1000
+    events['nestx'] = [td.frmdata['nestx'].iloc[i] * scale for i in events['onset']]
+    events['nesty'] = [td.frmdata['nesty'].iloc[i] * scale for i in events['onset']]
+    events['nestr'] = [td.frmdata['nestr'].iloc[i] * scale / 2 for i in events['onset']]
+
     # make triggered response traces
     events['fracout'] = [frmdata['fracout'].iloc[(i - before):(i + after)].values for i in events['onset']]
     events['nout'] = [frmdata['nout'].iloc[(i - before):(i + after)].values for i in events['onset']]

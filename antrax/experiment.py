@@ -246,7 +246,6 @@ class axExperiment:
         frame = skvideo.io.vread(vidfile, num_frames=1)
         return np.squeeze(frame)
 
-    
     def get_dat(self, flds=None, movlist=None):
         
         if movlist is None:
