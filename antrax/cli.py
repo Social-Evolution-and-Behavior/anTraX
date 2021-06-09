@@ -496,7 +496,7 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
-def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False):
+def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False, untagged=False):
     """Export xy data"""
 
     explist = parse_explist(explist, session)
@@ -509,7 +509,7 @@ def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=Fa
         movlist1 = e.movlist if movlist is None else movlist
         for m in movlist1:
             w = {'fun': 'export_single_movie'}
-            w['args'] = [e.expdir, m, 'trackingdirname', e.session]
+            w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'untagged', untagged]
             w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '.log')
             w['str'] = 'export movie ' + str(m)
             Q.put(w)

@@ -5,6 +5,7 @@ p = inputParser;
 addRequired(p,'G',@(x) isa(x,'trgraph'));
 addParameter(p,'extrafields',{});
 addParameter(p,'csv',true);
+addParameter(p,'untagged', false);
 addParameter(p,'interpolate',false);
 addParameter(p,'interpolate_maxd',0.01);
 addParameter(p,'interpolate_maxf',300);
@@ -15,7 +16,7 @@ addParameter(p,'movlist',[]);
 parse(p,G,varargin{:});
 
 
-if ~G.Trck.get_param('tagged') || strcmp(p.Results.type,'untagged')
+if p.Results.untagged || ~G.Trck.get_param('tagged') || strcmp(p.Results.type,'untagged')
     export_xy_untagged(G, varargin{:});
     return
 elseif strcmp(p.Results.type,'noprop')
