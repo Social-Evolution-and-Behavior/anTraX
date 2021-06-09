@@ -308,6 +308,7 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
             hpc_options['missing'] = missing
             hpc_options['glist'] = eglist
             hpc_options['movlist'] = emlist
+            hpc_options['untagged'] = untagged
 
             if e.prmtrs['geometry_multi_colony']:
                 eclist = clist if clist is not None else e.clist

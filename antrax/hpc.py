@@ -224,6 +224,9 @@ def antrax_hpc_job(ex, step, opts, solve_step=None):
             opts['filename'] = 'hpc_solve_col_' + str(opts['c']) + '_'
             opts['cmd'] += ' --clist ' + str(opts['c'])
 
+        if solve_step == 3 and opts['untagged']:
+            opts['cmd'] += ' --untagged'
+
     elif step == 'dlc':
 
         opts['jobname'] = 'dlc:' + ex.expname
