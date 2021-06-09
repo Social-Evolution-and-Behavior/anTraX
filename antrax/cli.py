@@ -255,7 +255,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, o
         Q.stop_workers()
 
 
-def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, clist: parse_movlist=None, mcr=False,
+def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, clist: parse_movlist=None, mcr=False, untagged=False,
           nw=2, hpc=False, hpc_options: parse_hpc_options={}, missing=False, session=None, dry=False, step=0):
     """Run propagation step"""
 
@@ -280,6 +280,7 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
             hpc_options['missing'] = missing
             hpc_options['glist'] = eglist
             hpc_options['movlist'] = emlist
+            hpc_options['untagged'] = untagged
 
             if e.prmtrs['geometry_multi_colony']:
                 eclist = clist if clist is not None else e.clist
@@ -365,14 +366,14 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
                     for c in eclist:
                         for m in emlist:
                             w = {'fun': 'export_single_movie'}
-                            w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c]
+                            w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c, 'untagged', untagged]
                             w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '_c_' + str(c) + '.log')
                             w['str'] = 'export colony ' + str(c) + ' movie ' + str(m)
                             Q.put(w)
                 else:
                     for m in emlist:
                         w = {'fun': 'export_single_movie'}
-                        w['args'] = [e.expdir, m, 'trackingdirname', e.session]
+                        w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'untagged', untagged]
                         w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '.log')
                         w['str'] = 'export movie ' + str(m)
                         Q.put(w)
