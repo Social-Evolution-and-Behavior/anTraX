@@ -526,7 +526,7 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
-def exportxy(explist, *, movlist=None, session=None, nw=2, mcr=False, hpc=False, hpc_options: parse_hpc_options={}, missing=False, dry=False, untagged=False):
+def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False, hpc_options: parse_hpc_options={}, missing=False, dry=False, untagged=False):
     """Export xy data"""
 
     solve(explist, movlist=movlist, session=session, nw=nw, mcr=mcr, hpc=hpc, step=3, hpc_options=hpc_options,
