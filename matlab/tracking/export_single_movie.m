@@ -3,7 +3,8 @@ function export_single_movie(expdir,m, varargin)
 p = inputParser;
 addRequired(p,'expdir',@(x) (ischar(x) && isfolder(x)) || isa(x,'trhandles'));
 addRequired(p,'m',@(x) isnumeric(x)||ischar(x));
-addParameter(p,'colony','')
+addParameter(p,'colony','');
+addParameter(p,'untagged', false);
 addParameter(p,'trackingdirname',[]);
 
 % parse inputs
@@ -49,7 +50,7 @@ if ~ismember(m,Trck.graphlist)
 end
 
 G = Trck.loaddata(m,colony);
-export_xy(G,'interpolate',false);
+export_xy(G,'interpolate',false,'untagged',p.Results.untagged);
 
 report('G','Done')
 

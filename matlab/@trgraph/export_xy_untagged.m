@@ -1,7 +1,7 @@
 function export_xy_untagged(G,varargin)
 
 p = inputParser;
-
+p.KeepUnmatched = true;
 addRequired(p,'G',@(x) isa(x,'trgraph'));
 addParameter(p,'extrafields',{'majax'});
 addParameter(p,'interpolate',false);
