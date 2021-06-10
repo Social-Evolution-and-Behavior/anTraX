@@ -38,7 +38,10 @@ if not ANTRAX_USE_MCR:
 
 # for the case of mcr, add mcr to library path
 MCR = os.getenv('ANTRAX_MCR')
-if ANTRAX_USE_MCR:
+
+
+def setup_mcr():
+
     if LINUX:
         LDPATH = [MCR + '/runtime/glnxa64',
                 MCR + '/bin/glnxa64',
@@ -49,8 +52,9 @@ if ANTRAX_USE_MCR:
 
     elif MACOS:
         LDPATH = [MCR + '/runtime/maci64',
+                MCR + '/sys/os/maci64',
                 MCR + '/bin/maci64',
-                MCR + '/sys/os/maci64']
+                MCR + '/extern/bin/maci64']
         LDPATH = ':'.join(LDPATH)
         os.putenv('DYLD_LIBRARY_PATH', LDPATH)
     else:
@@ -215,6 +219,10 @@ class MatlabQueue(queue.Queue):
         super().__init__()
         self.threads = []
         self.nw = nw
+
+        if mcr:
+            setup_mcr()
+
         self.mcr = mcr
         if nw is not None:
             self.start_workers()
