@@ -10,6 +10,11 @@ addParameter(p,'trackingdirname',[]);
 % parse inputs
 parse(p,expdir,m, varargin{:});
 
+untagged = p.Results.untagged;
+if ischar(untagged)
+    untagged = strcmp(untagged, 'True');
+end
+
 Trck = trhandles.load(expdir,p.Results.trackingdirname);
 
 colony = p.Results.colony;
@@ -50,7 +55,7 @@ if ~ismember(m,Trck.graphlist)
 end
 
 G = Trck.loaddata(m,colony);
-export_xy(G,'interpolate',false,'untagged',p.Results.untagged);
+export_xy(G,'interpolate',false,'untagged',untagged);
 
 report('G','Done')
 
