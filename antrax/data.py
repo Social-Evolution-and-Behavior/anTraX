@@ -349,6 +349,7 @@ class axTrackletData:
             df = pd.DataFrame(d)
 
             df['tracklet'] = df['tracklet'].astype('int')
+            df['m'] = m
             df['frame'] = df['frame'].astype('int')
 
             mdfs.append(df)
