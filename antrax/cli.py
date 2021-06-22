@@ -256,7 +256,7 @@ def track(explist, *, movlist: parse_movlist=None, mcr=False, classifier=None, o
 
 
 def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, clist: parse_movlist=None, mcr=False, untagged=False,
-          nw=2, hpc=False, hpc_options: parse_hpc_options={}, missing=False, session=None, dry=False, step=0):
+          nw=2, hpc=False, hpc_options: parse_hpc_options={}, missing=False, session=None, dry=False, csv=False, step=0):
     """Run propagation step"""
 
     explist = parse_explist(explist, session)
@@ -366,14 +366,14 @@ def solve(explist, *, glist: parse_movlist=None, movlist: parse_movlist=None, cl
                     for c in eclist:
                         for m in emlist:
                             w = {'fun': 'export_single_movie'}
-                            w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c, 'untagged', untagged]
+                            w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'colony', c, 'untagged', untagged, 'csv', csv]
                             w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '_c_' + str(c) + '.log')
                             w['str'] = 'export colony ' + str(c) + ' movie ' + str(m)
                             Q.put(w)
                 else:
                     for m in emlist:
                         w = {'fun': 'export_single_movie'}
-                        w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'untagged', untagged]
+                        w['args'] = [e.expdir, m, 'trackingdirname', e.session, 'untagged', untagged, 'csv', csv]
                         w['diary'] = join(e.logsdir, 'matlab_export_m_' + str(m) + '.log')
                         w['str'] = 'export movie ' + str(m)
                         Q.put(w)
@@ -497,11 +497,11 @@ def dlc(explist, *, cfg, movlist: parse_movlist=None, session=None, hpc=False, h
             dlc4antrax(e, dlccfg=cfg, movlist=movlist)
 
 
-def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False, hpc_options: parse_hpc_options={}, missing=False, dry=False, untagged=False):
+def exportxy(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False, hpc_options: parse_hpc_options={}, missing=False, dry=False, untagged=False, csv=False):
     """Export xy data"""
 
     solve(explist, movlist=movlist, session=session, nw=nw, mcr=mcr, hpc=hpc, step=3, hpc_options=hpc_options,
-          missing=missing, dry=dry, untagged=untagged)
+          missing=missing, dry=dry, untagged=untagged, csv=csv)
 
 
 def export_jaaba(explist, *, movlist: parse_movlist=None, session=None, nw=2, mcr=False, hpc=False,

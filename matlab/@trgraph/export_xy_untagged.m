@@ -96,7 +96,14 @@ xyfile = [G.xyfile(1:end-4),'_untagged.mat'];
 save(xyfile,'tracklet','xy','frame','nants','area','orient','-v7.3');
 
 if ismember('majax',p.Results.extrafields)
-    save(xyfile,'majax','-v7.3','-append');
+    save(xyfile,'majax','-append');
+end
+
+if p.Results.csv
+    report('I','Writing csv file')
+    A.orient = double(A.orient);
+    xyfile = [G.xyfile(1:end-4),'_untagged.csv'];
+    writetable(A, xyfile);
 end
 
 report('G','Done')

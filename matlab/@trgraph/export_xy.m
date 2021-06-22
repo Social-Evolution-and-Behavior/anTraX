@@ -4,7 +4,7 @@ p = inputParser;
 
 addRequired(p,'G',@(x) isa(x,'trgraph'));
 addParameter(p,'extrafields',{});
-addParameter(p,'csv',true);
+addParameter(p,'csv',false);
 addParameter(p,'untagged', false);
 addParameter(p,'interpolate',false);
 addParameter(p,'interpolate_maxd',0.01);

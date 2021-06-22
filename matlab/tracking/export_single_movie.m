@@ -6,6 +6,8 @@ addRequired(p,'m',@(x) isnumeric(x)||ischar(x));
 addParameter(p,'colony','');
 addParameter(p,'untagged', false);
 addParameter(p,'trackingdirname',[]);
+addParameter(p,'csv',false);
+
 
 % parse inputs
 parse(p,expdir,m, varargin{:});
@@ -55,7 +57,7 @@ if ~ismember(m,Trck.graphlist)
 end
 
 G = Trck.loaddata(m,colony);
-export_xy(G,'interpolate',false,'untagged',untagged);
+export_xy(G,'interpolate',false,'untagged',untagged,'csv',p.Results.csv);
 
 report('G','Done')
 
