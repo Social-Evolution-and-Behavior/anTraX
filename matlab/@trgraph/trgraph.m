@@ -1003,8 +1003,8 @@ classdef trgraph < handle & matlab.mixin.SetGet
             
             % add cross movie edges
             linkfile = [Trck.graphdir,'cross_movie_links.mat'];
-            if exist(linkfile,'file')
-                load(linkfile);
+            if exist(linkfile,'file') && G.ntrjs>0
+                load(linkfile, 'cross_movie_links');
                 % filter links within this graph
                 cross_movie_links = cross_movie_links(ismember({cross_movie_links.parent},G.Nodes.Name) & ismember({cross_movie_links.child},G.Nodes.Name));
                 % add edges to the graph
