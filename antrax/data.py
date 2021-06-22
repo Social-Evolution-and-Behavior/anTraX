@@ -302,7 +302,7 @@ class axAntData:
         for ant in self.antlist:
             x = self.data.loc[:,idx[ant,cols]].values
             x = wavelet_expansion(x, n=n, maxscale=50)
-            mi = pd.MultiIndex.from_tuples([(ant,i) for i in range(x.shape[1])],names=['ant','feature'])
+            mi = pd.MultiIndex.from_tuples([(ant,i) for i in range(x.shape[1])],names=['ant','feature'])    
             df.append(pd.DataFrame(x, index=self.data.index, columns=mi))
         
         df = pd.concat(df, axis=1)

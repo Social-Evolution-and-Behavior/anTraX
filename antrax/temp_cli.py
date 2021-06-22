@@ -117,6 +117,52 @@ def exportxy_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MC
         Q.stop_workers()
 '''
 
+
+def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300):
+
+    explist = parse_explist(explist, session)
+
+    Q = MatlabQueue(nw=nw, mcr=False)
+
+    for e in explist:
+
+        mkdir(join(e.sessiondir, 'clips'))
+
+        td = tpu.axTempData(e, movlist=e.movlist)
+
+        cond = td.frmdata['S1'].values > 27.5
+        cond = np.diff(cond.astype('float'))
+
+        ev_onset = np.where(cond == 1)[0] + 2
+        ev_offset = np.where(cond == -1)[0]
+        ev_index = range(len(ev_onset))
+        ev_temp = td.frmdata['S1'][ev_onset].values.astype('int')
+
+        ev_onset = ev_onset - 10*pre
+
+        for ix, fi, ff, s in zip(ev_index, ev_onset, ev_offset, ev_temp):
+
+            w = {'fun': 'make_annotated_video'}
+            outfile = e.sessiondir + '/clips/event_' + str(ix+1) + '_' + str(s) + '.mp4'
+            dfile = e.logsdir + '/matlab_event_clip_' + str(ix) + '.log'
+            w['args'] = [e.expdir, 'fi', int(fi), 'ff', int(ff),
+                         'annotate_tracks', False,
+                         'bgcorrect', False,
+                         'outline', False,
+                         'mask', False,
+                         'downsample', float(downsample),
+                         'speedup', float(speedup),
+                         'outfile', outfile]
+            w['diary'] = dfile
+            w['str'] = 'making event #' + str(ix) + ' clip'
+
+            if not missing or not isfile(outfile):
+                Q.put(w)
+
+    Q.join()
+    Q.stop_workers()
+
+
 def compute_medians(explist, *, movlist: parse_movlist=None, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
                 missing=False, session=None, dry=False):
 
@@ -308,7 +354,8 @@ def main():
         'compute-nest-location': compute_nest_location,
         'compute-measures': compute_measures,
         'workflow-untagged': workflow_untagged,
-        'extract-events': extract_events
+        'extract-events': extract_events,
+        'make-event-clips': make_event_clips,
     }
 
     run(function_list, description="""

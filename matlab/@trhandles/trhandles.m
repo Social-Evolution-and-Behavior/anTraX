@@ -52,7 +52,9 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
         %%% aliases for subdirecories
         
         expname
+        session
         trackingdir
+        sessiondir
         paramsdir
         trackletdir
         imagedir
@@ -732,8 +734,16 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             
         end
         
+        function d = get.session(Trck)
+            d = Trck.trackingdirname;
+        end
+        
         function d = get.trackingdir(Trck)
             d = [Trck.expdir,Trck.trackingdirname,filesep];
+        end
+        
+        function d = get.sessiondir(Trck)
+            d = Trck.trackingdir;
         end
         
         function d = get.imagedir(Trck)

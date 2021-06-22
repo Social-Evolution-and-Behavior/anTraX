@@ -2,11 +2,14 @@ function make_annotated_video(Trck, varargin)
 
 p = inputParser;
 
+
+Trck = trhandles.load(Trck);
 colors = distinguishable_colors(Trck.NIDs,{'w'});
 
-addRequired(p,'Trck',@(x) isa(x,'trhandles'));
+addRequired(p,'Trck',@(x) (ischar(x) && isfolder(x)) || isa(x,'trhandles'));
 addParameter(p,'fi',1);
 addParameter(p,'ff',600);
+addParameter(p,'annotate_tracks',true);
 addParameter(p,'ids','all');
 addParameter(p,'colony','');
 addParameter(p,'outline',true,@islogical);
@@ -34,16 +37,15 @@ addParameter(p,'flip',[],@isnumeric);
 addParameter(p,'report',100,@isnumeric);
 addParameter(p,'enhance_factor',1,@isnumeric);
 addParameter(p,'enhance_bias',0,@isnumeric);
-
 addParameter(p,'outfile',[Trck.trackingdir,Trck.expname,'_annotated.avi'],@ischar);
-
 parse(p,Trck,varargin{:});
+
+
+
 
 xy_smooth_window = p.Results.xy_smooth_window;
 scale = Trck.get_param('geometry_rscale');
 colors = p.Results.colors;
-
-
 % 
 if Trck.get_param('geometry_multi_colony')
     
@@ -87,11 +89,17 @@ else
     t0 = trtime(Trck,f0);
 end
 
+if p.Results.annotate_tracks
+
 XY0 = Trck.loadxy('movlist',t0.m:tf.m);
+
+end
 
 if Trck.get_param('geometry_multi_colony')
     XY0 = XY0.(colony);
 end
+
+if p.Results.annotate_tracks
 
 for i=1:Trck.NIDs
     id = Trck.usedIDs{i};
@@ -111,6 +119,8 @@ for i=1:Trck.NIDs
     end
     
 end
+end
+
 
 % mask
 [~,~,BGW] = Trck.get_bg(ti);
@@ -136,11 +146,27 @@ end
 
 
 % open video file
-vw = VideoWriter(p.Results.outfile);
-vw.FrameRate = Trck.er.framerate*p.Results.speedup/p.Results.downsample;
+outfile = p.Results.outfile;
+transcode = false;
+
+if strcmp(outfile(end-2:end), 'mp4')
+    outfile(end-2:end) = 'avi';
+    transcode = true;
+end
+
+disp(outfile)
+vw = VideoWriter(outfile);
+framerate = double(Trck.er.framerate*p.Results.speedup/p.Results.downsample);
+vw.FrameRate = framerate;
+report('I', ['Framerate is ', num2str(framerate), ' class ', class(framerate)])
 open(vw)
 
-z = p.Results.labeloffset*rand(Trck.NIDs,2)/2 - repmat([-p.Results.labeloffset,p.Results.labeloffset],Trck.NIDs,1);
+if p.Results.annotate_tracks
+
+    z = p.Results.labeloffset*rand(Trck.NIDs,2)/2 - repmat([-p.Results.labeloffset,p.Results.labeloffset],Trck.NIDs,1);
+
+end
+
 
 if p.Results.crop
     
@@ -191,6 +217,8 @@ for f=fs
     tail=[];
     clrs=[];
     
+    if p.Results.annotate_tracks
+
     for j=1:Trck.NIDs
         
         id = Trck.usedIDs{j};
@@ -221,12 +249,22 @@ for f=fs
     loc = round(xy) + z;
     ok = ~isnan(xy(:,1));
    
+    end
+    
     frame = Trck.read_frame(f);
-    if p.Results.markblobs
+    
+    if isempty(frame)
+        report('E', 'Corrupt frame')
+        continue
+    end
+    
+    
+    if p.Results.markblobs 
         detect_blobs(Trck);
         ab = Trck.currfrm.antblob;
         S = regionprops(ab.LABEL,Trck.currfrm.grayIm,'ConvexHull');
     end
+    
     I = im2single(frame);
     
     if p.Results.crop
@@ -260,8 +298,11 @@ for f=fs
     
     
     % draw tails
+    if p.Results.annotate_tracks
+
     if f>fi && ~isempty(tail)
         I = insertShape(I,'Line',tail,'Color',clrs,'LineWidth',p.Results.linewidth,'SmoothEdges',true);
+    end
     end
     
     I = imlincomb(0.5,I0,0.5,I);
@@ -290,8 +331,10 @@ for f=fs
     end
     
     % insert labels
+    if p.Results.annotate_tracks
     if any(ok)
         I = insertText(I,loc(ok,:),Trck.usedIDs(ok),'FontSize',p.Results.labelsize,'BoxColor',colors(ok,:),'BoxOpacity',0.5,'TextColor','white');
+    end
     end
     
     % text
@@ -325,9 +368,29 @@ for f=fs
     
     
     % write frame
-     writeVideo(vw,I);
+    try
+        writeVideo(vw,I);
+    catch
+        report('E', 'Corrupt frame')
+    end
     
 end
     
 % close video file
 close(vw)
+
+
+% if ext is mp4, transcode video
+if transcode
+    infile = outfile;
+    outfile = [infile(1:end-3), 'mp4'];
+    if exist(outfile, 'file') && ~strcmp(infile, outfile)
+        delete(outfile)
+    end
+    system(['ffmpeg -i "',infile,'" -c:v libx264 -preset fast -crf 30 -c:a copy "',outfile,'"']); 
+    delete(infile);
+end
+
+
+
+
