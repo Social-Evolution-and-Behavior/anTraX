@@ -548,9 +548,8 @@ class axExperiment:
             trdata = {k: v for k, v in trdata.items() if k in dlcdata.keys()}
         
         # filter by classification
-        autoids = self.get_autoids([m])
-        
         if only_ants:
+            autoids = self.get_autoids([m])
             noant_tracklets = [k for k, v in autoids.items() if v in self.get_labels()['noant_labels']]
             trdata = {k: v for k, v in trdata.items() if k not in noant_tracklets}
             if dlc:
@@ -563,20 +562,26 @@ class axExperiment:
             if v.ndim == 1:
                 v = np.expand_dims(v, axis=0)
             fi, ff = self.parse_tracklet_name(tracklet)
-            aid = autoids[tracklet] if tracklet in autoids.keys() else ''
-            s = (aid in self.get_labels()['ant_labels'] and not aid=='MultiAnt') or (aid in self.get_labels()['other_labels'])
+            try:
+                aid = autoids[tracklet] if tracklet in autoids.keys() else ''
+                s = (aid in self.get_labels()['ant_labels'] and not aid == 'MultiAnt') or (aid in self.get_labels()['other_labels'])
+            except:
+                aid = ''
+                s = False
+
             index = list(range(v.shape[0]))
             data = {'tracklet': pd.Series(tracklet, index),
-                    'frame': pd.Series(list(range(fi,ff+1))),
+                    'frame': pd.Series(list(range(fi, ff+1))),
+                    'm': pd.Series(m, index),
                     'frameix': pd.Series(list(range(ff-fi+1))),
-                    'area': pd.Series(v[:,0]),
-                    'x': pd.Series(v[:,1]),
-                    'y':pd.Series(v[:,2]),
-                    'majorax':pd.Series(v[:,3]),
-                    'eccentricity':pd.Series(v[:,4]),
-                    'bbx0':pd.Series(v[:,7]),
-                    'bby0':pd.Series(v[:,8]),
-                    'or': pd.Series(v[:,5]),
+                    'area': pd.Series(v[:, 0]),
+                    'x': pd.Series(v[:, 1]),
+                    'y': pd.Series(v[:, 2]),
+                    'majorax': pd.Series(v[:, 3]),
+                    'eccentricity': pd.Series(v[:, 4]),
+                    'bbx0': pd.Series(v[:, 7]),
+                    'bby0': pd.Series(v[:, 8]),
+                    'or': pd.Series(v[:, 5]),
                     'autoid': pd.Series(aid, index),
                     'single': pd.Series(s, index)
                     }
