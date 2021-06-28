@@ -516,6 +516,7 @@ class axExperiment:
         trdata = []
         for m in movlist:
             trdatam = self.get_tracklet_data_one_movie(m, dlc=dlc, dlcproject=dlcproject, only_ants=only_ants, only_singles=only_singles)
+            trdatam['m'] = m
             trdata.append(trdatam)
         
         # this contains the frame data
