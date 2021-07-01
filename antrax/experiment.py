@@ -516,8 +516,9 @@ class axExperiment:
         trdata = []
         for m in movlist:
             trdatam = self.get_tracklet_data_one_movie(m, dlc=dlc, dlcproject=dlcproject, only_ants=only_ants, only_singles=only_singles)
-            trdatam['m'] = m
-            trdata.append(trdatam)
+            if trdatam is not None:
+                trdatam['m'] = m
+                trdata.append(trdatam)
         
         # this contains the frame data
         trdata = pd.concat(trdata, ignore_index=False)
@@ -532,7 +533,11 @@ class axExperiment:
         dlcdir = self.get_dlc_dir(dlcproject)
         
         if not parted:
-            trdata = read_mat(join(self.trackletdir,'trdata_' + str(m) + '.mat'))  
+            try:
+                trdata = read_mat(join(self.trackletdir, 'trdata_' + str(m) + '.mat'))
+            except:
+                report('W', 'Failed reading tracklet file for video #' + str(m))
+                return None
             if dlc:
                 dlcdata = get_dlc_data_from_file(join(dlcdir, 'predictions_' + str(m) + '.h5'))
         else:            

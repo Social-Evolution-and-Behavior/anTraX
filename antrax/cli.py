@@ -6,11 +6,16 @@ from .matlab import *
 from .hpc import antrax_hpc_job, antrax_hpc_train_job
 from .utils import *
 import os
+#from git import Repo
+import subprocess
 
 ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR') == 'True'
 ANTRAX_HPC = os.getenv('ANTRAX_HPC') == 'True'
 JAABA_PATH = os.getenv('ANTRAX_JAABA_PATH')
+ANTRAX_PATH = os.getenv('ANTRAX_PATH')
 
+#ANTRAX_REPO = Repo(ANTRAX_PATH)
+#assert not ANTRAX_REPO.bare
 
 ########################### AUX functions #########################
 
@@ -94,6 +99,15 @@ def compile_antrax():
     """Compile antrax executables"""
 
     compile_antrax_executables()
+
+
+def update_antrax(*, pip=False):
+
+    #pull_results = ANTRAX_REPO.remote().pull()
+    subprocess.check_call(['git', '--git-dir=' + ANTRAX_PATH + '/.git', 'pull'])
+
+    if pip:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', ANTRAX_PATH])
 
 
 def configure(expdir=None, *, mcr=ANTRAX_USE_MCR):
@@ -626,7 +640,8 @@ def main():
         'exportxy': exportxy,
         'dlc': dlc,
         'pair-search': pair_search,
-        'compile': compile_antrax
+        'compile': compile_antrax,
+        'update': update_antrax,
     }
 
     # print welcome message
