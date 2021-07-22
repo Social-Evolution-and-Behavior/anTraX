@@ -30,7 +30,7 @@ if MACOS:
 elif LINUX:
     MATLAB_PLATFORM = 'glnxa64'
 
-if not ANTRAX_USE_MCR:
+if ANTRAX_USE_MCR:
 
     # case we running real matlab
     import matlab.engine
