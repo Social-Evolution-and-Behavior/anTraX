@@ -194,8 +194,10 @@ def make_events(td, Tth=27.5, before=10*60*10, after=60*60*10, dur=15*60*10):
     events['fracout'] = [frmdata['fracout'].iloc[(i - before):(i + after)].values for i in events['onset']]
     events['nout'] = [frmdata['nout'].iloc[(i - before):(i + after)].values for i in events['onset']]
     events['vout'] = [frmdata['vout'].iloc[(i - before):(i + after)].values for i in events['onset']]
-    events['TT'] = [frmdata['thcammean'].iloc[(i - before):(i + after)].values for i in
+    events['thcam'] = [frmdata['thcammean'].iloc[(i - before):(i + after)].values for i in
                     events['onset']]
+    events['thermistor'] = [frmdata['thmean'].iloc[(i - before):(i + after)].values for i in
+                       events['onset']]
 
     # calc response measures
     events['nout_max'] = np.array([np.nanmax(x[before:(before+dur)]) / td.nants for x in events['nout']])
@@ -227,7 +229,7 @@ def make_events(td, Tth=27.5, before=10*60*10, after=60*60*10, dur=15*60*10):
             events['vout_tau'].append(np.nan)
 
     events['T_tau'] = []
-    for s, e in zip(events['S'], events['TT']):
+    for s, e in zip(events['S'], events['thcam']):
         x = e[before:(before+dur)]
         th = s * (1 - np.exp(-1))
         cond = x > th
