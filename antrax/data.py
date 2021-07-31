@@ -302,7 +302,7 @@ class axAntData:
         for ant in self.antlist:
             x = self.data.loc[:,idx[ant,cols]].values
             x = wavelet_expansion(x, n=n, maxscale=50)
-            mi = pd.MultiIndex.from_tuples([(ant,i) for i in range(x.shape[1])],names=['ant','feature'])    
+            mi = pd.MultiIndex.from_tuples([(ant,i) for i in range(x.shape[1])], names=['ant','feature'])
             df.append(pd.DataFrame(x, index=self.data.index, columns=mi))
         
         df = pd.concat(df, axis=1)
@@ -352,6 +352,7 @@ class axTrackletData:
             try:
                 filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '_untagged.h5')
                 df = pd.read_hdf(filename, key='trdata')
+                #df = self.ex.get_tracklet_data(only_ants=True, only_singles=False, movlist=self.movlist)
             except:
                 report('W', 'Could not load xy file for video ' + str(m))
                 column_names = ['tracklet', 'frame', 'frameix', 'x', 'y', 'majax', 'eccentricity', 'area', 'or', 'bbx0', 'bby0', 'autoid', 'single', 'm']
@@ -386,7 +387,9 @@ class axTrackletData:
             # df = pd.DataFrame(d)
 
 
-            df['tracklet'] = df['tracklet'].astype('int')
+            # have no idea what this is for, commenting it temporarilly 23/7/2021
+            #df['tracklet'] = df['tracklet'].astype('int')
+
             df['m'] = m
             df['frame'] = df['frame'].astype('int')
 

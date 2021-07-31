@@ -485,7 +485,7 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
                     
                 case 'untagged'
                     
-                    sfx = 'untagged';
+                    sfx = '_untagged';
                     
             end
             
@@ -510,10 +510,10 @@ classdef trhandles < handle &  matlab.mixin.SetGet & matlab.mixin.CustomDisplay
             %xyfiles = arrayfun(@(x) [xydir,'xy_',num2str(x),'_',num2str(x),'.mat'],movlist,'UniformOutput',false);
             
             for i=1:length(xyfiles)
-                if ismember('XY',who('-file',[xydir,xyfiles{i}]))
-                    xy(i) = load([xydir,xyfiles{i}],'XY');
+                if ismember('XY', who('-file', [xydir,xyfiles{i}]))
+                    xy(i) = load([xydir, xyfiles{i}], 'XY');
                 else
-                    xy(i) = load([xydir,xyfiles{i}]);
+                    xy(i) = load([xydir, xyfiles{i}]);
                 end
                 frames{i} = tocol(Trck.er.movies_info(movlist(i)).fi:Trck.er.movies_info(movlist(i)).ff);
             end

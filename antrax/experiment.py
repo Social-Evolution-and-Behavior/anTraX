@@ -269,6 +269,9 @@ class axExperiment:
                 except:
                     print('-W- something wrong with prmtrs.json')
 
+        if 'tagged' not in prmtrs:
+            prmtrs['tagged'] = True
+
         return prmtrs
 
     def get_labels(self):
