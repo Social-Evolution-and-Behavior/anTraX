@@ -118,7 +118,7 @@ def exportxy_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MC
 '''
 
 
-def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300):
+def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300, ow=False):
 
     explist = parse_explist(explist, session)
 
@@ -144,6 +144,10 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
 
             w = {'fun': 'make_annotated_video'}
             outfile = e.sessiondir + '/clips/event_' + str(ix+1) + '_' + str(s) + '.mp4'
+
+            if isfile(outfile) and not ow:
+                continue
+
             dfile = e.logsdir + '/matlab_event_clip_' + str(ix) + '.log'
             w['args'] = [e.expdir, 'fi', int(fi), 'ff', int(ff),
                          'annotate_tracks', False,
