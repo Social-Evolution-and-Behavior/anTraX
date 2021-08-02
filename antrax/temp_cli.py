@@ -118,11 +118,31 @@ def exportxy_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MC
 '''
 
 
-def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300, ow=False):
+def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300, ow=False, refexpdir=''):
 
     explist = parse_explist(explist, session)
 
     Q = MatlabQueue(nw=nw, mcr=False)
+
+    useref = is_expdir(refexpdir)
+
+    if useref:
+
+        eref = axExperiment(refexpdir)
+        tdref = tpu.axTempData(eref, movlist=eref.movlist)
+        cond = tdref.frmdata['S1'].values > 27.5
+        cond = np.diff(cond.astype('float'))
+
+        ev_onset = np.where(cond == 1)[0] + 2
+        ev_offset = np.where(cond == -1)[0]
+        ev_index = range(len(ev_onset))
+        ev_temp = tdref.frmdata['S1'][ev_onset].values.astype('int')
+
+        ev_onset = ev_onset - 10 * pre
+
+        report('I', 'will make ' + str(len(ev_onset)) + ' event clips (ref used)')
+
+
 
     for e in explist:
 
@@ -130,17 +150,19 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
 
         td = tpu.axTempData(e, movlist=e.movlist)
 
-        cond = td.frmdata['S1'].values > 27.5
-        cond = np.diff(cond.astype('float'))
+        if not useref:
 
-        ev_onset = np.where(cond == 1)[0] + 2
-        ev_offset = np.where(cond == -1)[0]
-        ev_index = range(len(ev_onset))
-        ev_temp = td.frmdata['S1'][ev_onset].values.astype('int')
+            cond = td.frmdata['S1'].values > 27.5
+            cond = np.diff(cond.astype('float'))
 
-        ev_onset = ev_onset - 10*pre
+            ev_onset = np.where(cond == 1)[0] + 2
+            ev_offset = np.where(cond == -1)[0]
+            ev_index = range(len(ev_onset))
+            ev_temp = td.frmdata['S1'][ev_onset].values.astype('int')
 
-        report('I', 'will make ' + str(len(ev_onset)) + ' event clips')
+            ev_onset = ev_onset - 10*pre
+
+            report('I', 'will make ' + str(len(ev_onset)) + ' event clips')
 
         for ix, fi, ff, s in zip(ev_index, ev_onset, ev_offset, ev_temp):
 
