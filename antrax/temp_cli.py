@@ -140,12 +140,15 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
 
         ev_onset = ev_onset - 10*pre
 
+        report('I', 'will make ' + str(len(ev_onset)) + ' event clips')
+
         for ix, fi, ff, s in zip(ev_index, ev_onset, ev_offset, ev_temp):
 
             w = {'fun': 'make_annotated_video'}
             outfile = e.sessiondir + '/clips/event_' + str(ix+1) + '_' + str(s) + '.mp4'
 
             if isfile(outfile) and not ow:
+                report('I', 'clip exists, skipping')
                 continue
 
             dfile = e.logsdir + '/matlab_event_clip_' + str(ix) + '.log'
