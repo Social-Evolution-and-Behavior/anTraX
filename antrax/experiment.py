@@ -80,8 +80,10 @@ class axExperiment:
         else:
             try:
                 self.antlist = self.get_labels()['ant_labels']
+                self.prmtrs['tagged'] = True
             except:
                 self.antlist = []
+                self.prmtrs['tagged'] = False
 
         self.nants = len(self.antlist)
 
@@ -269,8 +271,8 @@ class axExperiment:
                 except:
                     print('-W- something wrong with prmtrs.json')
 
-        if 'tagged' not in prmtrs:
-            prmtrs['tagged'] = True
+        #if 'tagged' not in prmtrs:
+        #    prmtrs['tagged'] = True
 
         return prmtrs
 
