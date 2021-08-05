@@ -11,6 +11,8 @@ from .matlab import *
 from .hpc import antrax_hpc_job, antrax_hpc_train_job
 from .utils import *
 from . import temperature_project_utils as tpu
+from subprocess import Popen
+import time
 
 ANTRAX_USE_MCR = os.getenv('ANTRAX_USE_MCR') == 'True'
 ANTRAX_HPC = os.getenv('ANTRAX_HPC') == 'True'
@@ -118,11 +120,12 @@ def exportxy_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MC
 '''
 
 
-def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300, ow=False, refexpdir='', before=0):
+def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300, ow=False, refexpdir='', before=0, ffmpeg=False):
 
     explist = parse_explist(explist, session)
 
-    Q = MatlabQueue(nw=nw, mcr=False)
+    if not ffmpeg:
+        Q = MatlabQueue(nw=nw, mcr=False)
 
     useref = is_expdir(refexpdir)
 
@@ -190,15 +193,50 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
 
             ev_table.to_csv(e.sessiondir + '/clips/event_table.csv')
 
-        for ix, fi, ff, s in zip(ev_index, ev_onset, ev_offset, ev_temp):
+        for ix, row in ev_table.iterrows():
+        #for ix, fi, ff, s in zip(ev_index, ev_onset, ev_offset, ev_temp):
 
-            w = {'fun': 'make_annotated_video'}
-            outfile = e.sessiondir + '/clips/event_' + str(ix+1) + '_' + str(s) + '.mp4'
+            outfile = e.sessiondir + '/clips/event_' + str(ix+1) + '_' + str(row['T']) + '.mp4'
 
             if isfile(outfile) and not ow:
                 report('I', 'clip exists, skipping')
                 continue
 
+            if ffmpeg:
+                tmpfiles = []
+                for m in range(row['mi'], row['mf']+1):
+                    timei = row['mfi'] / e.framerate if m == row['mi'] else None
+                    timef = row['mff'] / e.framerate if m == row['mf'] else None
+                    infile = e.m_info(row['mi'])['movfile']
+                    outfile = e.sessiondir + '/clips/tmp_' + str(ix) + '_' + str(m) + '.mp4'
+                    cmd = 'ffmpeg -loglevel error  -i ' + infile
+                    if timei is not None:
+                        cmd += ' -ss ' + time.strftime('%H:%M:%S', time.gmtime(timei))
+                    cmd += ' -c copy'
+                    if timef is not None:
+                        cmd += ' -to ' + time.strftime('%H:%M:%S', time.gmtime(timef))
+                    cmd += outfile
+                    p = Popen(cmd, shell=True)
+                    p.wait()
+                    tmpfiles += ['file ' + outfile]
+                # concat
+                listfile = e.sessiondir + '/clips/event_' + str(ix + 1) + '.txt'
+                with open(listfile, 'w') as f:
+                    for item in tmpfiles:
+                        f.write("%s\n" % item)
+
+                outfile = e.sessiondir + '/clips/event_' + str(ix + 1) + '_' + str(row['T']) + '.mp4'
+                cmd = 'ffmpeg -f concat -safe 0 -i ' + listfile + ' -c copy ' + outfile
+                p = Popen(cmd, shell=True)
+                p.wait()
+
+                # delete tmp files
+                for file in tmpfiles:
+                    os.remove(file)
+
+                continue
+
+            w = {'fun': 'make_annotated_video'}
             dfile = e.logsdir + '/matlab_event_clip_' + str(ix) + '.log'
             w['args'] = [e.expdir, 'fi', int(fi-before), 'ff', int(ff),
                          'annotate_tracks', False,
@@ -211,11 +249,12 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
             w['diary'] = dfile
             w['str'] = 'making event #' + str(ix) + ' clip'
 
-            if not missing or not isfile(outfile):
+            if not ffmpeg and (not missing or not isfile(outfile)):
                 Q.put(w)
 
-    Q.join()
-    Q.stop_workers()
+    if not ffmpeg:
+        Q.join()
+        Q.stop_workers()
 
 
 def compute_medians(explist, *, movlist: parse_movlist=None, nw=2, hpc=ANTRAX_HPC, hpc_options: parse_hpc_options={},
