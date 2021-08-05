@@ -157,7 +157,15 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
 
             ev_onset = np.where(cond == 1)[0] + 2
             ev_offset = np.where(cond == -1)[0]
+
+            if cond[0]:
+                ev_onset = np.insert(ev_onset, 0, 0)
+
+            if cond[-1]:
+                ev_offset = np.append(ev_offset, len(ev_offset)-1)
+
             ev_index = range(len(ev_onset))
+
             ev_temp = td.frmdata['S1'][ev_onset].values.astype('int')
 
             ev_onset = ev_onset - 10*pre
@@ -166,8 +174,6 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
             ev_mfi = [e.get_m_mf(f)[1] for f in ev_onset]
             ev_mf  = [e.get_m_mf(f)[0] for f in ev_offset]
             ev_mff = [e.get_m_mf(f)[1] for f in ev_offset]
-
-            print(ev_offset)
 
             report('I', 'will make ' + str(len(ev_onset)) + ' event clips')
 
