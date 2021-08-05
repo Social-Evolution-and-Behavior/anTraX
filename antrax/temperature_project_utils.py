@@ -285,7 +285,10 @@ class axTempData(axTrackletData):
 
         self.frmdata = self.ex.get_dat(movlist=self.movlist)
         self.frmdata['thmean'] = self.frmdata[['T1', 'T2', 'T3', 'T4']].mean(axis=1)
-        self.frmdata['thcammean'] = self.frmdata[['thcam1', 'thcam2', 'thcam3', 'thcam4']].mean(axis=1)
+        try:
+            self.frmdata['thcammean'] = self.frmdata[['thcam1', 'thcam2', 'thcam3', 'thcam4']].mean(axis=1)
+        except:
+            self.frmdata['thcammean'] = np.nan
 
     def load_frmdata(self):
 
