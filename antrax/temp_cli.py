@@ -165,7 +165,7 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                 ev_onset = np.insert(ev_onset, 0, 0)
 
             if cond[-1]:
-                ev_offset = np.append(ev_offset, len(ev_offset)-1)
+                ev_offset = np.append(ev_offset, len(cond)-1)
 
             ev_index = range(len(ev_onset))
 
@@ -205,8 +205,8 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
             if ffmpeg:
                 tmpfiles = []
                 for m in range(row['mi'], row['mf']+1):
-                    timei = row['mfi'] / e.framerate if m == row['mi'] else None
-                    timef = row['mff'] / e.framerate if m == row['mf'] else None
+                    timei = int(row['mfi'] / e.framerate) if m == row['mi'] else None
+                    timef = int(row['mff'] / e.framerate) if m == row['mf'] else None
 
                     infile = e.viddir + '/' + e.m_info(m)['subdir'] + '/' + e.m_info(m)['movfile']
 
@@ -234,8 +234,8 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                 p.wait()
 
                 # delete tmp files
-                for file in tmpfiles:
-                    os.remove(file)
+                # for file in tmpfiles:
+                #    os.remove(file)
 
                 continue
 
