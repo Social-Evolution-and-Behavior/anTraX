@@ -214,7 +214,7 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                     cmd = 'ffmpeg -loglevel error  -i ' + infile
                     if timei is not None:
                         cmd += ' -ss ' + time.strftime('%H:%M:%S', time.gmtime(timei))
-                    cmd += ' -c copy'
+                    cmd += ' -c:v libx264 -preset fast -crf 30 -c:a copy'
                     if timef is not None:
                         cmd += ' -to ' + time.strftime('%H:%M:%S', time.gmtime(timef))
                     cmd += ' ' + outfile
@@ -234,8 +234,8 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                 p.wait()
 
                 # delete tmp files
-                # for file in tmpfiles:
-                #    os.remove(file)
+                for file in tmpfiles:
+                    os.remove(file)
 
                 continue
 
