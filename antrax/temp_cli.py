@@ -162,7 +162,15 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
 
             ev_onset = ev_onset - 10*pre
 
+            ev_mi, ev_mfi = zip([e.get_m_mf(f) for f in ev_onset])
+            ev_mf, ev_mff = zip([e.get_m_mf(f) for f in ev_offset])
+
             report('I', 'will make ' + str(len(ev_onset)) + ' event clips')
+
+            ev_table = pd.DataFrame([ev_index, ev_mi, ev_mfi, ev_onset, ev_mf, ev_mff, ev_offset, ev_temp],
+                         columns=['num', 'mi', 'mfi', 'fi', 'mf', 'mff', 'ff', 'T'])
+
+            ev_table.to_csv(e.sessiondir + '/clips/event_table.csv')
 
         for ix, fi, ff, s in zip(ev_index, ev_onset, ev_offset, ev_temp):
 
