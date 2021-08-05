@@ -120,7 +120,7 @@ def exportxy_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MC
 '''
 
 
-def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300, ow=False, refexpdir='', before=0, ffmpeg=False):
+def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300, ow=False, refexpdir='', before=0, ffmpeg=False, transcode=False):
 
     explist = parse_explist(explist, session)
 
@@ -214,7 +214,10 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                     cmd = 'ffmpeg -loglevel error  -i ' + infile
                     if timei is not None:
                         cmd += ' -ss ' + time.strftime('%H:%M:%S', time.gmtime(timei))
-                    cmd += ' -c:v libx264 -preset fast -crf 30 -c:a copy'
+                    if transcode:
+                        cmd += ' -c:v libx264 -preset fast -crf 30 -c:a copy'
+                    else:
+                        cmd += ' -c copy'
                     if timef is not None:
                         cmd += ' -to ' + time.strftime('%H:%M:%S', time.gmtime(timef))
                     cmd += ' ' + outfile
