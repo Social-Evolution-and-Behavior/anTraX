@@ -118,7 +118,7 @@ def exportxy_untagged(explist, *, movlist: parse_movlist=None, mcr=ANTRAX_USE_MC
 '''
 
 
-def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300, ow=False, refexpdir=''):
+def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, missing=False, pre=300, ow=False, refexpdir='', before=0):
 
     explist = parse_explist(explist, session)
 
@@ -174,7 +174,7 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                 continue
 
             dfile = e.logsdir + '/matlab_event_clip_' + str(ix) + '.log'
-            w['args'] = [e.expdir, 'fi', int(fi), 'ff', int(ff),
+            w['args'] = [e.expdir, 'fi', int(fi-before), 'ff', int(ff),
                          'annotate_tracks', False,
                          'bgcorrect', False,
                          'outline', False,
