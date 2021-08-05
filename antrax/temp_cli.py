@@ -153,13 +153,10 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
         if not useref:
 
             cond = td.frmdata['S1'].values > 27.5
-            cond = np.diff(cond.astype('float'))
+            dcond = np.diff(cond.astype('float'))
 
-            ev_onset = np.where(cond == 1)[0] + 2
-            ev_offset = np.where(cond == -1)[0]
-
-            print(ev_onset)
-            print(ev_offset)
+            ev_onset = np.where(dcond == 1)[0] + 2
+            ev_offset = np.where(dcond == -1)[0]
 
             if cond[0]:
                 ev_onset = np.insert(ev_onset, 0, 0)
