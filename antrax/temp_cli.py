@@ -208,7 +208,7 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                     timei = row['mfi'] / e.framerate if m == row['mi'] else None
                     timef = row['mff'] / e.framerate if m == row['mf'] else None
 
-                    infile = e.viddir + '/' + e.m_info(row['mi'])['subdir'] + '/' + e.m_info(row['mi'])['movfile']
+                    infile = e.viddir + '/' + e.m_info(m)['subdir'] + '/' + e.m_info(m)['movfile']
 
                     outfile = e.sessiondir + '/clips/tmp_' + str(ix) + '_' + str(m) + '.mp4'
                     cmd = 'ffmpeg -loglevel error  -i ' + infile
@@ -225,7 +225,8 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                 listfile = e.sessiondir + '/clips/event_' + str(ix + 1) + '.txt'
                 with open(listfile, 'w') as f:
                     for item in tmpfiles:
-                        f.write("%s\n" % item)
+                        if os.path.getsize(item)>500000:
+                            f.write("%s\n" % item)
 
                 outfile = e.sessiondir + '/clips/event_' + str(ix + 1) + '_' + str(row['T']) + '.mp4'
                 cmd = 'ffmpeg -f concat -safe 0 -i ' + listfile + ' -c copy ' + outfile
