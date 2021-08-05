@@ -232,7 +232,7 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                             f.write("file %s\n" % item)
 
                 outfile = e.sessiondir + '/clips/event_' + str(ix + 1) + '_' + str(row['T']) + '.mp4'
-                cmd = 'ffmpeg -f concat -safe 0 -i ' + listfile + ' -c copy ' + outfile
+                cmd = 'ffmpeg -loglevel error -f concat -safe 0 -i ' + listfile + ' -c copy ' + outfile
                 p = Popen(cmd, shell=True)
                 p.wait()
 
