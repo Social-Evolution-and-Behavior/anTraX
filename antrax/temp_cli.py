@@ -162,8 +162,10 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
 
             ev_onset = ev_onset - 10*pre
 
-            ev_mi, ev_mfi = zip([e.get_m_mf(f) for f in ev_onset])
-            ev_mf, ev_mff = zip([e.get_m_mf(f) for f in ev_offset])
+            ev_mi = [e.get_m_mf(f)[0] for f in ev_onset]
+            ev_mfi = [e.get_m_mf(f)[1] for f in ev_onset]
+            ev_mf = [e.get_m_mf(f)[0] for f in ev_offset]
+            ev_mff = [e.get_m_mf(f)[1] for f in ev_offset]
 
             report('I', 'will make ' + str(len(ev_onset)) + ' event clips')
 
