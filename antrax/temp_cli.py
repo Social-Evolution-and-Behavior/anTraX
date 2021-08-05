@@ -220,13 +220,13 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                     cmd += ' ' + outfile
                     p = Popen(cmd, shell=True)
                     p.wait()
-                    tmpfiles += ['file ' + outfile]
+                    tmpfiles += [outfile]
                 # concat
                 listfile = e.sessiondir + '/clips/event_' + str(ix + 1) + '.txt'
                 with open(listfile, 'w') as f:
                     for item in tmpfiles:
-                        if os.path.getsize(item)>500000:
-                            f.write("%s\n" % item)
+                        if os.path.getsize(item) > 1000:
+                            f.write("file %s\n" % item)
 
                 outfile = e.sessiondir + '/clips/event_' + str(ix + 1) + '_' + str(row['T']) + '.mp4'
                 cmd = 'ffmpeg -f concat -safe 0 -i ' + listfile + ' -c copy ' + outfile
