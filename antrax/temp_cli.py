@@ -207,7 +207,9 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                 for m in range(row['mi'], row['mf']+1):
                     timei = row['mfi'] / e.framerate if m == row['mi'] else None
                     timef = row['mff'] / e.framerate if m == row['mf'] else None
-                    infile = e.m_info(row['mi'])['movfile']
+
+                    infile = e.viddir + '/' + e.m_info(row['mi'])['subdir'] + '/' + e.m_info(row['mi'])['movfile']
+
                     outfile = e.sessiondir + '/clips/tmp_' + str(ix) + '_' + str(m) + '.mp4'
                     cmd = 'ffmpeg -loglevel error  -i ' + infile
                     if timei is not None:
