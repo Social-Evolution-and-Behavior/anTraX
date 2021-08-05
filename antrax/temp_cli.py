@@ -217,7 +217,7 @@ def make_event_clips(explist, *, session=None, nw=2, downsample=1, speedup=1, mi
                     cmd += ' -c copy'
                     if timef is not None:
                         cmd += ' -to ' + time.strftime('%H:%M:%S', time.gmtime(timef))
-                    cmd += outfile
+                    cmd += ' ' + outfile
                     p = Popen(cmd, shell=True)
                     p.wait()
                     tmpfiles += ['file ' + outfile]
