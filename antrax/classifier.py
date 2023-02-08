@@ -510,7 +510,7 @@ class axClassifier:
         early_stopping = EarlyStopping(monitor='loss', patience=patience, min_delta=min_delta)
         reduce_lr = ReduceLROnPlateau(monitor='loss', factor=0.5, patience=5, min_lr=0.0001)
 
-        cw = class_weight.compute_class_weight('balanced', np.unique(FL.classes), FL.classes)
+        cw = class_weight.compute_class_weight(class_weight='balanced', classes =np.unique(FL.classes), y=FL.classes)
 
         if 'Unknown' in classes:
             cw[FL.class_indices['Unknown']] = self.prmtrs['unknown_weight'] * cw[FL.class_indices['Unknown']]
