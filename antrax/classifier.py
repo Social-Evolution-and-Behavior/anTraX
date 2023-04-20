@@ -22,6 +22,10 @@ from .experiment import *
 from .utils import *
 from .models import new_model
 
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config)
+
 
 AMBIG_CLASSES = ['Unknown', '??', 'MultiAnt', 'Multi', 'multi']
 MULTI_CLASSES = ['MultiAnt', 'Multi', 'multi']
