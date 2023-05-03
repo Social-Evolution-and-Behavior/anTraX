@@ -51,7 +51,9 @@ class axAntData:
 
         if self.colonylist:
             mdfs = {}
+            
             for c in self.colonylist:
+                sdfs = []
                 for m in self.movlist:
 
                     filename = join(self.antdatadir[c], 'xy_' + str(m) + '_' + str(m) + '.mat')
@@ -82,7 +84,9 @@ class axAntData:
                     df['mf'] = np.arange(1, self.ex.movies_info.iloc[m - 1]['nframes'] + 1)
                     df = df.set_index('frame')
 
-                    mdfs[c] = df
+                    sdfs.append(df)
+
+                mdfs[c] = pd.concat(sdfs, axis=0)
             self.data = pd.concat(mdfs,keys = mdfs.keys())
         else:
             mdfs = []
@@ -119,7 +123,7 @@ class axAntData:
                 mdfs.append(df)
 
             self.data = pd.concat(mdfs, axis=0)
-        self.tracklet_table = self.ex.get_tracklet_table(self.movlist)
+        self.tracklet_table = self.ex.get_tracklet_table(self.movlist,colonies=self.colonylist)
 
     def set_v(self):
         
