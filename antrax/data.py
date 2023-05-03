@@ -16,12 +16,13 @@ idx = pd.IndexSlice
 
 class axAntData:
     
-    def __init__(self, ex, movlist=None, antlist=None, dlc=False, dlcproject=None, **kwargs):
+    def __init__(self, ex, movlist=None, antlist=None, colony=None, dlc=False, dlcproject=None, **kwargs):
 
         self.ex = ex
         self.data = None
         self.tracklet_table = None
-        
+        self.colonylist = self.ex.prmtrs['geometry_colony_labels']
+        print('Hello')
         if movlist is None:
             self.movlist = ex.movlist
         else:
@@ -31,47 +32,98 @@ class axAntData:
             self.antlist = ex.antlist
         else:
             self.antlist = antlist
+        
+        if colony is None and self.colonylist == []:
+            self.antdatadir = self.ex.antdatadir
+        elif colony is None: 
+            self.antdatadir = {x: os.path.join(self.ex.antdatadir, x) for x in  self.colonylist}
+        elif self.colonylist == []:
+            self.antdatadir = self.ex.antdatadir
+            print('No colony were found in session')
+        else:
+            os.path.join(self.ex.antdatadir, colony)
 
         self.load()
 
     def load(self):
 
-        mdfs = []
+        
 
-        for m in self.movlist:
+        if self.colonylist:
+            mdfs = {}
+            
+            for c in self.colonylist:
+                sdfs = []
+                for m in self.movlist:
 
-            filename = join(self.ex.antdatadir, 'xy_' + str(m) + '_' + str(m) + '.mat')
-            antdata = read_mat(filename)
+                    filename = join(self.antdatadir[c], 'xy_' + str(m) + '_' + str(m) + '.mat')
+                    antdata = read_mat(filename)
 
-            if antdata[self.antlist[0]].shape[1]==3:
-                with_type = False
-            elif antdata[self.antlist[0]].shape[1]==4:
-                with_type = True
-            else:
-                report('E', 'Something wrong with antdata structure')
-                return
+                    if antdata[self.antlist[0]].shape[1]==3:
+                        with_type = False
+                    elif antdata[self.antlist[0]].shape[1]==4:
+                        with_type = True
+                    else:
+                        report('E', 'Something wrong with antdata structure')
+                        return
 
-            # convert to dataframe
-            dfs = []
-            for ant in self.antlist:
+                    # convert to dataframe
+                    dfs = []
+                    for ant in self.antlist:
 
-                if with_type:
-                    cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or'), (ant, 'ass_type')], names=['ant', 'feature'])
+                        if with_type:
+                            cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or'), (ant, 'ass_type')], names=['ant', 'feature'])
+                        else:
+                            cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or')], names=['ant', 'feature'])
+
+                        dfs.append(pd.DataFrame(antdata[ant], columns=cols))
+
+                    df = pd.concat(dfs, axis=1)
+                    df['frame'] = np.arange(self.ex.movies_info.iloc[m - 1]['fi'], self.ex.movies_info.iloc[m - 1]['ff'] + 1)
+                    df['m'] = m
+                    df['mf'] = np.arange(1, self.ex.movies_info.iloc[m - 1]['nframes'] + 1)
+                    df = df.set_index('frame')
+
+                    sdfs.append(df)
+
+                mdfs[c] = pd.concat(sdfs, axis=0)
+            self.data = pd.concat(mdfs,keys = mdfs.keys())
+        else:
+            mdfs = []
+            for m in self.movlist:
+
+                filename = join(self.antdatadir, 'xy_' + str(m) + '_' + str(m) + '.mat')
+                antdata = read_mat(filename)
+
+                if antdata[self.antlist[0]].shape[1]==3:
+                    with_type = False
+                elif antdata[self.antlist[0]].shape[1]==4:
+                    with_type = True
                 else:
-                    cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or')], names=['ant', 'feature'])
+                    report('E', 'Something wrong with antdata structure')
+                    return
 
-                dfs.append(pd.DataFrame(antdata[ant], columns=cols))
+                # convert to dataframe
+                dfs = []
+                for ant in self.antlist:
 
-            df = pd.concat(dfs, axis=1)
-            df['frame'] = np.arange(self.ex.movies_info.iloc[m - 1]['fi'], self.ex.movies_info.iloc[m - 1]['ff'] + 1)
-            df['m'] = m
-            df['mf'] = np.arange(1, self.ex.movies_info.iloc[m - 1]['nframes'] + 1)
-            df = df.set_index('frame')
+                    if with_type:
+                        cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or'), (ant, 'ass_type')], names=['ant', 'feature'])
+                    else:
+                        cols = pd.MultiIndex.from_tuples([(ant, 'x'), (ant, 'y'), (ant, 'or')], names=['ant', 'feature'])
 
-            mdfs.append(df)
+                    dfs.append(pd.DataFrame(antdata[ant], columns=cols))
 
-        self.data = pd.concat(mdfs, axis=0)
-        self.tracklet_table = self.ex.get_tracklet_table(self.movlist)
+                df = pd.concat(dfs, axis=1)
+                df['frame'] = np.arange(self.ex.movies_info.iloc[m - 1]['fi'], self.ex.movies_info.iloc[m - 1]['ff'] + 1)
+                df['m'] = m
+                df['mf'] = np.arange(1, self.ex.movies_info.iloc[m - 1]['nframes'] + 1)
+                df = df.set_index('frame')
+
+                mdfs.append(df)
+
+            self.data = pd.concat(mdfs, axis=0)
+        self.tracklet_table = self.ex.get_tracklet_table(self.movlist,colonies=self.colonylist)
 
     def set_v(self):
         
