@@ -22,7 +22,7 @@ class axAntData:
         self.data = None
         self.tracklet_table = None
         self.colonylist = self.ex.prmtrs['geometry_colony_labels']
-        print('Hello')
+
         if movlist is None:
             self.movlist = ex.movlist
         else:

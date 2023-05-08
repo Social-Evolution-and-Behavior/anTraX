@@ -464,7 +464,6 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False
     if not hpc and not from_expdir:
 
         c = axClassifier.load(classifier)
-
     for e in explist:
 
         if from_expdir:
@@ -478,6 +477,9 @@ def classify(explist, *, classifier=None, movlist: parse_movlist=None, hpc=False
             antrax_hpc_job(e, 'classify', opts=hpc_options)
         else:
             if from_expdir:
+                config = tf.ConfigProto()
+                config.gpu_options.allow_growth = True
+                tf.Session(config=config)
                 c = axClassifier.load(classifier)
             c.predict_experiment(e, movlist=movlist, report=True)
 
