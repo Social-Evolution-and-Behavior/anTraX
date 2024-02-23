@@ -154,6 +154,7 @@ classdef trgraph < handle & matlab.mixin.SetGet
             
             if isempty(G.trjs)
                 singles=[];
+                passed=[];
                 return
             end
             
@@ -376,7 +377,11 @@ classdef trgraph < handle & matlab.mixin.SetGet
             end
             
             
-            nodes = findnode(G.G,names);
+            if isempty(names)
+                nodes = [];
+            else
+                nodes = findnode(G.G,names);
+            end
             
         end
         

@@ -47,7 +47,6 @@ wdir = [G.Trck.trackingdir,'antdata',filesep];
 if ~isfolder(wdir)
     mkdir(wdir)
 end
-
 xyfile = G.xyfile; %[wdir,'xy_',num2str(min(G.movlist)),'_',num2str(max(G.movlist)),'.mat'];
 
 
@@ -90,8 +89,10 @@ for i=1:G.NIDs
         
         if G.Trck.get_param('geometry_open_boundry')
            
-            edges_to_remove = find(ismember(sg.Edges.EndNodes(:,1),onboundry) | ismember(sg.Edges.EndNodes(:,2),onboundry));
-            sg = rmedge(sg,edges_to_remove);
+            if ~isempty(onboundry)
+                edges_to_remove = find(ismember(sg.Edges.EndNodes(:,1),onboundry) | ismember(sg.Edges.EndNodes(:,2),onboundry));
+                sg = rmedge(sg,edges_to_remove);
+            end
             
         end
         
